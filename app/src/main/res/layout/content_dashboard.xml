@@ -12,5 +12,4 @@
     tools:context="cs407.onthedot.DashboardActivity"
     tools:showIn="@layout/activity_dashboard">
 
-
 </RelativeLayout>
