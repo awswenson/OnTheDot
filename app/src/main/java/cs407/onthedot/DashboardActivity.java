@@ -27,7 +27,7 @@ public class DashboardActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
-        Intent intent = new Intent(this, MapsActivity.class);
+        Intent intent = new Intent(this, NewTripActivity.class);
         startActivity(intent);
     }
 
