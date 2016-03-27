@@ -5,9 +5,17 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+
+import com.facebook.AccessToken;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class DashboardActivity extends AppCompatActivity {
 
@@ -31,6 +39,40 @@ public class DashboardActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        //test to get information about "me"
+        GraphRequest request = GraphRequest.newMeRequest(
+                AccessToken.getCurrentAccessToken(),
+                new GraphRequest.GraphJSONObjectCallback() {
+                    @Override
+                    public void onCompleted(
+                            JSONObject object,
+                            GraphResponse response) {
+                        // Application code
+                        Log.d("TEST GRAPH API ME", "onCompleted: " + object.toString());
+                    }
+                });
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "id,name,link");
+        request.setParameters(parameters);
+        request.executeAsync();
+
+        //test to get information about "friends"
+        GraphRequest request2 = GraphRequest.newMyFriendsRequest(
+                AccessToken.getCurrentAccessToken(),
+                new GraphRequest.GraphJSONArrayCallback() {
+                    @Override
+                    public void onCompleted(
+                            JSONArray object,
+                            GraphResponse response) {
+                        // Application code
+                        Log.d("TEST GRAPH API FRIENDS", "onCompleted: " + object.toString());
+                    }
+                });
+        Bundle parameters2 = new Bundle();
+        parameters2.putString("fields", "id,name,link,picture");
+        request2.setParameters(parameters2);
+        request2.executeAsync();
     }
 
     @Override
