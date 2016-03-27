@@ -6,26 +6,21 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.facebook.CallbackManager;
-import com.facebook.FacebookCallback;
-import com.facebook.FacebookException;
-import com.facebook.FacebookSdk;
 import com.facebook.login.LoginManager;
-import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 
 import java.util.Arrays;
 
 public class FacebookLoginFragment extends android.app.Fragment {
-    com.facebook.CallbackManager callbackManager;
     private OnFragmentInteractionListener mListener;
 
     public FacebookLoginFragment() {
         // Required empty public constructor
     }
 
+    //not used for now
     public static FacebookLoginFragment newInstance(String param1, String param2) {
         FacebookLoginFragment fragment = new FacebookLoginFragment();
         Bundle args = new Bundle();
@@ -33,13 +28,8 @@ public class FacebookLoginFragment extends android.app.Fragment {
         return fragment;
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //link up the facebook sdk
-        FacebookSdk.sdkInitialize(getActivity().getApplicationContext());
-    }
-
+    //returns the view that will be inflated, i.e. the login button itself, as well as setting
+    //a click listener on the login button. When it is clicked, we get sent to the login function
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -58,13 +48,7 @@ public class FacebookLoginFragment extends android.app.Fragment {
         return v;
     }
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
+    //not positive if needed, but online people were saying it was needed
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
@@ -76,13 +60,23 @@ public class FacebookLoginFragment extends android.app.Fragment {
         }
     }
 
+    //not positive if needed, but online people were saying it was needed
     @Override
     public void onDetach() {
         super.onDetach();
         mListener = null;
     }
 
+    //function that handles the permissions (i.e. friends list etc) as well as the actual action of
+    //loggin in
+    private void onFBLogin(){
+        com.facebook.CallbackManager callbackManager = CallbackManager.Factory.create();
 
+        // Set permissions and attempt the login
+        LoginManager.getInstance().logInWithReadPermissions(this,
+                Arrays.asList("email", "user_photos", "public_profile", "user_friends"));
+
+    }
 
     /**
      * This interface must be implemented by activities that contain this
@@ -97,72 +91,4 @@ public class FacebookLoginFragment extends android.app.Fragment {
     public interface OnFragmentInteractionListener {
         void onFragmentInteraction(Uri uri);
     }
-
-    private void onFBLogin(){
-        callbackManager = CallbackManager.Factory.create();
-
-        // Set permissions
-        LoginManager.getInstance().logInWithReadPermissions(this, Arrays.asList("email", "user_photos", "public_profile"));
-
-        //LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResults>(){}
-        LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>(){
-            @Override
-            public void onSuccess(LoginResult loginResult){
-                Toast.makeText(getActivity(),"Success!",Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onCancel(){
-                Toast.makeText(getActivity(),"Cancel!", Toast.LENGTH_SHORT).show();
-            }
-
-            @Override
-            public void onError(FacebookException exception){
-                Toast.makeText(getActivity(),"Error!",Toast.LENGTH_SHORT).show();
-            }
-        });
-    }
-
-
 }
-
-
-
-
-/*LoginManager.getInstance().registerCallback(callbackManager, new FacebookCallback<LoginResult>(){
-            @Override
-            public void onSuccess(LoginResult loginResult){
-
-            }
-
-            @Override
-            public void onCancel(){
-
-            }
-
-            @Override
-            public void onError(FacebookException exception){
-
-            }
-        });
-        */
-
-        /*
-        //if the user is already logged in, then don't bother with facebook login fragment
-        SharedPreferences prefs = getSharedPreferences( PREFS_NAME, 0);
-        String token = prefs.getString("facebookToken", null);
-        if (token == null){
-            //if token is null, then we must start the login fragment
-        }
-        */
-        /*
-        //facebook login button being pressed triggers new function
-        LoginButton loginButton = (LoginButton) this.findViewById(R.id.login_button);
-        loginButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v){
-                //call private method
-                onFBLogin();
-            }
-        });
-        */
