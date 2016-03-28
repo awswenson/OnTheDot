@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">On The Dot</string>
     <string name="action_settings">Settings</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="server_client_id">475979397681-ab27cs4f9uot98p02o8iifq1l78fr1d9.apps.googleusercontent.com</string>
     <string name="facebook_app_id">682834915193036</string>
 
     <!-- TODO: Remove or change this placeholder text -->
