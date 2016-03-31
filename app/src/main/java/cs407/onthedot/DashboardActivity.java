@@ -1,6 +1,5 @@
 package cs407.onthedot;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -19,8 +18,6 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 public class DashboardActivity extends AppCompatActivity {
-
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,3 +95,42 @@ public class DashboardActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 }
+
+/*
+    //Use this instance variable in the activity that you are using the db in
+    public static DBHelper mydb;
+
+    //put this in onCreate
+    mydb = new DBHelper(this);
+
+
+    //these below methods would be in in the activity as well. These are just examples.
+
+    public DBHelper getMydb() {
+        return mydb;
+    }
+
+    public void setMydb(DBHelper mydb) {
+        this.mydb = mydb;
+    }
+
+    public void setCurrentDate(String date){
+        this.currentDate = date;
+    }
+
+    public String getCurrentDate(){
+        return this.currentDate;
+    }
+
+    public void setNewEvent(ScheduleEvent s){
+        this.newEvent = s;
+    }
+
+    public ArrayList<ScheduleEvent> getEvents() {
+        return events;
+    }
+
+    public void setEvents(ArrayList<ScheduleEvent> events) {
+        this.events = events;
+    }
+    */
