@@ -34,8 +34,8 @@ public class DashboardActivity extends AppCompatActivity {
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
+                Intent intent = new Intent(view.getContext(), NewTripActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -72,9 +72,6 @@ public class DashboardActivity extends AppCompatActivity {
         parameters2.putString("fields", "id,name,link,picture");
         request2.setParameters(parameters2);
         request2.executeAsync();
-
-        Intent intent = new Intent(this, NewTripActivity.class);
-        startActivity(intent);
     }
 
     @Override

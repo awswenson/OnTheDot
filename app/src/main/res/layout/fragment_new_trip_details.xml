@@ -12,13 +12,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
-        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:tools="http://schemas.android.com/tools"
+        <fragment
             android:id="@+id/destination_googleMaps"
-            android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="match_parent"
-            android:layout_height="@dimen/map_height"
-            tools:context="cs407.onthedot.MapsActivity" />
+            android:layout_height="wrap_content"
+            android:layout_weight="75"
+            android:name="com.google.android.gms.maps.SupportMapFragment" />
 
         <LinearLayout
             android:orientation="horizontal"

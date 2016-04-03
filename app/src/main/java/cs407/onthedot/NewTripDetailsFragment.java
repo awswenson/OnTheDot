@@ -34,7 +34,7 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
 
     private GoogleMap destination_googleMaps;
 
-    private Calendar calendar;
+    private Calendar meetupTime_calendar;
 
     public NewTripDetailsFragment() {
         // Required empty public constructor
@@ -53,8 +53,8 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null) {
-            calendar = Calendar.getInstance();
-            calendar.setTimeInMillis(getArguments().getLong(ARG_MEETUP_TIME));
+            meetupTime_calendar = Calendar.getInstance();
+            meetupTime_calendar.setTimeInMillis(getArguments().getLong(ARG_MEETUP_TIME));
         }
     }
 
@@ -71,7 +71,7 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
         cancel_button = (Button) view.findViewById(R.id.cancel_button);
         addFriends_button = (Button) view.findViewById(R.id.addFriends_button);
 
-        SupportMapFragment mapFragment = (SupportMapFragment) getActivity().getSupportFragmentManager()
+        SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager()
                 .findFragmentById(R.id.destination_googleMaps);
         mapFragment.getMapAsync(this);
 
@@ -83,9 +83,9 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
             @Override
             public void onClick(View view) {
                 new DatePickerDialog(view.getContext(), date,
-                        calendar.get(Calendar.YEAR),
-                        calendar.get(Calendar.MONTH),
-                        calendar.get(Calendar.DAY_OF_MONTH)).show();
+                        meetupTime_calendar.get(Calendar.YEAR),
+                        meetupTime_calendar.get(Calendar.MONTH),
+                        meetupTime_calendar.get(Calendar.DAY_OF_MONTH)).show();
             }
         });
 
@@ -94,8 +94,8 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
             @Override
             public void onClick(View view) {
                 new TimePickerDialog(view.getContext(), time,
-                        calendar.get(Calendar.HOUR_OF_DAY),
-                        calendar.get(Calendar.MINUTE),
+                        meetupTime_calendar.get(Calendar.HOUR_OF_DAY),
+                        meetupTime_calendar.get(Calendar.MINUTE),
                         false).show();
             }
         });
@@ -134,9 +134,9 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
         @Override
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
 
-            calendar.set(Calendar.YEAR, year);
-            calendar.set(Calendar.MONTH, monthOfYear);
-            calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+            meetupTime_calendar.set(Calendar.YEAR, year);
+            meetupTime_calendar.set(Calendar.MONTH, monthOfYear);
+            meetupTime_calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
             setDateOnEditText();
         }
@@ -147,8 +147,8 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
         @Override
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 
-            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-            calendar.set(Calendar.MINUTE, minute);
+            meetupTime_calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+            meetupTime_calendar.set(Calendar.MINUTE, minute);
 
             setTimeOnEditText();
         }
@@ -158,13 +158,13 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
         String dateFormat = "MM/dd/yy";
         SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.US);
 
-        date_editText.setText(sdf.format(calendar.getTime()));
+        date_editText.setText(sdf.format(meetupTime_calendar.getTime()));
     }
 
     private void setTimeOnEditText() {
         String timeFormat = "h:mm a";
         SimpleDateFormat sdf = new SimpleDateFormat(timeFormat, Locale.US);
 
-        time_editText.setText(sdf.format(calendar.getTime()));
+        time_editText.setText(sdf.format(meetupTime_calendar.getTime()));
     }
 }
