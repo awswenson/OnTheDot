@@ -2,6 +2,7 @@ package cs407.onthedot;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -36,7 +37,7 @@ public class Trip {
       friends to a specific trip.  That is, use another database table where each row
       represents a single friend corresponding to a trip ID.
      */
-    private List<String> facebookFriendsIdList;
+    private ArrayList<String> facebookFriendsIdList;
 
     /*
       A boolean variable to identify if the trip is complete (true) or is in
@@ -44,7 +45,7 @@ public class Trip {
      */
     private boolean tripComplete;
 
-    public Trip(LatLng destination, Date meetupTime, List<String> facebookFriendsIdList,
+    public Trip(LatLng destination, Date meetupTime, ArrayList<String> facebookFriendsIdList,
                 boolean tripComplete) {
         this.destination = destination;
         this.meetupTime = meetupTime;
@@ -55,7 +56,7 @@ public class Trip {
     /*
       Only use this when the tripID is known (i.e. been assigned by the database)
      */
-    public Trip(long tripID, LatLng destination, Date meetupTime, List<String> facebookFriendsIdList,
+    public Trip(long tripID, LatLng destination, Date meetupTime, ArrayList<String> facebookFriendsIdList,
                 boolean tripComplete) {
         this.tripID = tripID;
         this.destination = destination;
@@ -96,11 +97,11 @@ public class Trip {
         this.meetupTime = meetupTime;
     }
 
-    public List<String> getFacebookFriendsIdList() {
+    public ArrayList<String> getFacebookFriendsIdList() {
         return facebookFriendsIdList;
     }
 
-    public void setFacebookFriendsIdList(List<String> facebookFriendsIdList) {
+    public void setFacebookFriendsIdList(ArrayList<String> facebookFriendsIdList) {
         this.facebookFriendsIdList = facebookFriendsIdList;
     }
 

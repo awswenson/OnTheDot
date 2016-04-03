@@ -1,7 +1,9 @@
 package cs407.onthedot;
 
+import android.app.Activity;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -21,29 +23,45 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallback {
 
     private static final String ARG_MEETUP_TIME = "MEETUP_TIME";
+    private static final String ARG_DESTINATION = "DESTINATION";
+
+    private final int GOOGLE_MAPS_ZOOM_LEVEL = 15;
 
     private EditText date_editText;
     private EditText time_editText;
     private Button cancel_button;
     private Button addFriends_button;
 
+    private LatLng destination;
     private GoogleMap destination_googleMaps;
 
     private Calendar meetupTime_calendar;
+
+    OnNewTripDetailsUpdatedListener onNewTripDetailsUpdatedListenerCallback;
+
+    public interface OnNewTripDetailsUpdatedListener {
+
+        /**
+         * Update the meetup time and destination in a Trip object
+         */
+        public void onNewTripDetailsUpdated(Date meetupTime, LatLng destination);
+    }
 
     public NewTripDetailsFragment() {
         // Required empty public constructor
     }
 
-    public static NewTripDetailsFragment newInstance(long meetupTime) {
+    public static NewTripDetailsFragment newInstance(Date meetupTime, LatLng destination) {
         NewTripDetailsFragment fragment = new NewTripDetailsFragment();
         Bundle args = new Bundle();
-        args.putLong(ARG_MEETUP_TIME, meetupTime);
+        args.putSerializable(ARG_MEETUP_TIME, meetupTime);
+        args.putParcelable(ARG_DESTINATION, destination);
         fragment.setArguments(args);
         return fragment;
     }
@@ -54,7 +72,9 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
 
         if (getArguments() != null) {
             meetupTime_calendar = Calendar.getInstance();
-            meetupTime_calendar.setTimeInMillis(getArguments().getLong(ARG_MEETUP_TIME));
+            meetupTime_calendar.setTime((Date) getArguments().getSerializable(ARG_MEETUP_TIME));
+
+            destination = getArguments().getParcelable(ARG_DESTINATION);
         }
     }
 
@@ -112,8 +132,10 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
 
             @Override
             public void onClick(View view) {
-                // Return to the NewTripActivity and start the NewTripAddFriendsFragment
-                // Must pass the GoogleMaps data and Data data back to the NewTripActivity
+
+                onNewTripDetailsUpdatedListenerCallback
+                        .onNewTripDetailsUpdated(meetupTime_calendar.getTime(), destination);
+
             }
         });
 
@@ -121,12 +143,25 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
     }
 
     @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof Activity) {
+            try {
+                onNewTripDetailsUpdatedListenerCallback = (OnNewTripDetailsUpdatedListener) context;
+            } catch (ClassCastException e) {
+                throw new ClassCastException(context.toString()
+                        + " must implement OnNewTripDetailsUpdatedListener");
+            }
+        }
+    }
+
+    @Override
     public void onMapReady(GoogleMap googleMap) {
         destination_googleMaps = googleMap;
 
-        LatLng madison = new LatLng(43, -89);
-        destination_googleMaps.addMarker(new MarkerOptions().position(madison).title("Marker in Madison"));
-        destination_googleMaps.moveCamera(CameraUpdateFactory.newLatLng(madison));
+        destination_googleMaps.addMarker(new MarkerOptions().position(destination));
+        destination_googleMaps.moveCamera(CameraUpdateFactory.newLatLngZoom(destination, GOOGLE_MAPS_ZOOM_LEVEL));
     }
 
     private DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
