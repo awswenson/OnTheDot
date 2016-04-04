@@ -18,6 +18,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -31,7 +32,7 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
     private static final String ARG_MEETUP_TIME = "MEETUP_TIME";
     private static final String ARG_DESTINATION = "DESTINATION";
 
-    private final int GOOGLE_MAPS_ZOOM_LEVEL = 15;
+    private final int GOOGLE_MAPS_ZOOM_LEVEL = 16;
 
     private EditText date_editText;
     private EditText time_editText;
@@ -43,14 +44,16 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
 
     private Calendar meetupTime_calendar;
 
-    OnNewTripDetailsUpdatedListener onNewTripDetailsUpdatedListenerCallback;
+    OnNewTripDetailsListener onNewTripDetailsListenerCallback;
 
-    public interface OnNewTripDetailsUpdatedListener {
+    public interface OnNewTripDetailsListener {
 
         /**
          * Update the meetup time and destination in a Trip object
          */
         public void onNewTripDetailsUpdated(Date meetupTime, LatLng destination);
+
+        public void onAddFriendsButtonPressed();
     }
 
     public NewTripDetailsFragment() {
@@ -132,10 +135,11 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
 
             @Override
             public void onClick(View view) {
-
-                onNewTripDetailsUpdatedListenerCallback
+                onNewTripDetailsListenerCallback
                         .onNewTripDetailsUpdated(meetupTime_calendar.getTime(), destination);
 
+                onNewTripDetailsListenerCallback
+                        .onAddFriendsButtonPressed();
             }
         });
 
@@ -148,10 +152,10 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
 
         if (context instanceof Activity) {
             try {
-                onNewTripDetailsUpdatedListenerCallback = (OnNewTripDetailsUpdatedListener) context;
+                onNewTripDetailsListenerCallback = (OnNewTripDetailsListener) context;
             } catch (ClassCastException e) {
                 throw new ClassCastException(context.toString()
-                        + " must implement OnNewTripDetailsUpdatedListener");
+                        + " must implement OnNewTripDetailsListener");
             }
         }
     }
@@ -162,6 +166,18 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
 
         destination_googleMaps.addMarker(new MarkerOptions().position(destination));
         destination_googleMaps.moveCamera(CameraUpdateFactory.newLatLngZoom(destination, GOOGLE_MAPS_ZOOM_LEVEL));
+
+        destination_googleMaps.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+
+            @Override
+            public void onCameraChange(CameraPosition cameraPosition) {
+
+                destination = cameraPosition.target;
+                destination_googleMaps.clear();
+                destination_googleMaps.addMarker(new MarkerOptions().position(cameraPosition.target));
+            }
+        });
+
     }
 
     private DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {

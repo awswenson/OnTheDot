@@ -16,10 +16,11 @@ public class NewTripAddFriendsFragment extends Fragment {
 
     private ArrayList<String> facebookFriendsIdList;
 
-    OnNewTripAddFriendsUpdatedListener onNewTripAddFriendsUpdatedListenerCallback;
+    OnNewTripAddFriendsListener onNewTripAddFriendsListenerCallback;
 
-    public interface OnNewTripAddFriendsUpdatedListener {
+    public interface OnNewTripAddFriendsListener {
         public void onNewTripAddFriendsUpdated(ArrayList<String> facebookFriendsIdList);
+        public void onCreateTripButtonPressed();
     }
 
     public NewTripAddFriendsFragment() {
@@ -55,11 +56,12 @@ public class NewTripAddFriendsFragment extends Fragment {
 
         if (context instanceof Activity) {
             try {
-                onNewTripAddFriendsUpdatedListenerCallback = (OnNewTripAddFriendsUpdatedListener) context;
+                onNewTripAddFriendsListenerCallback = (OnNewTripAddFriendsListener) context;
             } catch (ClassCastException e) {
                 throw new ClassCastException(context.toString()
-                        + " must implement OnNewTripAddFriendsUpdatedListener");
+                        + " must implement OnNewTripAddFriendsListener");
             }
         }
     }
+
 }

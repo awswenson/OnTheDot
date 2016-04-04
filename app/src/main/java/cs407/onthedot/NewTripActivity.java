@@ -12,8 +12,8 @@ import java.util.Date;
 /**
  * Created by Tanner on 3/24/2016.
  */
-public class NewTripActivity extends AppCompatActivity implements NewTripDetailsFragment.OnNewTripDetailsUpdatedListener,
-        NewTripAddFriendsFragment.OnNewTripAddFriendsUpdatedListener {
+public class NewTripActivity extends AppCompatActivity implements NewTripDetailsFragment.OnNewTripDetailsListener,
+        NewTripAddFriendsFragment.OnNewTripAddFriendsListener {
 
     private Trip newTrip;
 
@@ -28,13 +28,6 @@ public class NewTripActivity extends AppCompatActivity implements NewTripDetails
                 .beginTransaction()
                 .replace(R.id.newTripContainer_frameLayout,
                         NewTripDetailsFragment.newInstance(newTrip.getMeetupTime(), newTrip.getDestination()))
-                .addToBackStack(null)
-                .commit();
-
-        getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.newTripContainer_frameLayout,
-                        NewTripAddFriendsFragment.newInstance(newTrip.getFacebookFriendsIdList()))
                 .addToBackStack(null)
                 .commit();
     }
@@ -53,7 +46,24 @@ public class NewTripActivity extends AppCompatActivity implements NewTripDetails
     }
 
     @Override
+    public void onAddFriendsButtonPressed() {
+        getSupportFragmentManager()
+            .beginTransaction()
+            .replace(R.id.newTripContainer_frameLayout,
+                    NewTripAddFriendsFragment.newInstance(newTrip.getFacebookFriendsIdList()))
+            .addToBackStack(null)
+            .commit();
+    }
+
+    @Override
     public void onNewTripAddFriendsUpdated(ArrayList<String> facebookFriendsIdList) {
         newTrip.setFacebookFriendsIdList(facebookFriendsIdList);
     }
+
+    @Override
+    public void onCreateTripButtonPressed() {
+        // TODO Add the new trip to the database
+        finish();
+    }
+
 }
