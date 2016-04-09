@@ -1,9 +1,10 @@
 package cs407.onthedot;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -17,6 +18,13 @@ import com.facebook.GraphResponse;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.SocketException;
+import java.net.SocketTimeoutException;
+import java.net.URL;
 
 public class DashboardActivity extends AppCompatActivity {
 
@@ -66,6 +74,8 @@ public class DashboardActivity extends AppCompatActivity {
                             GraphResponse response) {
                         // Application code
                         Log.d("TEST GRAPH API FRIENDS", "onCompleted: " + object.toString());
+                        //parse JSON here and deliver it to
+                        //getFacebookProfilePicture(object.);
                     }
                 });
         Bundle parameters2 = new Bundle();
@@ -95,43 +105,13 @@ public class DashboardActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
+    public static Bitmap getFacebookProfilePicture(String URL) throws SocketException, SocketTimeoutException, MalformedURLException, IOException, Exception
+    {
+        Bitmap bitmap = null;
+        InputStream in = (InputStream) new URL(URL).getContent();
+        bitmap = BitmapFactory.decodeStream(in);
+
+        return bitmap;
+    }
 }
-
-/*
-    //Use this instance variable in the activity that you are using the db in
-    public static DBHelper mydb;
-
-    //put this in onCreate
-    mydb = new DBHelper(this);
-
-
-    //these below methods would be in in the activity as well. These are just examples.
-
-    public DBHelper getMydb() {
-        return mydb;
-    }
-
-    public void setMydb(DBHelper mydb) {
-        this.mydb = mydb;
-    }
-
-    public void setCurrentDate(String date){
-        this.currentDate = date;
-    }
-
-    public String getCurrentDate(){
-        return this.currentDate;
-    }
-
-    public void setNewEvent(ScheduleEvent s){
-        this.newEvent = s;
-    }
-
-    public ArrayList<ScheduleEvent> getEvents() {
-        return events;
-    }
-
-    public void setEvents(ArrayList<ScheduleEvent> events) {
-        this.events = events;
-    }
-    */

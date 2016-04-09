@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              xmlns:facebook="http://schemas.android.com/tools"
+              android:orientation="horizontal"
+    >
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/entireRowCell"
+        >
+
+        <ImageView
+            android:id="@+id/profilePicture"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            />
+
+        <TextView
+            android:id="@+id/usersName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="2dp"
+            android:text="Name goes here"
+            android:textSize="26dp"
+            android:layout_toRightOf="@id/profilePicture"
+            android:gravity="center_vertical"
+            />
+
+
+        <RadioButton
+            android:id="@+id/toggleButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toRightOf="@id/usersName"
+            android:gravity="right|center_vertical"
+            android:focusable="false"
+            />
+
+        
+    </RelativeLayout>
+</LinearLayout>

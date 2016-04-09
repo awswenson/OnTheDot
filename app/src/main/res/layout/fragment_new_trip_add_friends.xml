@@ -4,7 +4,14 @@
     android:layout_height="match_parent"
     tools:context="cs407.onthedot.NewTripAddFriendsFragment">
 
-    <!-- TODO: Update blank fragment layout -->
+    <!-- TODO: Update blank fragment layout. Need to make custom cells -->
+
+    <ListView
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center_vertical">
+    </ListView>
 
 
 </FrameLayout>
