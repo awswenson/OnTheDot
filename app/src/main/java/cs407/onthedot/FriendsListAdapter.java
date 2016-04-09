@@ -16,12 +16,12 @@ import java.util.List;
 /**
  * Created by connerhuff on 4/7/16.
  */
-public class FriendsListAdapter extends ArrayAdapter<String> {
+public class FriendsListAdapter extends ArrayAdapter<Friend> {
 
 
     Context context;
 
-    public FriendsListAdapter(Context context, List<String> items) {
+    public FriendsListAdapter(Context context, List<Friend> items) {
         super(context, R.layout.fragment_new_trip_add_friends, items);
         this.context = context;
     }
@@ -48,12 +48,12 @@ public class FriendsListAdapter extends ArrayAdapter<String> {
         }
 
         // update the item view
-        String id = getItem(position);//TODO make friend object?
-        if (id != null){
-            viewHolder.usersName.setText("TestName");
+        Friend friend = getItem(position);//TODO make friend object?
+        if (friend != null){
+            viewHolder.usersName.setText(friend.getName());
             //download the profile picture from facebook
             DownloadImage di = new DownloadImage((ImageView) convertView.findViewById(R.id.profilePicture));
-            di.execute("http://graph.facebook.com/" + id + "/picture?type=large");
+            di.execute("http://graph.facebook.com/" + friend.getId() + "/picture?type=large");
         }
 
         return convertView;

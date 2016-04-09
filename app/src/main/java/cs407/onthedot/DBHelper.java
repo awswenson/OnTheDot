@@ -109,7 +109,7 @@ public class DBHelper extends SQLiteOpenHelper {
             else {
 
                 // Since the trip was inserted successfully, insert the participants
-                success = insertParticipants(tripID, trip.getFacebookFriendsIdList());
+                success = insertParticipants(tripID, trip.getFacebookFriendsList());
             }
 
             if (success) {
@@ -173,12 +173,15 @@ public class DBHelper extends SQLiteOpenHelper {
             return null;
         }
 
-        Trip trip = new Trip(tripID, destination, meetupTime, new ArrayList<String>(), tripComplete);
+        Trip trip = new Trip(tripID, destination, meetupTime, new ArrayList<Friend>(), tripComplete);
 
         // Get all the participant IDs and add them to the FacebookFriendsIdList in the trip object
         while(!res.isAfterLast()) {
-            trip.getFacebookFriendsIdList().add(
-                    res.getString(res.getColumnIndex(PARTICIPANTS_COLUMN_PARTICIPANT_ID)));
+            //make a newFriend  here... TODO
+
+            trip.getFacebookFriendsList().add(new Friend("TempNameTODO", false,
+                        res.getString(res.getColumnIndex(PARTICIPANTS_COLUMN_PARTICIPANT_ID))));
+
 
             res.moveToNext();
         }
@@ -254,15 +257,15 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(sb.toString());
     }
 
-    private boolean insertParticipants(long tripID, List<String> facebookFriendsIdList) {
+    private boolean insertParticipants(long tripID, List<Friend> facebookFriendsIdList) {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
-        for (String participant : facebookFriendsIdList) {
+        for (Friend participant : facebookFriendsIdList) {
             ContentValues contentValues = new ContentValues();
 
             contentValues.put(PARTICIPANTS_COLUMN_TRIP_ID, tripID);
-            contentValues.put(PARTICIPANTS_COLUMN_PARTICIPANT_ID, participant);
+            contentValues.put(PARTICIPANTS_COLUMN_PARTICIPANT_ID, participant.getId());
 
             if (db.insert(PARTICIPANTS_TABLE_NAME, null, contentValues) < 0) {
               return false;

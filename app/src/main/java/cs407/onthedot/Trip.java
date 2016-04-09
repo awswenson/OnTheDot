@@ -4,7 +4,6 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 
 /**
  * Created by Alex Swenson on 4/2/16.
@@ -37,7 +36,7 @@ public class Trip {
       friends to a specific trip.  That is, use another database table where each row
       represents a single friend corresponding to a trip ID.
      */
-    private ArrayList<String> facebookFriendsIdList;
+    private ArrayList<Friend> facebookFriendsList;
 
     /*
       A boolean variable to identify if the trip is complete (true) or is in
@@ -45,23 +44,23 @@ public class Trip {
      */
     private boolean tripComplete;
 
-    public Trip(LatLng destination, Date meetupTime, ArrayList<String> facebookFriendsIdList,
+    public Trip(LatLng destination, Date meetupTime, ArrayList<Friend> facebookFriendsList,
                 boolean tripComplete) {
         this.destination = destination;
         this.meetupTime = meetupTime;
-        this.facebookFriendsIdList = facebookFriendsIdList;
+        this.facebookFriendsList = facebookFriendsList;
         this.tripComplete = tripComplete;
     }
 
     /*
       Only use this when the tripID is known (i.e. been assigned by the database)
      */
-    public Trip(long tripID, LatLng destination, Date meetupTime, ArrayList<String> facebookFriendsIdList,
+    public Trip(long tripID, LatLng destination, Date meetupTime, ArrayList<Friend> facebookFriendsList,
                 boolean tripComplete) {
         this.tripID = tripID;
         this.destination = destination;
         this.meetupTime = meetupTime;
-        this.facebookFriendsIdList = facebookFriendsIdList;
+        this.facebookFriendsList = facebookFriendsList;
         this.tripComplete = tripComplete;
     }
 
@@ -97,12 +96,12 @@ public class Trip {
         this.meetupTime = meetupTime;
     }
 
-    public ArrayList<String> getFacebookFriendsIdList() {
-        return facebookFriendsIdList;
+    public ArrayList<Friend> getFacebookFriendsList() {
+        return facebookFriendsList;
     }
 
-    public void setFacebookFriendsIdList(ArrayList<String> facebookFriendsIdList) {
-        this.facebookFriendsIdList = facebookFriendsIdList;
+    public void setFacebookFriendsList(ArrayList<Friend> facebookFriendsList) {
+        this.facebookFriendsList = facebookFriendsList;
     }
 
     public boolean isTripComplete() {

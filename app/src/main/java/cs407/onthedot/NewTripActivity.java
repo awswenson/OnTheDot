@@ -42,13 +42,15 @@ public class NewTripActivity extends AppCompatActivity implements NewTripDetails
                         // Application code
                         Log.d("TEST GRAPH API FRIENDS", "onCompleted: " + object.toString());
 
-                        ArrayList<String> friendIds = new ArrayList<String>();
+                        ArrayList<Friend> friendIds = new ArrayList<Friend>();
                         //parse JSON here and deliver it to the new ArrayList of friend ID's
                         for (int i=0; i< object.length(); i++) {
                             try{
                                 JSONObject friend = object.getJSONObject(i);
                                 String id = friend.getString("id");
-                                friendIds.add(id);
+                                String name = friend.getString("name");
+                                Friend newFriend = new Friend(name, false, id);
+                                friendIds.add(newFriend);
                             }
                             catch(JSONException j){
                                 //error getting the json... do not add the name
@@ -94,15 +96,15 @@ public class NewTripActivity extends AppCompatActivity implements NewTripDetails
         getSupportFragmentManager()
                 .beginTransaction()
             .replace(R.id.newTripContainer_frameLayout,
-                    NewTripAddFriendsFragment.newInstance(newTrip.getFacebookFriendsIdList()))
+                    NewTripAddFriendsFragment.newInstance(newTrip.getFacebookFriendsList()))
             .addToBackStack(null)
             .commit();
     }
 
 
     @Override
-    public void onNewTripAddFriendsUpdated(ArrayList<String> facebookFriendsIdList) {
-        newTrip.setFacebookFriendsIdList(facebookFriendsIdList);
+    public void onNewTripAddFriendsUpdated(ArrayList<Friend> facebookFriendsList) {
+        newTrip.setFacebookFriendsList(facebookFriendsList);
     }
 
     @Override
