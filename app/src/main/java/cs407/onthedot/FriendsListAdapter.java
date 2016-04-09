@@ -7,6 +7,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -39,7 +40,7 @@ public class FriendsListAdapter extends ArrayAdapter<Friend> {
             viewHolder.profPic = (ImageView) convertView.findViewById(R.id.profilePicture);
             viewHolder.usersName = (TextView) convertView.findViewById(R.id.usersName);
             viewHolder.toggleButton = (RadioButton) convertView.findViewById(R.id.toggleButton);
-            viewHolder.entireRowCell = (RelativeLayout) convertView.findViewById(R.id.entireRowCell);
+            viewHolder.entireRowCell = (LinearLayout) convertView.findViewById(R.id.entireRowCell);
 
             convertView.setTag(viewHolder);
         } else {
@@ -66,7 +67,7 @@ public class FriendsListAdapter extends ArrayAdapter<Friend> {
      * @see http://developer.android.com/training/improving-layouts/smooth-scrolling.html#ViewHolder
      */
     private static class ViewHolder {
-        RelativeLayout entireRowCell;
+        LinearLayout entireRowCell;
         ImageView profPic;
         TextView usersName;
         RadioButton toggleButton;

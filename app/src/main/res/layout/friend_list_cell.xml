@@ -7,7 +7,7 @@
               android:orientation="horizontal"
     >
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:id="@+id/entireRowCell"
@@ -17,6 +17,8 @@
             android:id="@+id/profilePicture"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="left"
             />
 
         <TextView
@@ -28,6 +30,7 @@
             android:textSize="26dp"
             android:layout_toRightOf="@id/profilePicture"
             android:gravity="center_vertical"
+            android:layout_weight="3"
             />
 
 
@@ -38,8 +41,9 @@
             android:layout_toRightOf="@id/usersName"
             android:gravity="right|center_vertical"
             android:focusable="false"
+            android:layout_weight="1"
             />
 
         
-    </RelativeLayout>
+    </LinearLayout>
 </LinearLayout>

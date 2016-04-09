@@ -49,6 +49,7 @@ public class NewTripActivity extends AppCompatActivity implements NewTripDetails
                                 JSONObject friend = object.getJSONObject(i);
                                 String id = friend.getString("id");
                                 String name = friend.getString("name");
+                                //TODO change 'false' argument to be the attending status from the db
                                 Friend newFriend = new Friend(name, false, id);
                                 friendIds.add(newFriend);
                             }
