@@ -69,6 +69,7 @@ public class Trip implements Parcelable {
         this.tripID = in.readLong();
         this.destination = in.readParcelable(LatLng.class.getClassLoader());
         this.meetupTime = ((Date) in.readSerializable());
+        this.facebookFriendsList = new ArrayList<Friend>();
         in.readTypedList(this.facebookFriendsList, Friend.CREATOR);
         this.tripComplete = (in.readInt() == 1);
     }

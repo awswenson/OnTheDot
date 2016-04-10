@@ -53,6 +53,11 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
          */
         public void onNewTripDetailsUpdated(Date meetupTime, LatLng destination);
 
+        /**
+         * Determines what happens after the "Add Friends" button is clicked.  Ideally,
+         * the class that implements this go the the "Add Friends" screen so that the user
+         * can add friends to participate in the trip with
+         */
         public void onAddFriendsButtonPressed();
     }
 
@@ -150,6 +155,8 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
     public void onAttach(Context context) {
         super.onAttach(context);
 
+        // This ensures that the activity that created this fragment has implemented
+        // the embedded listener class.
         if (context instanceof Activity) {
             try {
                 onNewTripDetailsListenerCallback = (OnNewTripDetailsListener) context;

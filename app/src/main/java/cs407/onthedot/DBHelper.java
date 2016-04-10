@@ -35,6 +35,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String PARTICIPANTS_TABLE_NAME = "PARTICIPANT";
     public static final String PARTICIPANTS_COLUMN_TRIP_ID = "TRIP_ID";
     public static final String PARTICIPANTS_COLUMN_PARTICIPANT_ID = "PARTICIPANT_ID";
+    public static final String PARTICIPANTS_COLUMN_PARTICIPANT_NAME = "PARTICIPANT_NAME";
 
     /*
       Use this date format when inserting or retrieving a date from the database.
@@ -60,7 +61,8 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(
                 "CREATE TABLE " + PARTICIPANTS_TABLE_NAME + "(" +
                         PARTICIPANTS_COLUMN_TRIP_ID + " INTEGER," +
-                        PARTICIPANTS_COLUMN_PARTICIPANT_ID + " TEXT)"
+                        PARTICIPANTS_COLUMN_PARTICIPANT_ID + " TEXT," +
+                        PARTICIPANTS_COLUMN_PARTICIPANT_NAME + " TEXT)"
         );
     }
 
@@ -175,13 +177,15 @@ public class DBHelper extends SQLiteOpenHelper {
 
         Trip trip = new Trip(tripID, destination, meetupTime, new ArrayList<Friend>(), tripComplete);
 
-        // Get all the participant IDs and add them to the FacebookFriendsIdList in the trip object
+        // Get all the participant IDs and add them to the FacebookFriendsList in the trip object
         while(!res.isAfterLast()) {
-            //make a newFriend  here... TODO
 
-            trip.getFacebookFriendsList().add(new Friend("TempNameTODO", false,
-                        res.getString(res.getColumnIndex(PARTICIPANTS_COLUMN_PARTICIPANT_ID))));
+            Friend friend = new Friend(
+                    res.getString(res.getColumnIndex(PARTICIPANTS_COLUMN_PARTICIPANT_NAME)),
+                    false,
+                    res.getString(res.getColumnIndex(PARTICIPANTS_COLUMN_PARTICIPANT_ID)));
 
+            trip.getFacebookFriendsList().add(friend);
 
             res.moveToNext();
         }
@@ -257,15 +261,16 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(sb.toString());
     }
 
-    private boolean insertParticipants(long tripID, List<Friend> facebookFriendsIdList) {
+    private boolean insertParticipants(long tripID, List<Friend> facebookFriendsList) {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
-        for (Friend participant : facebookFriendsIdList) {
+        for (Friend participant : facebookFriendsList) {
             ContentValues contentValues = new ContentValues();
 
             contentValues.put(PARTICIPANTS_COLUMN_TRIP_ID, tripID);
             contentValues.put(PARTICIPANTS_COLUMN_PARTICIPANT_ID, participant.getId());
+            contentValues.put(PARTICIPANTS_COLUMN_PARTICIPANT_NAME, participant.getName());
 
             if (db.insert(PARTICIPANTS_TABLE_NAME, null, contentValues) < 0) {
               return false;
@@ -292,6 +297,8 @@ public class DBHelper extends SQLiteOpenHelper {
         sb.append(TRIP_COLUMN_COMPLETE);
         sb.append(", p.");
         sb.append(PARTICIPANTS_COLUMN_PARTICIPANT_ID);
+        sb.append(", p.");
+        sb.append(PARTICIPANTS_COLUMN_PARTICIPANT_NAME);
         sb.append(" FROM ");
         sb.append(TRIP_TABLE_NAME);
         sb.append(" t INNER JOIN ");
@@ -330,6 +337,8 @@ public class DBHelper extends SQLiteOpenHelper {
 
         sb.append("SELECT ");
         sb.append(PARTICIPANTS_COLUMN_PARTICIPANT_ID);
+        sb.append(", ");
+        sb.append(PARTICIPANTS_COLUMN_PARTICIPANT_NAME);
         sb.append(" FROM ");
         sb.append(PARTICIPANTS_TABLE_NAME);
         sb.append(" WHERE ");

@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +25,20 @@ public class NewTripAddFriendsFragment extends ListFragment {
     OnNewTripAddFriendsListener onNewTripAddFriendsListenerCallback;
 
     public interface OnNewTripAddFriendsListener {
+
+        /**
+         * Update the friends list associated with the trip
+         *
+         * @param facebookFriendsList The list of friends that are currently selected to
+         *                            participate in the trip
+         */
         public void onNewTripAddFriendsUpdated(ArrayList<Friend> facebookFriendsList);
+
+        /**
+         * Determines what happens after the "Create" button is clicked.  Ideally,
+         * the class that implements this should make sure the Trip details are up to date
+         * and then add the Trip to the database somehow
+         */
         public void onCreateTripButtonPressed();
     }
 
@@ -57,7 +69,8 @@ public class NewTripAddFriendsFragment extends ListFragment {
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
-        View view = super.onCreateView(inflater, container, savedInstanceState);
+        //super.onCreateView(inflater, container, savedInstanceState);
+        View view = inflater.inflate(R.layout.fragment_new_trip_add_friends, container, false);
 
         setListAdapter(new FriendsListAdapter(getActivity(), facebookFriendsList));
 
@@ -89,7 +102,9 @@ public class NewTripAddFriendsFragment extends ListFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        Log.d("DEBUG: ", "onAttach");
+
+        // This ensures that the activity that created this fragment has implemented
+        // the embedded listener class.
         if (context instanceof Activity) {
             try {
                 onNewTripAddFriendsListenerCallback = (OnNewTripAddFriendsListener) context;

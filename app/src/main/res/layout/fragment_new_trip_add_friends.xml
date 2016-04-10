@@ -8,10 +8,9 @@
     tools:context="cs407.onthedot.NewTripAddFriendsFragment">
 
     <ListView
-        android:id="@+id/list"
+        android:id="@android:id/list"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
+        android:layout_height="match_parent"
         android:layout_above="@+id/button_LinearLayout">
     </ListView>
 

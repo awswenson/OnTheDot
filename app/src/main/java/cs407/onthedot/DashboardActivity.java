@@ -118,11 +118,21 @@ public class DashboardActivity extends AppCompatActivity {
 
         // Check which request we're responding to and ensure the result was successful
         if (requestCode == ADD_NEW_TRIP_REQUEST && resultCode == RESULT_OK) {
-            Trip newTrip = data.getParcelableExtra("NEW_TRIP");
-            long newTripId = onTheDotDatabase.addTrip(newTrip);
-            newTrip.setTripID(newTripId);
 
-            // TODO add the trip to the list
+            // Get the trip data from the Intent object
+            Trip newTrip = data.getParcelableExtra("NEW_TRIP");
+
+            // Add the trip to the database and get the ID
+            long newTripId = onTheDotDatabase.addTrip(newTrip);
+
+            // Make sure that the trip was added to the database successfully
+            if (newTripId > 0) {
+
+                // Set the ID of the trip in the Trip object
+                newTrip.setTripID(newTripId);
+
+                // TODO add the trip to the list
+            }
         }
     }
 
