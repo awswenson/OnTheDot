@@ -11,6 +11,10 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.ListAdapter;
+import android.widget.ListView;
 
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
@@ -25,12 +29,24 @@ import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.util.ArrayList;
 
 public class DashboardActivity extends AppCompatActivity {
 
     private final int ADD_NEW_TRIP_REQUEST = 1;
 
     private DBHelper onTheDotDatabase;
+
+    private ArrayList<Trip> currentTripsList;
+    private ArrayList<Trip> pastTripsList;
+
+    private ListView currentTrips_listView;
+    private ListView pastTrips_listView;
+
+    private DashboardAdapter currentTripsAdapter;
+    private DashboardAdapter pastTripsAdapter;
+
+    private Button deletePastTrips_button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +60,24 @@ public class DashboardActivity extends AppCompatActivity {
         // Initialize the database
         onTheDotDatabase = new DBHelper(this);
 
+        // Initialize the two trip lists
+        currentTripsList = onTheDotDatabase.getAllActiveTrips();
+        pastTripsList = onTheDotDatabase.getAllPastTrips();
+
+        // Get the two ListViews and setup the DashboardAdapter for each view
+        currentTrips_listView = (ListView) findViewById(R.id.currentTrips_listView);
+        currentTripsAdapter = new DashboardAdapter(this, currentTripsList);
+        currentTrips_listView.setAdapter(currentTripsAdapter);
+
+        pastTrips_listView = (ListView) findViewById(R.id.pastTrips_listView);
+        pastTripsAdapter = new DashboardAdapter(this, pastTripsList);
+        pastTrips_listView.setAdapter(pastTripsAdapter);
+
+        // Dynamically set the height of the two list views. See ListUtils.setDyamicHeight
+        // for documentation
+        ListUtils.setDynamicHeight(currentTrips_listView);
+        ListUtils.setDynamicHeight(pastTrips_listView);
+
         // Set up the "Add New Trip" button
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
@@ -51,6 +85,23 @@ public class DashboardActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), NewTripActivity.class);
                 startActivityForResult(intent, ADD_NEW_TRIP_REQUEST);
+            }
+        });
+
+        // Set up the button to delete the past (i.e. completed) trips
+        deletePastTrips_button = (Button) findViewById(R.id.deletePastTrips_button);
+        deletePastTrips_button.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                for (Trip trip : pastTripsList) {
+                    onTheDotDatabase.deleteTripByTripID(trip.getTripID());
+                }
+
+                pastTripsList.clear();
+
+                pastTripsAdapter.notifyDataSetChanged();
+                ListUtils.setDynamicHeight(pastTrips_listView);
             }
         });
 
@@ -131,7 +182,10 @@ public class DashboardActivity extends AppCompatActivity {
                 // Set the ID of the trip in the Trip object
                 newTrip.setTripID(newTripId);
 
-                // TODO add the trip to the list
+                currentTripsList.add(newTrip);
+
+                currentTripsAdapter.notifyDataSetChanged();
+                ListUtils.setDynamicHeight(currentTrips_listView);
             }
         }
     }
@@ -142,5 +196,35 @@ public class DashboardActivity extends AppCompatActivity {
         bitmap = BitmapFactory.decodeStream(in);
 
         return bitmap;
+    }
+
+    public static class ListUtils {
+
+        /**
+         * Dynamically sets the height of the
+         * @param listView
+         */
+        public static void setDynamicHeight(ListView listView) {
+            ListAdapter listAdapter = listView.getAdapter();
+
+            // Check to make sure the adapter is not null
+            if (listAdapter == null) {
+                return;
+            }
+
+            int height = 0;
+            int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.UNSPECIFIED);
+
+            for (int i = 0; i < listAdapter.getCount(); i++) {
+                View listItem = listAdapter.getView(i, null, listView);
+                listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
+                height += listItem.getMeasuredHeight();
+            }
+
+            ViewGroup.LayoutParams params = listView.getLayoutParams();
+            params.height = height + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+            listView.setLayoutParams(params);
+            listView.requestLayout();
+        }
     }
 }

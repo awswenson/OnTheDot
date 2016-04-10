@@ -202,30 +202,27 @@ public class DBHelper extends SQLiteOpenHelper {
      * database is empty, an empty ArrayList is returned.
      */
     public ArrayList<Trip> getAllTrips() {
-        ArrayList<Trip> trips = new ArrayList<>();
+        return getAllTripsByTripIDFromCursor(getAllTripIDs());
+    }
 
-        Cursor res = getAllTripIDs();
+    /**
+     * Get all the active (i.e. not completed) Trips currently stored in the database.
+     *
+     * @return An ArrayList containing all the Trip objects stored in the database.  If the
+     * database is empty, an empty ArrayList is returned.
+     */
+    public ArrayList<Trip> getAllActiveTrips() {
+        return getAllTripsByTripIDFromCursor(getAllActiveTripIDs());
+    }
 
-        // Make sure the database isn't empty
-        if (res.getCount() <= 0) {
-            return trips;
-        }
-
-        res.moveToFirst();
-
-        while(!res.isAfterLast()) {
-            Trip trip = getTripByTripID(res.getLong(res.getColumnIndex(TRIP_COLUMN_TRIP_ID)));
-
-            if (trip != null) {
-                trips.add(trip);
-            }
-
-            res.moveToNext();
-        }
-
-        res.close();
-
-        return trips;
+    /**
+     * Get all the past (i.e. completed) Trips currently stored in the database.
+     *
+     * @return An ArrayList containing all the Trip objects stored in the database.  If the
+     * database is empty, an empty ArrayList is returned.
+     */
+    public ArrayList<Trip> getAllPastTrips() {
+        return getAllTripsByTripIDFromCursor(getAllPastTripIDs());
     }
 
     /**
@@ -259,6 +256,33 @@ public class DBHelper extends SQLiteOpenHelper {
 
         // Delete the trip's participants corresponding trip ID
         db.execSQL(sb.toString());
+    }
+
+    private ArrayList<Trip> getAllTripsByTripIDFromCursor(Cursor resOfTripIDs) {
+        ArrayList<Trip> trips = new ArrayList<>();
+
+        Cursor res = getAllActiveTripIDs();
+
+        // Make sure the database isn't empty
+        if (res.getCount() <= 0) {
+            return trips;
+        }
+
+        res.moveToFirst();
+
+        while(!res.isAfterLast()) {
+            Trip trip = getTripByTripID(res.getLong(res.getColumnIndex(TRIP_COLUMN_TRIP_ID)));
+
+            if (trip != null) {
+                trips.add(trip);
+            }
+
+            res.moveToNext();
+        }
+
+        res.close();
+
+        return trips;
     }
 
     private boolean insertParticipants(long tripID, List<Friend> facebookFriendsList) {
@@ -358,6 +382,38 @@ public class DBHelper extends SQLiteOpenHelper {
         sb.append(TRIP_COLUMN_TRIP_ID);
         sb.append(" FROM ");
         sb.append(TRIP_TABLE_NAME);
+
+        return db.rawQuery(sb.toString(), null);
+    }
+
+    private Cursor getAllActiveTripIDs(){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("SELECT ");
+        sb.append(TRIP_COLUMN_TRIP_ID);
+        sb.append(" FROM ");
+        sb.append(TRIP_TABLE_NAME);
+        sb.append(" WHERE ");
+        sb.append(TRIP_COLUMN_COMPLETE);
+        sb.append(" = 0");
+
+        return db.rawQuery(sb.toString(), null);
+    }
+
+    private Cursor getAllPastTripIDs(){
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("SELECT ");
+        sb.append(TRIP_COLUMN_TRIP_ID);
+        sb.append(" FROM ");
+        sb.append(TRIP_TABLE_NAME);
+        sb.append(" WHERE ");
+        sb.append(TRIP_COLUMN_COMPLETE);
+        sb.append(" = 1");
 
         return db.rawQuery(sb.toString(), null);
     }
