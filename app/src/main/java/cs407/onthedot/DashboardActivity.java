@@ -28,26 +28,33 @@ import java.net.URL;
 
 public class DashboardActivity extends AppCompatActivity {
 
+    private final int ADD_NEW_TRIP_REQUEST = 1;
+
+    private DBHelper onTheDotDatabase;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //initialize view
+        // Initialize view
         setContentView(R.layout.activity_dashboard);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        //set up the plus button
+        // Initialize the database
+        onTheDotDatabase = new DBHelper(this);
+
+        // Set up the "Add New Trip" button
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(view.getContext(), NewTripActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, ADD_NEW_TRIP_REQUEST);
             }
         });
 
-        //test to get information about "me"
+        // Test to get information about "me"
         GraphRequest request = GraphRequest.newMeRequest(
                 AccessToken.getCurrentAccessToken(),
                 new GraphRequest.GraphJSONObjectCallback() {
@@ -64,7 +71,7 @@ public class DashboardActivity extends AppCompatActivity {
         request.setParameters(parameters);
         request.executeAsync();
 
-        //test to get information about "friends"
+        // Test to get information about "friends"
         GraphRequest request2 = GraphRequest.newMyFriendsRequest(
                 AccessToken.getCurrentAccessToken(),
                 new GraphRequest.GraphJSONArrayCallback() {
@@ -106,8 +113,20 @@ public class DashboardActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public static Bitmap getFacebookProfilePicture(String URL) throws SocketException, SocketTimeoutException, MalformedURLException, IOException, Exception
-    {
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        // Check which request we're responding to and ensure the result was successful
+        if (requestCode == ADD_NEW_TRIP_REQUEST && resultCode == RESULT_OK) {
+            Trip newTrip = data.getParcelableExtra("NEW_TRIP");
+            long newTripId = onTheDotDatabase.addTrip(newTrip);
+            newTrip.setTripID(newTripId);
+
+            // TODO add the trip to the list
+        }
+    }
+
+    public static Bitmap getFacebookProfilePicture(String URL) throws SocketException, SocketTimeoutException, MalformedURLException, IOException, Exception {
         Bitmap bitmap = null;
         InputStream in = (InputStream) new URL(URL).getContent();
         bitmap = BitmapFactory.decodeStream(in);

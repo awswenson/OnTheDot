@@ -1,5 +1,6 @@
 package cs407.onthedot;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -61,6 +62,7 @@ public class NewTripActivity extends AppCompatActivity implements NewTripDetails
 
                         }
 
+                        // TODO replace the LatLng with the initial location of the device
                         newTrip = new Trip(new LatLng(43, -89), new Date(), friendIds, false);
 
                         getSupportFragmentManager()
@@ -75,8 +77,6 @@ public class NewTripActivity extends AppCompatActivity implements NewTripDetails
         parameters2.putString("fields", "id,name,link,picture");
         request2.setParameters(parameters2);
         request2.executeAsync();
-
-
     }
 
     @Override
@@ -102,7 +102,6 @@ public class NewTripActivity extends AppCompatActivity implements NewTripDetails
             .commit();
     }
 
-
     @Override
     public void onNewTripAddFriendsUpdated(ArrayList<Friend> facebookFriendsList) {
         newTrip.setFacebookFriendsList(facebookFriendsList);
@@ -110,9 +109,12 @@ public class NewTripActivity extends AppCompatActivity implements NewTripDetails
 
     @Override
     public void onCreateTripButtonPressed() {
-        // TODO Add the new trip to the database
+        Intent data = new Intent();
+        data.putExtra("NEW_TRIP", newTrip);
+
+        // Activity finished OK, return the data
+        setResult(RESULT_OK, data);
         finish();
     }
-
 
 }

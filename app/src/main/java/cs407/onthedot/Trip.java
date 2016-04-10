@@ -1,5 +1,8 @@
 package cs407.onthedot;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import com.google.android.gms.maps.model.LatLng;
 
 import java.util.ArrayList;
@@ -8,7 +11,7 @@ import java.util.Date;
 /**
  * Created by Alex Swenson on 4/2/16.
  */
-public class Trip {
+public class Trip implements Parcelable {
 
     /*
       This is the ID that is assigned by the database to refer to this trip object.  DO NOT
@@ -29,8 +32,6 @@ public class Trip {
     private Date meetupTime;
 
     /*
-      TODO: Figure out how we want to store the friends that are part of the trip
-
       This list contains the friends that are part of the trip.  To store the list in the
       database, we use another database table to represent the one-to-many relationship of
       friends to a specific trip.  That is, use another database table where each row
@@ -62,6 +63,14 @@ public class Trip {
         this.meetupTime = meetupTime;
         this.facebookFriendsList = facebookFriendsList;
         this.tripComplete = tripComplete;
+    }
+
+    public Trip(Parcel in) {
+        this.tripID = in.readLong();
+        this.destination = in.readParcelable(LatLng.class.getClassLoader());
+        this.meetupTime = ((Date) in.readSerializable());
+        in.readTypedList(this.facebookFriendsList, Friend.CREATOR);
+        this.tripComplete = (in.readInt() == 1);
     }
 
     public long getTripID() {
@@ -111,4 +120,28 @@ public class Trip {
     public void setTripComplete(boolean tripComplete) {
         this.tripComplete = tripComplete;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(tripID);
+        dest.writeParcelable(destination, flags);
+        dest.writeSerializable(meetupTime);
+        dest.writeTypedList(facebookFriendsList);
+        dest.writeInt(tripComplete ? 1 : 0);
+    }
+
+    public static final Parcelable.Creator<Trip> CREATOR = new Parcelable.Creator<Trip>() {
+
+        public Trip createFromParcel(Parcel in){
+            return new Trip(in);
+        }
+        public Trip[] newArray(int size){
+            return new Trip[size];
+        }
+    };
 }
