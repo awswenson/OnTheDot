@@ -32,6 +32,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String TRIP_COLUMN_LONGITUDE = "LONGITUDE";
     public static final String TRIP_COLUMN_COMPLETE = "TRIP_COMPLETE";
 
+    //for removing, must know the trip_id and the participant id
     public static final String PARTICIPANTS_TABLE_NAME = "PARTICIPANT";
     public static final String PARTICIPANTS_COLUMN_TRIP_ID = "TRIP_ID";
     public static final String PARTICIPANTS_COLUMN_PARTICIPANT_ID = "PARTICIPANT_ID";
