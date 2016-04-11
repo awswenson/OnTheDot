@@ -8,7 +8,9 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Locale;
 
 /**
  * Created by AlexanderSwenson on 4/10/16.
@@ -71,7 +73,19 @@ public class DashboardAdapter extends BaseAdapter {
         // Get the data item for this position
         final Trip trip = getItem(position);
 
-        // TODO Populate the data into the template view using the data object
+        /*
+         TODO Use Google Maps static (https://developers.google.com/maps/documentation/static-maps/)
+         to get an image with a marker of the destination and assign it to the ImageView
+        */
+
+        // TODO Set the nearest point of interest using the LatLng object
+        viewHolder.destination_textView.setText(trip.getDestinationLatitude() + " " + trip.getDestinationLongitude());
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy HH:mm a", Locale.getDefault());
+        viewHolder.meetupTime_textView.setText(dateFormat.format(trip.getMeetupTime()));
+
+        // TODO Display when the user should leave
+        viewHolder.leaveIn_textView.setText("Leave in the next 5 minutes.");
 
         // Return the completed view to render on screen
         return convertView;

@@ -73,6 +73,9 @@ public class DashboardActivity extends AppCompatActivity {
         pastTripsAdapter = new DashboardAdapter(this, pastTripsList);
         pastTrips_listView.setAdapter(pastTripsAdapter);
 
+        currentTripsAdapter.notifyDataSetChanged();
+        pastTripsAdapter.notifyDataSetChanged();
+
         // Dynamically set the height of the two list views. See ListUtils.setDyamicHeight
         // for documentation
         ListUtils.setDynamicHeight(currentTrips_listView);
@@ -201,28 +204,29 @@ public class DashboardActivity extends AppCompatActivity {
     public static class ListUtils {
 
         /**
-         * Dynamically sets the height of the
-         * @param listView
+         * Dynamically sets the height of the list view to accommodate two list views.  This should
+         * be called each time after the Adapter.notifyDataSetChanged is called for the
+         * given ListView.
          */
         public static void setDynamicHeight(ListView listView) {
-            ListAdapter listAdapter = listView.getAdapter();
+            DashboardAdapter dashboardAdapter = (DashboardAdapter) listView.getAdapter();
 
             // Check to make sure the adapter is not null
-            if (listAdapter == null) {
+            if (dashboardAdapter == null) {
                 return;
             }
 
             int height = 0;
             int desiredWidth = View.MeasureSpec.makeMeasureSpec(listView.getWidth(), View.MeasureSpec.UNSPECIFIED);
 
-            for (int i = 0; i < listAdapter.getCount(); i++) {
-                View listItem = listAdapter.getView(i, null, listView);
+            for (int i = 0; i < dashboardAdapter.getCount(); i++) {
+                View listItem = dashboardAdapter.getView(i, null, listView);
                 listItem.measure(desiredWidth, View.MeasureSpec.UNSPECIFIED);
                 height += listItem.getMeasuredHeight();
             }
 
             ViewGroup.LayoutParams params = listView.getLayoutParams();
-            params.height = height + (listView.getDividerHeight() * (listAdapter.getCount() - 1));
+            params.height = height + (listView.getDividerHeight() * (dashboardAdapter.getCount() - 1));
             listView.setLayoutParams(params);
             listView.requestLayout();
         }

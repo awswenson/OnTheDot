@@ -59,7 +59,6 @@ public class NewTripActivity extends AppCompatActivity implements NewTripDetails
                                 Log.d("TEST GRAPH API FRIENDS", "ERROR: had trouble parsing JSON");
                             }
 
-
                         }
 
                         // TODO replace the LatLng with the initial location of the device

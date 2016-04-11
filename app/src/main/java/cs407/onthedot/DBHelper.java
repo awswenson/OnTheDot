@@ -261,26 +261,24 @@ public class DBHelper extends SQLiteOpenHelper {
     private ArrayList<Trip> getAllTripsByTripIDFromCursor(Cursor resOfTripIDs) {
         ArrayList<Trip> trips = new ArrayList<>();
 
-        Cursor res = getAllActiveTripIDs();
-
         // Make sure the database isn't empty
-        if (res.getCount() <= 0) {
+        if (resOfTripIDs.getCount() <= 0) {
             return trips;
         }
 
-        res.moveToFirst();
+        resOfTripIDs.moveToFirst();
 
-        while(!res.isAfterLast()) {
-            Trip trip = getTripByTripID(res.getLong(res.getColumnIndex(TRIP_COLUMN_TRIP_ID)));
+        while(!resOfTripIDs.isAfterLast()) {
+            Trip trip = getTripByTripID(resOfTripIDs.getLong(resOfTripIDs.getColumnIndex(TRIP_COLUMN_TRIP_ID)));
 
             if (trip != null) {
                 trips.add(trip);
             }
 
-            res.moveToNext();
+            resOfTripIDs.moveToNext();
         }
 
-        res.close();
+        resOfTripIDs.close();
 
         return trips;
     }
@@ -432,9 +430,11 @@ public class DBHelper extends SQLiteOpenHelper {
 //        return true;
 //    }
 //
+//
 //    //clear all tables. Use for debugging purposes.
 //    public void restartDBDebug(){
 //        SQLiteDatabase db = this.getWritableDatabase();
-//        db.execSQL("DROP TABLE IF EXISTS events");
+//        db.execSQL("DROP TABLE IF EXISTS " + TRIP_TABLE_NAME);
+//        db.execSQL("DROP TABLE IF EXISTS " + PARTICIPANTS_TABLE_NAME);
 //    }
 }
