@@ -37,7 +37,7 @@ public class Trip implements Parcelable {
       friends to a specific trip.  That is, use another database table where each row
       represents a single friend corresponding to a trip ID.
      */
-    private ArrayList<Friend> facebookFriendsList;
+    private ArrayList<Friend> attendingFBFriendsList;
 
     /*
       A boolean variable to identify if the trip is complete (true) or is in
@@ -45,23 +45,23 @@ public class Trip implements Parcelable {
      */
     private boolean tripComplete;
 
-    public Trip(LatLng destination, Date meetupTime, ArrayList<Friend> facebookFriendsList,
+    public Trip(LatLng destination, Date meetupTime, ArrayList<Friend> attendingFBFriendsList,
                 boolean tripComplete) {
         this.destination = destination;
         this.meetupTime = meetupTime;
-        this.facebookFriendsList = facebookFriendsList;
+        this.attendingFBFriendsList = attendingFBFriendsList;
         this.tripComplete = tripComplete;
     }
 
     /*
       Only use this when the tripID is known (i.e. been assigned by the database)
      */
-    public Trip(long tripID, LatLng destination, Date meetupTime, ArrayList<Friend> facebookFriendsList,
+    public Trip(long tripID, LatLng destination, Date meetupTime, ArrayList<Friend> attendingFBFriendsList,
                 boolean tripComplete) {
         this.tripID = tripID;
         this.destination = destination;
         this.meetupTime = meetupTime;
-        this.facebookFriendsList = facebookFriendsList;
+        this.attendingFBFriendsList = attendingFBFriendsList;
         this.tripComplete = tripComplete;
     }
 
@@ -69,8 +69,8 @@ public class Trip implements Parcelable {
         this.tripID = in.readLong();
         this.destination = in.readParcelable(LatLng.class.getClassLoader());
         this.meetupTime = ((Date) in.readSerializable());
-        this.facebookFriendsList = new ArrayList<Friend>();
-        in.readTypedList(this.facebookFriendsList, Friend.CREATOR);
+        this.attendingFBFriendsList = new ArrayList<Friend>();
+        in.readTypedList(this.attendingFBFriendsList, Friend.CREATOR);
         this.tripComplete = (in.readInt() == 1);
     }
 
@@ -106,12 +106,12 @@ public class Trip implements Parcelable {
         this.meetupTime = meetupTime;
     }
 
-    public ArrayList<Friend> getFacebookFriendsList() {
-        return facebookFriendsList;
+    public ArrayList<Friend> getAttendingFBFriendsList() {
+        return attendingFBFriendsList;
     }
 
-    public void setFacebookFriendsList(ArrayList<Friend> facebookFriendsList) {
-        this.facebookFriendsList = facebookFriendsList;
+    public void setAttendingFBFriendsList(ArrayList<Friend> attendingFBFriendsList) {
+        this.attendingFBFriendsList = attendingFBFriendsList;
     }
 
     public boolean isTripComplete() {
@@ -132,7 +132,7 @@ public class Trip implements Parcelable {
         dest.writeLong(tripID);
         dest.writeParcelable(destination, flags);
         dest.writeSerializable(meetupTime);
-        dest.writeTypedList(facebookFriendsList);
+        dest.writeTypedList(attendingFBFriendsList);
         dest.writeInt(tripComplete ? 1 : 0);
     }
 

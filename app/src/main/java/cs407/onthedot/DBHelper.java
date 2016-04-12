@@ -112,7 +112,7 @@ public class DBHelper extends SQLiteOpenHelper {
             else {
 
                 // Since the trip was inserted successfully, insert the participants
-                success = insertParticipants(tripID, trip.getFacebookFriendsList());
+                success = insertParticipants(tripID, trip.getAttendingFBFriendsList());
             }
 
             if (success) {
@@ -178,7 +178,7 @@ public class DBHelper extends SQLiteOpenHelper {
 
         Trip trip = new Trip(tripID, destination, meetupTime, new ArrayList<Friend>(), tripComplete);
 
-        // Get all the participant IDs and add them to the FacebookFriendsList in the trip object
+        // Get all the participant IDs and add them to the attendingFBFriendsList in the trip object
         while(!res.isAfterLast()) {
 
             Friend friend = new Friend(
@@ -186,7 +186,7 @@ public class DBHelper extends SQLiteOpenHelper {
                     false,
                     res.getString(res.getColumnIndex(PARTICIPANTS_COLUMN_PARTICIPANT_ID)));
 
-            trip.getFacebookFriendsList().add(friend);
+            trip.getAttendingFBFriendsList().add(friend);
 
             res.moveToNext();
         }
@@ -284,11 +284,11 @@ public class DBHelper extends SQLiteOpenHelper {
         return trips;
     }
 
-    private boolean insertParticipants(long tripID, List<Friend> facebookFriendsList) {
+    private boolean insertParticipants(long tripID, List<Friend> attendingFBFriendsList) {
 
         SQLiteDatabase db = this.getWritableDatabase();
 
-        for (Friend participant : facebookFriendsList) {
+        for (Friend participant : attendingFBFriendsList) {
             ContentValues contentValues = new ContentValues();
 
             contentValues.put(PARTICIPANTS_COLUMN_TRIP_ID, tripID);

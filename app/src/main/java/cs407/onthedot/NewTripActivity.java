@@ -3,17 +3,9 @@ package cs407.onthedot;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 
-import com.facebook.AccessToken;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
 import com.google.android.gms.maps.model.LatLng;
-
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,51 +23,15 @@ public class NewTripActivity extends AppCompatActivity implements NewTripDetails
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_trip);
 
-        //TODO put facebook call here to get friends lists
-        //get all the id's that correspond to this users friends list
-        GraphRequest request2 = GraphRequest.newMyFriendsRequest(
-                AccessToken.getCurrentAccessToken(),
-                new GraphRequest.GraphJSONArrayCallback() {
-                    @Override
-                    public void onCompleted(
-                            JSONArray object,
-                            GraphResponse response) {
-                        // Application code
-                        Log.d("TEST GRAPH API FRIENDS", "onCompleted: " + object.toString());
+        // TODO replace the LatLng with the initial location of the device
+        newTrip = new Trip(new LatLng(43, -89), new Date(), new ArrayList<Friend>(), false);
 
-                        ArrayList<Friend> friendIds = new ArrayList<Friend>();
-                        //parse JSON here and deliver it to the new ArrayList of friend ID's
-                        for (int i=0; i< object.length(); i++) {
-                            try{
-                                JSONObject friend = object.getJSONObject(i);
-                                String id = friend.getString("id");
-                                String name = friend.getString("name");
-                                //TODO change 'false' argument to be the attending status from the db
-                                Friend newFriend = new Friend(name, false, id);
-                                friendIds.add(newFriend);
-                            }
-                            catch(JSONException j){
-                                //error getting the json... do not add the name
-                                Log.d("TEST GRAPH API FRIENDS", "ERROR: had trouble parsing JSON");
-                            }
-
-                        }
-
-                        // TODO replace the LatLng with the initial location of the device
-                        newTrip = new Trip(new LatLng(43, -89), new Date(), friendIds, false);
-
-                        getSupportFragmentManager()
-                                .beginTransaction()
-                                .replace(R.id.newTripContainer_frameLayout,
-                                        NewTripDetailsFragment.newInstance(newTrip.getMeetupTime(), newTrip.getDestination()))
-                                .addToBackStack(null)
-                                .commit();
-                    }
-                });
-        Bundle parameters2 = new Bundle();
-        parameters2.putString("fields", "id,name,link,picture");
-        request2.setParameters(parameters2);
-        request2.executeAsync();
+        getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.newTripContainer_frameLayout,
+                        NewTripDetailsFragment.newInstance(newTrip.getMeetupTime(), newTrip.getDestination()))
+                .addToBackStack(null)
+                .commit();
     }
 
     @Override
@@ -96,14 +52,14 @@ public class NewTripActivity extends AppCompatActivity implements NewTripDetails
         getSupportFragmentManager()
                 .beginTransaction()
             .replace(R.id.newTripContainer_frameLayout,
-                    NewTripAddFriendsFragment.newInstance(newTrip.getFacebookFriendsList()))
+                    NewTripAddFriendsFragment.newInstance(newTrip.getAttendingFBFriendsList()))
             .addToBackStack(null)
             .commit();
     }
 
     @Override
-    public void onNewTripAddFriendsUpdated(ArrayList<Friend> facebookFriendsList) {
-        newTrip.setFacebookFriendsList(facebookFriendsList);
+    public void onNewTripAddFriendsUpdated(ArrayList<Friend> attendingFBFriendsList) {
+        newTrip.setAttendingFBFriendsList(attendingFBFriendsList);
     }
 
     @Override
