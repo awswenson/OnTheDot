@@ -41,14 +41,6 @@ public class FriendsListAdapter extends ArrayAdapter<Friend> {
             viewHolder.toggleButton = (CheckBox) convertView.findViewById(R.id.toggleButton);
             viewHolder.entireRowCell = (LinearLayout) convertView.findViewById(R.id.entireRowCell);
 
-            viewHolder.toggleButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                // your code for textview click
-                    Toast.makeText(v.getContext(), "Got in here", Toast.LENGTH_LONG).show();
-                }
-            });
-
             convertView.setTag(viewHolder);
         } else {
             // recycle the already inflated view
@@ -56,9 +48,10 @@ public class FriendsListAdapter extends ArrayAdapter<Friend> {
         }
 
         // update the item view
-        Friend friend = getItem(position);//TODO make friend object?
+        Friend friend = getItem(position);
         if (friend != null){
             viewHolder.usersName.setText(friend.getName());
+            viewHolder.toggleButton.setChecked(friend.isAttending());
             //download the profile picture from facebook
             DownloadImage di = new DownloadImage((ImageView) convertView.findViewById(R.id.profilePicture));
             di.execute("http://graph.facebook.com/" + friend.getId() + "/picture?type=large");

@@ -11,8 +11,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ListView;
-import android.widget.RadioButton;
-import android.widget.Toast;
 
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
@@ -23,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 public class NewTripAddFriendsFragment extends ListFragment {
 
@@ -102,6 +101,30 @@ public class NewTripAddFriendsFragment extends ListFragment {
                             }
                         }
 
+                        /*
+                          TODO use the attendingFBFriendsList to highlight/select already selected friends in the ListView.
+                          Might want to do this after the entireFBFriendsList is populated from the call in OnCreate.
+                          That could happen before this point in time, or it could happen after.
+                        */
+                        //temp for testing purposes. Delete later
+                        Friend temp = new Friend("Alex", true, "10208447656324839");
+                        attendingFBFriendsList.add(temp);
+
+                        //populate hash that will house the id's of the people who are invited currently
+                        HashSet<String> allAttendingPeople = new HashSet<String>();
+                        for (int i = 0; i < attendingFBFriendsList.size(); i++){
+                            allAttendingPeople.add(attendingFBFriendsList.get(i).getId());
+                        }
+
+                        //go through entire friends list and set attending for the ones who are in our hash
+                        for (int i = 0; i < entireFBFriendsList.size(); i++){
+                            String currId = entireFBFriendsList.get(i).getId();
+                            //if true, this person is in the attending list, so we should change their attending val
+                            if (allAttendingPeople.contains(currId)){
+                                entireFBFriendsList.get(i).setAttending(true);
+                            }
+                        }
+
                         // Make sure that the friendsListAdapter is already setup before
                         // notifying data change.  If it's not setup, it will be later.  This
                         // just means that FB data came back before views where setup
@@ -125,22 +148,13 @@ public class NewTripAddFriendsFragment extends ListFragment {
         //super.onCreateView(inflater, container, savedInstanceState);
         View view = inflater.inflate(R.layout.fragment_new_trip_add_friends, container, false);
 
+
+
         friendsListAdapter = new FriendsListAdapter(getActivity(), entireFBFriendsList);
  
         setListAdapter(friendsListAdapter);
 
         friendsListAdapter.notifyDataSetChanged();
-
-        /*
-          TODO use the attendingFBFriendsList to highlight/select already selected friends in the ListView.
-          Might want to do this after the entireFBFriendsList is populated from the call in OnCreate.
-          That could happen before this point in time, or it could happen after.
-        */
-        //temp
-        Friend temp = new Friend("Conner", true, "10208447656324839");
-        attendingFBFriendsList.add(temp);
-
-
 
         cancel_button = (Button) view.findViewById(R.id.cancel_button);
         create_button = (Button) view.findViewById(R.id.create_button);
