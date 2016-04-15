@@ -34,14 +34,15 @@
             />
 
 
-        <RadioButton
+        <CheckBox
             android:id="@+id/toggleButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/usersName"
             android:gravity="right|center_vertical"
-            android:focusable="false"
             android:layout_weight="1"
+            android:focusable="false"
+            android:focusableInTouchMode="false"
             />
 
         

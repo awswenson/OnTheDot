@@ -9,7 +9,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.ListView;
+import android.widget.RadioButton;
 import android.widget.Toast;
 
 import com.facebook.AccessToken;
@@ -124,7 +126,7 @@ public class NewTripAddFriendsFragment extends ListFragment {
         View view = inflater.inflate(R.layout.fragment_new_trip_add_friends, container, false);
 
         friendsListAdapter = new FriendsListAdapter(getActivity(), entireFBFriendsList);
-
+ 
         setListAdapter(friendsListAdapter);
 
         friendsListAdapter.notifyDataSetChanged();
@@ -134,6 +136,11 @@ public class NewTripAddFriendsFragment extends ListFragment {
           Might want to do this after the entireFBFriendsList is populated from the call in OnCreate.
           That could happen before this point in time, or it could happen after.
         */
+        //temp
+        Friend temp = new Friend("Conner", true, "10208447656324839");
+        attendingFBFriendsList.add(temp);
+
+
 
         cancel_button = (Button) view.findViewById(R.id.cancel_button);
         create_button = (Button) view.findViewById(R.id.create_button);
@@ -187,8 +194,32 @@ public class NewTripAddFriendsFragment extends ListFragment {
           onNewTripAddFriendsListenerCallback.onNewTripAddFriendsUpdated(attendingFBFriendsList). We
           only want to do that when the user presses "Create" or the back button.
         */
+        Friend selectedFriend = entireFBFriendsList.get(pos);
+        CheckBox checkBox = (CheckBox) v.findViewById(R.id.toggleButton);
+        //if the friend just got invited and previously was not
+        if (checkIfFriendIsSelectedAlready(selectedFriend)){
+            checkBox.setChecked(true);
+        }
+        //if the friend is being uninvited
+        else{
+            checkBox.setChecked(false);
+        }
+    }
 
-        Toast.makeText(getActivity(), "Item " + pos + " was clicked", Toast.LENGTH_SHORT).show();
+    /*
+     *Checks if the given friend is already invited. This method also adds/removes the person to
+     * the list
+     *
+    */
+    private boolean checkIfFriendIsSelectedAlready(Friend friend){
+        for (int i = 0; i < attendingFBFriendsList.size(); i++){
+            if (attendingFBFriendsList.get(i).getId().equals(friend.getId())){
+                attendingFBFriendsList.remove(i);
+                return true;
+            }
+        }
+        attendingFBFriendsList.add(friend);
+        return false;
     }
 
 }

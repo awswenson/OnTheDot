@@ -1,16 +1,15 @@
 package cs407.onthedot;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.List;
 
@@ -39,8 +38,16 @@ public class FriendsListAdapter extends ArrayAdapter<Friend> {
             viewHolder = new ViewHolder();
             viewHolder.profPic = (ImageView) convertView.findViewById(R.id.profilePicture);
             viewHolder.usersName = (TextView) convertView.findViewById(R.id.usersName);
-            viewHolder.toggleButton = (RadioButton) convertView.findViewById(R.id.toggleButton);
+            viewHolder.toggleButton = (CheckBox) convertView.findViewById(R.id.toggleButton);
             viewHolder.entireRowCell = (LinearLayout) convertView.findViewById(R.id.entireRowCell);
+
+            viewHolder.toggleButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                // your code for textview click
+                    Toast.makeText(v.getContext(), "Got in here", Toast.LENGTH_LONG).show();
+                }
+            });
 
             convertView.setTag(viewHolder);
         } else {
@@ -70,6 +77,6 @@ public class FriendsListAdapter extends ArrayAdapter<Friend> {
         LinearLayout entireRowCell;
         ImageView profPic;
         TextView usersName;
-        RadioButton toggleButton;
+        CheckBox toggleButton;
     }
 }
