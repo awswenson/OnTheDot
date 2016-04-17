@@ -31,8 +31,10 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -260,14 +262,47 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
         destination_googleMaps.addMarker(new MarkerOptions().position(destination));
         destination_googleMaps.moveCamera(CameraUpdateFactory.newLatLngZoom(destination, GOOGLE_MAPS_ZOOM_LEVEL));
 
-        destination_googleMaps.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+        destination_googleMaps.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 
             @Override
-            public void onCameraChange(CameraPosition cameraPosition) {
+            public void onMapClick(LatLng point) {
 
-                destination = cameraPosition.target;
+                destination = point;
                 destination_googleMaps.clear();
-                destination_googleMaps.addMarker(new MarkerOptions().position(cameraPosition.target));
+                destination_googleMaps.addMarker(new MarkerOptions().position(point));
+            }
+        });
+
+        destination_googleMaps.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                LatLng lat_long = marker.getPosition();
+                String address = "";
+                String city = "";
+                String state = "";
+
+                Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
+                List<Address> addresses = null;
+                try {
+                    addresses = geocoder.getFromLocation(lat_long.latitude, lat_long.longitude, 1);
+                } catch (IOException e) {
+
+                }
+                if (addresses != null) {
+                    address = addresses.get(0).getAddressLine(0);
+                    city = addresses.get(0).getLocality();
+                    state = addresses.get(0).getAdminArea();
+                }
+
+                String title = address + " " + city + ", " + state;
+
+                marker = destination_googleMaps.addMarker(new MarkerOptions()
+                        .position(lat_long)
+                        .title(title));
+
+                marker.showInfoWindow();
+                return false;
             }
         });
 
