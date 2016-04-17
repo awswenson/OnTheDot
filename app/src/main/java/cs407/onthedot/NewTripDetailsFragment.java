@@ -1,11 +1,20 @@
 package cs407.onthedot;
 
+import android.Manifest;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.pm.PackageManager;
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,6 +47,9 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
     private EditText time_editText;
     private Button cancel_button;
     private Button addFriends_button;
+
+    private static final int MY_LOCATION_REQUEST_CODE = 1;
+    private static boolean canAccessLocation;
 
     private LatLng destination;
     private GoogleMap destination_googleMaps;
@@ -171,6 +183,51 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
     public void onMapReady(GoogleMap googleMap) {
         destination_googleMaps = googleMap;
 
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            canAccessLocation = true;
+            destination_googleMaps.setMyLocationEnabled(true);
+        } else {
+            // Show rationale and request permission.
+            String question = "Allow OnTheDot to access current location?";
+            new AlertDialog.Builder(getActivity())
+                    .setCancelable(true)
+                    .setMessage(question)
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            canAccessLocation = true;
+                        }
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            canAccessLocation = false;
+                        }
+                    })
+                    .show();
+
+        }
+
+
+
+        if (canAccessLocation) {
+            ActivityCompat.requestPermissions(getActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                    MY_LOCATION_REQUEST_CODE);
+            LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+            Criteria criteria = new Criteria();
+            Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
+            if (location != null) {
+                LatLng lat_long = new LatLng(location.getLatitude(), location.getLongitude());
+                destination = lat_long;
+            }
+        }
+        else {
+            getActivity().finish();
+            System.exit(0);
+        }
+
         destination_googleMaps.addMarker(new MarkerOptions().position(destination));
         destination_googleMaps.moveCamera(CameraUpdateFactory.newLatLngZoom(destination, GOOGLE_MAPS_ZOOM_LEVEL));
 
@@ -224,5 +281,22 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
         SimpleDateFormat sdf = new SimpleDateFormat(timeFormat, Locale.US);
 
         time_editText.setText(sdf.format(meetupTime_calendar.getTime()));
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        if (requestCode == MY_LOCATION_REQUEST_CODE) {
+            if (permissions.length == 1 &&
+                    permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                        && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                    destination_googleMaps.setMyLocationEnabled(true);
+                }
+            } else {
+                // Permission was denied. Display an error message.
+
+            }
+        }
     }
 }
