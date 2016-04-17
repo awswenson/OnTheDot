@@ -8,7 +8,9 @@ import android.app.TimePickerDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
+import android.location.Address;
 import android.location.Criteria;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -34,6 +36,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallback {
@@ -45,8 +48,10 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
 
     private EditText date_editText;
     private EditText time_editText;
+    private EditText search;
     private Button cancel_button;
     private Button addFriends_button;
+    private Button search_button;
 
     private static final int MY_LOCATION_REQUEST_CODE = 1;
     private static boolean canAccessLocation;
@@ -71,6 +76,7 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
          * can add friends to participate in the trip with
          */
         public void onAddFriendsButtonPressed();
+
     }
 
     public NewTripDetailsFragment() {
@@ -107,9 +113,11 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
 
         date_editText = (EditText) view.findViewById(R.id.date_editText);
         time_editText = (EditText) view.findViewById(R.id.time_editText);
+        search = (EditText) view.findViewById(R.id.searchView1);
 
         cancel_button = (Button) view.findViewById(R.id.cancel_button);
         addFriends_button = (Button) view.findViewById(R.id.addFriends_button);
+        search_button = (Button) view.findViewById(R.id.searchButton);
 
         SupportMapFragment mapFragment = (SupportMapFragment) this.getChildFragmentManager()
                 .findFragmentById(R.id.destination_googleMaps);
@@ -160,6 +168,29 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
             }
         });
 
+        search_button.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+                String g = search.getText().toString();
+
+                Geocoder geocoder = new Geocoder(getActivity().getBaseContext());
+                List<Address> addresses = null;
+
+                try {
+                    // Getting a maximum of 3 Address that matches the input
+                    // text
+                    addresses = geocoder.getFromLocationName(g, 3);
+                    if (addresses != null && !addresses.equals(""))
+                        onSearchButtonPressed(addresses);
+
+                } catch (Exception e) {
+
+                }
+
+            }
+        });
+
         return view;
     }
 
@@ -206,22 +237,20 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
                         }
                     })
                     .show();
-
         }
-
-
 
         if (canAccessLocation) {
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     MY_LOCATION_REQUEST_CODE);
-            LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
+            /*LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
             Criteria criteria = new Criteria();
             Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
             if (location != null) {
                 LatLng lat_long = new LatLng(location.getLatitude(), location.getLongitude());
                 destination = lat_long;
-            }
+            }*/
+
         }
         else {
             getActivity().finish();
@@ -298,5 +327,25 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
 
             }
         }
+    }
+
+    public void onSearchButtonPressed(List<Address> addresses) {
+        Address address = addresses.get(0);
+        LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+
+        String addressText = String.format(
+                "%s, %s",
+                address.getMaxAddressLineIndex() > 0 ? address
+                        .getAddressLine(0) : "", address.getCountryName());
+
+        MarkerOptions markerOptions = new MarkerOptions();
+
+        markerOptions.position(latLng);
+        markerOptions.title(addressText);
+
+        destination_googleMaps.clear();
+        destination_googleMaps.addMarker(markerOptions);
+        destination_googleMaps.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+        destination_googleMaps.animateCamera(CameraUpdateFactory.zoomTo(GOOGLE_MAPS_ZOOM_LEVEL));
     }
 }
