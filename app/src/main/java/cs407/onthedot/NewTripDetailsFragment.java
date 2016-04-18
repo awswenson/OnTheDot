@@ -59,7 +59,9 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
     private static boolean canAccessLocation;
 
     private LatLng destination;
+    private LatLng start_location;
     private GoogleMap destination_googleMaps;
+    private String currAddr;
 
     private Calendar meetupTime_calendar;
 
@@ -189,7 +191,6 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
                 } catch (Exception e) {
 
                 }
-
             }
         });
 
@@ -245,16 +246,8 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
             ActivityCompat.requestPermissions(getActivity(),
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     MY_LOCATION_REQUEST_CODE);
-            /*LocationManager locationManager = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
-            Criteria criteria = new Criteria();
-            Location location = locationManager.getLastKnownLocation(locationManager.getBestProvider(criteria, false));
-            if (location != null) {
-                LatLng lat_long = new LatLng(location.getLatitude(), location.getLongitude());
-                destination = lat_long;
-            }*/
 
-        }
-        else {
+        } else {
             getActivity().finish();
             System.exit(0);
         }
@@ -267,7 +260,6 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
             @Override
             public void onMapClick(LatLng point) {
 
-                destination = point;
                 destination_googleMaps.clear();
                 destination_googleMaps.addMarker(new MarkerOptions().position(point));
             }
@@ -296,91 +288,123 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
                 }
 
                 String title = address + " " + city + ", " + state;
+                currAddr = title;
+                title += " >>";
 
-                marker = destination_googleMaps.addMarker(new MarkerOptions()
+                Marker new_marker = destination_googleMaps.addMarker(new MarkerOptions()
                         .position(lat_long)
                         .title(title));
 
-                marker.showInfoWindow();
+
+                new_marker.showInfoWindow();
                 return false;
             }
         });
 
+        destination_googleMaps.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                OnWindowPressed(marker);
+            }
+        });
     }
 
-    private DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
+        private DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
 
-        @Override
-        public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
+                @Override
+                public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
 
-            meetupTime_calendar.set(Calendar.YEAR, year);
-            meetupTime_calendar.set(Calendar.MONTH, monthOfYear);
-            meetupTime_calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                    meetupTime_calendar.set(Calendar.YEAR, year);
+                    meetupTime_calendar.set(Calendar.MONTH, monthOfYear);
+                    meetupTime_calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
 
-            setDateOnEditText();
-        }
-    };
-
-    private TimePickerDialog.OnTimeSetListener time = new TimePickerDialog.OnTimeSetListener() {
-
-        @Override
-        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-
-            meetupTime_calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
-            meetupTime_calendar.set(Calendar.MINUTE, minute);
-
-            setTimeOnEditText();
-        }
-    };
-
-    private void setDateOnEditText() {
-        String dateFormat = "MM/dd/yy";
-        SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.US);
-
-        date_editText.setText(sdf.format(meetupTime_calendar.getTime()));
-    }
-
-    private void setTimeOnEditText() {
-        String timeFormat = "h:mm a";
-        SimpleDateFormat sdf = new SimpleDateFormat(timeFormat, Locale.US);
-
-        time_editText.setText(sdf.format(meetupTime_calendar.getTime()));
-    }
-
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        if (requestCode == MY_LOCATION_REQUEST_CODE) {
-            if (permissions.length == 1 &&
-                    permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION &&
-                    grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                        && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-                    destination_googleMaps.setMyLocationEnabled(true);
+                    setDateOnEditText();
                 }
-            } else {
-                // Permission was denied. Display an error message.
+            };
+
+            private TimePickerDialog.OnTimeSetListener time = new TimePickerDialog.OnTimeSetListener() {
+
+                @Override
+                public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+
+                    meetupTime_calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
+                    meetupTime_calendar.set(Calendar.MINUTE, minute);
+
+                    setTimeOnEditText();
+                }
+            };
+
+            private void setDateOnEditText() {
+                String dateFormat = "MM/dd/yy";
+                SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.US);
+
+                date_editText.setText(sdf.format(meetupTime_calendar.getTime()));
+            }
+
+            private void setTimeOnEditText() {
+                String timeFormat = "h:mm a";
+                SimpleDateFormat sdf = new SimpleDateFormat(timeFormat, Locale.US);
+
+                time_editText.setText(sdf.format(meetupTime_calendar.getTime()));
+            }
+
+            @Override
+            public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+                if (requestCode == MY_LOCATION_REQUEST_CODE) {
+                    if (permissions.length == 1 &&
+                            permissions[0] == Manifest.permission.ACCESS_FINE_LOCATION &&
+                            grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                        if (ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                                && ActivityCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+                            destination_googleMaps.setMyLocationEnabled(true);
+                        }
+                    } else {
+                        // Permission was denied. Display an error message.
+
+                    }
+                }
+            }
+
+            public void onSearchButtonPressed(List<Address> addresses) {
+                Address address = addresses.get(0);
+                LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+
+                String addressText = String.format(
+                        "%s, %s",
+                        address.getMaxAddressLineIndex() > 0 ? address
+                                .getAddressLine(0) : "", address.getCountryName());
+
+                MarkerOptions markerOptions = new MarkerOptions();
+
+                markerOptions.position(latLng);
+                markerOptions.title(addressText);
+
+                destination_googleMaps.clear();
+                destination_googleMaps.addMarker(markerOptions);
+                destination_googleMaps.moveCamera(CameraUpdateFactory.newLatLng(latLng));
+                destination_googleMaps.animateCamera(CameraUpdateFactory.zoomTo(GOOGLE_MAPS_ZOOM_LEVEL));
+            }
+
+            public void OnWindowPressed(final Marker marker) {
+                String question = "Set " + currAddr + " as destination?";
+                new AlertDialog.Builder(getActivity())
+                        .setCancelable(true)
+                        .setMessage(question)
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                destination = marker.getPosition();
+                                System.out.println(destination.toString());
+                            }
+                        })
+                        .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+
+                            }
+                        })
+                        .show();
 
             }
         }
-    }
-
-    public void onSearchButtonPressed(List<Address> addresses) {
-        Address address = addresses.get(0);
-        LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
-
-        String addressText = String.format(
-                "%s, %s",
-                address.getMaxAddressLineIndex() > 0 ? address
-                        .getAddressLine(0) : "", address.getCountryName());
-
-        MarkerOptions markerOptions = new MarkerOptions();
-
-        markerOptions.position(latLng);
-        markerOptions.title(addressText);
-
-        destination_googleMaps.clear();
-        destination_googleMaps.addMarker(markerOptions);
-        destination_googleMaps.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        destination_googleMaps.animateCamera(CameraUpdateFactory.zoomTo(GOOGLE_MAPS_ZOOM_LEVEL));
-    }
-}
