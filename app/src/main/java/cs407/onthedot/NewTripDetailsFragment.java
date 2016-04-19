@@ -47,6 +47,7 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
     private static final String ARG_DESTINATION = "DESTINATION";
 
     private final int GOOGLE_MAPS_ZOOM_LEVEL = 16;
+    private final int NUMBER_OF_ADDR_SEARCH_RESULTS = 1;
 
     private EditText date_editText;
     private EditText time_editText;
@@ -60,7 +61,6 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
 
     private LatLng destination;
     private GoogleMap destination_googleMaps;
-    private String currAddr;
 
     private Calendar meetupTime_calendar;
 
@@ -175,20 +175,14 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
 
             @Override
             public void onClick(View view) {
-                String g = search.getText().toString();
-
-                Geocoder geocoder = new Geocoder(getActivity().getBaseContext());
-                List<Address> addresses = null;
+                String searchText = search.getText().toString();
 
                 try {
-                    // Getting a maximum of 3 Address that matches the input
-                    // text
-                    addresses = geocoder.getFromLocationName(g, 3);
-                    if (addresses != null && !addresses.equals(""))
-                        onSearchButtonPressed(addresses);
+                    Geocoder geocoder = new Geocoder(getActivity().getBaseContext());
 
-                } catch (Exception e) {
-
+                    onSearchButtonPressed(geocoder.getFromLocationName(searchText, NUMBER_OF_ADDR_SEARCH_RESULTS));
+                } catch (IOException e) {
+                    // TODO Display popup saying no location could be found
                 }
             }
         });
@@ -251,7 +245,7 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
             System.exit(0);
         }
 
-        destination_googleMaps.addMarker(new MarkerOptions().position(destination));
+        displayMarker(destination);
         destination_googleMaps.moveCamera(CameraUpdateFactory.newLatLngZoom(destination, GOOGLE_MAPS_ZOOM_LEVEL));
 
         destination_googleMaps.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
@@ -259,54 +253,37 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
             @Override
             public void onMapClick(LatLng point) {
 
-                destination_googleMaps.clear();
-                destination_googleMaps.addMarker(new MarkerOptions().position(point));
+                if (!point.equals(destination)) {
+                    destination = point;
+                    displayMarker(point);
+                    destination_googleMaps.animateCamera(CameraUpdateFactory.newLatLngZoom(point, GOOGLE_MAPS_ZOOM_LEVEL));
+                }
             }
         });
+
+        destination_googleMaps.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
+
+            @Override
+            public void onCameraChange(CameraPosition cameraPosition) {
+                if (!cameraPosition.target.equals(destination)) {
+                    destination = cameraPosition.target;
+                    displayMarker(cameraPosition.target);
+                }
+            }
+        });
+
 
         destination_googleMaps.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
 
             @Override
             public boolean onMarkerClick(Marker marker) {
-                LatLng lat_long = marker.getPosition();
-                String address = "";
-                String city = "";
-                String state = "";
-
-                Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
-                List<Address> addresses = null;
-                try {
-                    addresses = geocoder.getFromLocation(lat_long.latitude, lat_long.longitude, 1);
-                } catch (IOException e) {
-
-                }
-                if (addresses != null) {
-                    address = addresses.get(0).getAddressLine(0);
-                    city = addresses.get(0).getLocality();
-                    state = addresses.get(0).getAdminArea();
-                }
-
-                String title = address + " " + city + ", " + state;
-                currAddr = title;
-                title += " >>";
-
-                Marker new_marker = destination_googleMaps.addMarker(new MarkerOptions()
-                        .position(lat_long)
-                        .title(title));
 
 
-                new_marker.showInfoWindow();
+                // Return false so the default behavior occurs
                 return false;
             }
         });
 
-        destination_googleMaps.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
-
-            @Override
-            public void onInfoWindowClick(Marker marker) {
-                OnWindowPressed(marker);
-            }
-        });
     }
 
     private DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
@@ -366,44 +343,48 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
     }
 
     public void onSearchButtonPressed(List<Address> addresses) {
+
+        if (addresses == null || addresses.isEmpty()) {
+            return;
+        }
+
         Address address = addresses.get(0);
         LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
 
-        String addressText = String.format(
-                "%s, %s",
-                address.getMaxAddressLineIndex() > 0 ? address
-                        .getAddressLine(0) : "", address.getCountryName());
-
-        MarkerOptions markerOptions = new MarkerOptions();
-
-        markerOptions.position(latLng);
-        markerOptions.title(addressText);
-
-        destination_googleMaps.clear();
-        destination_googleMaps.addMarker(markerOptions);
-        destination_googleMaps.moveCamera(CameraUpdateFactory.newLatLng(latLng));
-        destination_googleMaps.animateCamera(CameraUpdateFactory.zoomTo(GOOGLE_MAPS_ZOOM_LEVEL));
+        displayMarker(latLng);
+        destination_googleMaps.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, GOOGLE_MAPS_ZOOM_LEVEL));
     }
 
-    public void OnWindowPressed(final Marker marker) {
-        String question = "Set " + currAddr + " as destination?";
-        new AlertDialog.Builder(getActivity())
-                .setCancelable(true)
-                .setMessage(question)
-                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        destination = marker.getPosition();
-                        System.out.println(destination.toString());
-                    }
-                })
-                .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+    public void displayMarker(LatLng location) {
+        Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
+        List<Address> addresses = null;
 
-                    }
-                })
-                .show();
+        try {
+            addresses = geocoder.getFromLocation(location.latitude,
+                    location.longitude, NUMBER_OF_ADDR_SEARCH_RESULTS);
 
+        } catch (IOException e) {
+            // TODO Handle exception?
+        }
+
+        destination_googleMaps.clear();
+
+        if (addresses != null && !addresses.isEmpty()) {
+            String address = addresses.get(0).getAddressLine(0);
+            String city = addresses.get(0).getLocality();
+            String state = addresses.get(0).getAdminArea();
+
+            Marker newMarker = destination_googleMaps.addMarker(new MarkerOptions()
+                    .position(location)
+                    .title(address + " " + city + ", " + state));
+
+            newMarker.showInfoWindow();
+        }
+        else {
+            Marker newMarker = destination_googleMaps.addMarker(new MarkerOptions()
+                    .position(location));
+
+            newMarker.showInfoWindow();
+        }
     }
 }
