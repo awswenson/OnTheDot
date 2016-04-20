@@ -65,7 +65,7 @@ public class NewTripActivity extends AppCompatActivity implements NewTripDetails
     @Override
     public void onCreateTripButtonPressed() {
         Intent data = new Intent();
-        data.putExtra("NEW_TRIP", newTrip);
+        data.putExtra(DashboardActivity.INTENT_TRIP_OBJECT, newTrip);
 
         // Activity finished OK, return the data so that we can add it to the database
         setResult(RESULT_OK, data);

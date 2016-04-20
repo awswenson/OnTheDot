@@ -12,6 +12,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListAdapter;
 import android.widget.ListView;
@@ -34,6 +35,8 @@ import java.util.ArrayList;
 public class DashboardActivity extends AppCompatActivity {
 
     private final int ADD_NEW_TRIP_REQUEST = 1;
+
+    public static final String INTENT_TRIP_OBJECT = "TRIP_OBJECT";
 
     private DBHelper onTheDotDatabase;
 
@@ -68,6 +71,19 @@ public class DashboardActivity extends AppCompatActivity {
         currentTrips_listView = (ListView) findViewById(R.id.currentTrips_listView);
         currentTripsAdapter = new DashboardAdapter(this, currentTripsList);
         currentTrips_listView.setAdapter(currentTripsAdapter);
+
+        currentTrips_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                DashboardAdapter adapter = (DashboardAdapter) ((ListView) parent).getAdapter();
+                Trip trip = adapter.getItem(position);
+
+                Intent intent = new Intent(view.getContext(), TripInfoActivity.class);
+                intent.putExtra(INTENT_TRIP_OBJECT, trip);
+                startActivity(intent);
+            }
+        });
 
         pastTrips_listView = (ListView) findViewById(R.id.pastTrips_listView);
         pastTripsAdapter = new DashboardAdapter(this, pastTripsList);
@@ -174,7 +190,7 @@ public class DashboardActivity extends AppCompatActivity {
         if (requestCode == ADD_NEW_TRIP_REQUEST && resultCode == RESULT_OK) {
 
             // Get the trip data from the Intent object
-            Trip newTrip = data.getParcelableExtra("NEW_TRIP");
+            Trip newTrip = data.getParcelableExtra(INTENT_TRIP_OBJECT);
 
             // Add the trip to the database and get the ID
             long newTripId = onTheDotDatabase.addTrip(newTrip);
