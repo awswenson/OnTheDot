@@ -1,12 +1,18 @@
 package cs407.onthedot;
 
+import android.content.Context;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.google.android.gms.maps.model.LatLng;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 /**
  * Created by Alex Swenson on 4/2/16.
@@ -120,6 +126,32 @@ public class Trip implements Parcelable {
 
     public void setTripComplete(boolean tripComplete) {
         this.tripComplete = tripComplete;
+    }
+
+    /**
+     * Get the address information based on the currently stored LatLng object
+     *
+     * @param context
+     * @return The address String
+     */
+    public Address getAddressInformation(Context context) {
+        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        List<Address> addresses = null;
+
+        try {
+            addresses = geocoder.getFromLocation(destination.latitude,
+                    destination.longitude, 1);
+
+        } catch (IOException e) {
+            // TODO Handle exception?
+        }
+
+        if (addresses != null && !addresses.isEmpty()) {
+            return addresses.get(0);
+        }
+        else {
+            return null;
+        }
     }
 
     @Override

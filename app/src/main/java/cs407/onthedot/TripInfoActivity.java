@@ -2,7 +2,6 @@ package cs407.onthedot;
 
 import android.content.Intent;
 import android.location.Address;
-import android.location.Geocoder;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -16,9 +15,7 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
-import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.List;
 import java.util.Locale;
 
 public class TripInfoActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -69,6 +66,12 @@ public class TripInfoActivity extends AppCompatActivity implements OnMapReadyCal
 
         // TODO Show the pictures of the attending friends
 
+        /* When the edit button is clicked, we want to pass the Trip object to the EditTripActivity.
+           We do this as an ActivityForResult. That is, if the user finishes editing the trip,
+           we want to send the Trip object back (via OnActivityResult) to the DashboardActivity
+           to be added to the database.  There, a new TripInfo activity is spawned with
+           the edited trip
+        */
         editTrip_button.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -83,7 +86,14 @@ public class TripInfoActivity extends AppCompatActivity implements OnMapReadyCal
 
             @Override
             public void onClick(View view) {
-                // TODO
+
+                // Return to the DashboardActivity with the Trip object
+                Intent data = new Intent();
+                data.putExtra(DashboardActivity.INTENT_TRIP_OBJECT, trip);
+
+                // (RESULT_FIRST_USER + 1) means to delete the Trip in the database
+                setResult((RESULT_FIRST_USER + 1), data);
+                finish();
             }
         });
     }
@@ -92,34 +102,24 @@ public class TripInfoActivity extends AppCompatActivity implements OnMapReadyCal
     public void onMapReady(GoogleMap googleMap) {
         destination_googleMaps = googleMap;
 
-        Geocoder geocoder = new Geocoder(this, Locale.getDefault());
-        List<Address> addresses = null;
+        Address address = trip.getAddressInformation(this);
 
-        try {
-            addresses = geocoder.getFromLocation(trip.getDestinationLatitude(),
-                    trip.getDestinationLongitude(), 1);
+        Marker mapMarker;
 
-        } catch (IOException e) {
-            // TODO Handle exception?
-        }
-
-        if (addresses != null && !addresses.isEmpty()) {
-            String address = addresses.get(0).getAddressLine(0);
-            String city = addresses.get(0).getLocality();
-            String state = addresses.get(0).getAdminArea();
-
-            Marker newMarker = destination_googleMaps.addMarker(new MarkerOptions()
+        if (address != null) {
+            mapMarker = destination_googleMaps.addMarker(new MarkerOptions()
                     .position(trip.getDestination())
-                    .title(address + " " + city + ", " + state));
+                    .title(address.getAddressLine(0))
+                    .snippet(address.getLocality() + ", " + address.getAdminArea() + " " + address.getPostalCode()));
 
-            newMarker.showInfoWindow();
+
         }
         else {
-            Marker newMarker = destination_googleMaps.addMarker(new MarkerOptions()
+            mapMarker = destination_googleMaps.addMarker(new MarkerOptions()
                     .position(trip.getDestination()));
-
-            newMarker.showInfoWindow();
         }
+
+        mapMarker.showInfoWindow();
 
         destination_googleMaps.moveCamera(CameraUpdateFactory.newLatLngZoom(trip.getDestination(), GOOGLE_MAPS_ZOOM_LEVEL));
     }
@@ -129,7 +129,9 @@ public class TripInfoActivity extends AppCompatActivity implements OnMapReadyCal
 
         // Check which request we're responding to and ensure the result was successful
         if (requestCode == EDIT_TRIP_REQUEST && resultCode == RESULT_OK) {
-            setResult(RESULT_OK, data);
+
+            // RESULT_FIRST_USER means to update the Trip in the database
+            setResult(RESULT_FIRST_USER, data);
             finish();
         }
     }

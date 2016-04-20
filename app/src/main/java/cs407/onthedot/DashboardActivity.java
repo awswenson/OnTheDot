@@ -198,8 +198,8 @@ public class DashboardActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         // Check which request we're responding to and ensure the result was successful
-        if (resultCode == RESULT_OK) {
-            if (requestCode == ADD_NEW_TRIP_REQUEST) {
+        if (requestCode == ADD_NEW_TRIP_REQUEST) {
+            if (resultCode == RESULT_OK) {
 
                 // Get the trip data from the Intent object
                 Trip newTrip = data.getParcelableExtra(INTENT_TRIP_OBJECT);
@@ -218,18 +218,52 @@ public class DashboardActivity extends AppCompatActivity {
                     currentTripsAdapter.notifyDataSetChanged();
                     ListUtils.setDynamicHeight(currentTrips_listView);
                 }
-            } else if (requestCode == EDIT_TRIP_REQUEST) {
+            }
+        } else if (requestCode == EDIT_TRIP_REQUEST) {
 
+            if (resultCode == RESULT_FIRST_USER) { // Update the Trip object in the database
                 Trip editedTrip = data.getParcelableExtra(INTENT_TRIP_OBJECT);
 
-                // TODO update the trip object in the database
+                // Update the trip and make sure it was successful
+                if (!onTheDotDatabase.updateTrip(editedTrip)) {
+
+                    // TODO display popup saying trip could not be updated
+                }
+
+                /*
+                   TODO Update the Trip in the currentTripsList
+                   currentTripsList.remove(editedTrip);
+                   currentTripsList.add(editedTrip);
+                */
 
                 // Return back to the Trip info page with the update trip
                 Intent intent = new Intent(this, TripInfoActivity.class);
                 intent.putExtra(INTENT_TRIP_OBJECT, editedTrip);
                 startActivityForResult(intent, EDIT_TRIP_REQUEST);
+
+            } else if (resultCode == (RESULT_FIRST_USER + 1)) { // Delete the Trip object in the database
+                Trip tripToDelete = data.getParcelableExtra(INTENT_TRIP_OBJECT);
+
+                onTheDotDatabase.deleteTripByTripID(tripToDelete.getTripID());
+
+                /*
+                   TODO Remove the Trip in the currentTripsList
+                   currentTripsList.remove(tripToDelete);
+                */
+
+                currentTripsAdapter.notifyDataSetChanged();
+                ListUtils.setDynamicHeight(currentTrips_listView);
             }
         }
+    }
+
+    @Override
+    public void onResume(){
+        super.onResume();
+
+        currentTripsAdapter.notifyDataSetChanged();
+        pastTripsAdapter.notifyDataSetChanged();
+        ListUtils.setDynamicHeight(currentTrips_listView);
     }
 
     public static Bitmap getFacebookProfilePicture(String URL) throws SocketException, SocketTimeoutException, MalformedURLException, IOException, Exception {

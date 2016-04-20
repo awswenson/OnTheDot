@@ -207,6 +207,7 @@ public class EditTripDetailsFragment extends Fragment implements OnMapReadyCallb
     public void onMapReady(GoogleMap googleMap) {
         destination_googleMaps = googleMap;
 
+        // Get permission from the user to get thier location
         if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
                 == PackageManager.PERMISSION_GRANTED) {
             canAccessLocation = true;
@@ -242,9 +243,11 @@ public class EditTripDetailsFragment extends Fragment implements OnMapReadyCallb
             System.exit(0);
         }
 
+        // Set up the map with the provided location information
         displayMarker(destination);
         destination_googleMaps.moveCamera(CameraUpdateFactory.newLatLngZoom(destination, GOOGLE_MAPS_ZOOM_LEVEL));
 
+        // This is what happens when the user clicks a location on the map
         destination_googleMaps.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
 
             @Override
@@ -258,6 +261,7 @@ public class EditTripDetailsFragment extends Fragment implements OnMapReadyCallb
             }
         });
 
+        // This determines what happens when the user pans the map
         destination_googleMaps.setOnCameraChangeListener(new GoogleMap.OnCameraChangeListener() {
 
             @Override
@@ -266,18 +270,6 @@ public class EditTripDetailsFragment extends Fragment implements OnMapReadyCallb
                     destination = cameraPosition.target;
                     displayMarker(cameraPosition.target);
                 }
-            }
-        });
-
-
-        destination_googleMaps.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-
-
-                // Return false so the default behavior occurs
-                return false;
             }
         });
 
@@ -339,6 +331,11 @@ public class EditTripDetailsFragment extends Fragment implements OnMapReadyCallb
         }
     }
 
+    /**
+     * Method that determines what happens when the search button is pressed
+     *
+     * @param addresses
+     */
     public void onSearchButtonPressed(List<Address> addresses) {
 
         if (addresses == null || addresses.isEmpty()) {
@@ -352,9 +349,16 @@ public class EditTripDetailsFragment extends Fragment implements OnMapReadyCallb
         destination_googleMaps.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, GOOGLE_MAPS_ZOOM_LEVEL));
     }
 
+    /**
+     * Displays a Marker on the GoogleMap fragment for the LatLng location with address
+     * information if available.
+     *
+     * @param location The location to display the marker
+     */
     public void displayMarker(LatLng location) {
         Geocoder geocoder = new Geocoder(getActivity(), Locale.getDefault());
         List<Address> addresses = null;
+        Marker mapMarker;
 
         try {
             addresses = geocoder.getFromLocation(location.latitude,
@@ -367,21 +371,17 @@ public class EditTripDetailsFragment extends Fragment implements OnMapReadyCallb
         destination_googleMaps.clear();
 
         if (addresses != null && !addresses.isEmpty()) {
-            String address = addresses.get(0).getAddressLine(0);
-            String city = addresses.get(0).getLocality();
-            String state = addresses.get(0).getAdminArea();
+            Address address = addresses.get(0);
 
-            Marker newMarker = destination_googleMaps.addMarker(new MarkerOptions()
-                    .position(location)
-                    .title(address + " " + city + ", " + state));
-
-            newMarker.showInfoWindow();
-        }
-        else {
-            Marker newMarker = destination_googleMaps.addMarker(new MarkerOptions()
+            mapMarker = destination_googleMaps.addMarker(new MarkerOptions()
+                    .title(address.getAddressLine(0))
+                    .snippet(address.getLocality() + ", " + address.getAdminArea() + " " + address.getPostalCode())
                     .position(location));
-
-            newMarker.showInfoWindow();
+        } else {
+            mapMarker = destination_googleMaps.addMarker(new MarkerOptions()
+                    .position(location));
         }
+
+        mapMarker.showInfoWindow();
     }
 }

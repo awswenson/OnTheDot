@@ -259,6 +259,21 @@ public class DBHelper extends SQLiteOpenHelper {
         db.execSQL(sb.toString());
     }
 
+    /**
+     * Update the Trip in the database
+     *
+     * @param trip The Trip object to update
+     * @return true is the Trip was successfully update; false otherwise
+     */
+    public boolean updateTrip(Trip trip) {
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        // TODO Update the trip object in the database.  See example below
+
+        return true;
+    }
+
     private ArrayList<Trip> getAllTripsByTripIDFromCursor(Cursor resOfTripIDs) {
         ArrayList<Trip> trips = new ArrayList<>();
 
