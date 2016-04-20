@@ -23,7 +23,7 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class NewTripAddFriendsFragment extends ListFragment {
+public class EditTripAddFriendsFragment extends ListFragment {
 
     private static final String ARG_FB_ATTENDING_FRIENDS_LIST = "FB_ATTENDING_FRIENDS_LIST";
 
@@ -31,13 +31,13 @@ public class NewTripAddFriendsFragment extends ListFragment {
     private ArrayList<Friend> entireFBFriendsList;
 
     private Button cancel_button;
-    private Button create_button;
+    private Button finish_button;
 
     private FriendsListAdapter friendsListAdapter;
 
-    OnNewTripAddFriendsListener onNewTripAddFriendsListenerCallback;
+    OnTripAddFriendsListener onTripAddFriendsListenerCallback;
 
-    public interface OnNewTripAddFriendsListener {
+    public interface OnTripAddFriendsListener {
 
         /**
          * Update the friends list associated with the trip
@@ -45,23 +45,22 @@ public class NewTripAddFriendsFragment extends ListFragment {
          * @param attendingFBFriendsList The list of friends that are currently selected to
          *                               participate in the trip
          */
-        public void onNewTripAddFriendsUpdated(ArrayList<Friend> attendingFBFriendsList);
+        public void onTripAddFriendsUpdated(ArrayList<Friend> attendingFBFriendsList);
 
         /**
-         * Determines what happens after the "Create" button is clicked.  Ideally,
+         * Determines what happens after the "Finish" button is clicked.  Ideally,
          * the class that implements this should make sure the Trip details are up to date
          * and then add the Trip to the database somehow
          */
-        public void onCreateTripButtonPressed();
+        public void onFinishTripButtonPressed();
     }
 
-
-    public NewTripAddFriendsFragment() {
+    public EditTripAddFriendsFragment() {
         // Required empty public constructor
     }
 
-    public static NewTripAddFriendsFragment newInstance(ArrayList<Friend> attendingFBFriendsList) {
-        NewTripAddFriendsFragment fragment = new NewTripAddFriendsFragment();
+    public static EditTripAddFriendsFragment newInstance(ArrayList<Friend> attendingFBFriendsList) {
+        EditTripAddFriendsFragment fragment = new EditTripAddFriendsFragment();
         Bundle args = new Bundle();
         args.putParcelableArrayList(ARG_FB_ATTENDING_FRIENDS_LIST, attendingFBFriendsList);
         fragment.setArguments(args);
@@ -146,7 +145,7 @@ public class NewTripAddFriendsFragment extends ListFragment {
 
         // Inflate the layout for this fragment
         //super.onCreateView(inflater, container, savedInstanceState);
-        View view = inflater.inflate(R.layout.fragment_new_trip_add_friends, container, false);
+        View view = inflater.inflate(R.layout.fragment_edit_trip_add_friends, container, false);
 
 
 
@@ -157,7 +156,7 @@ public class NewTripAddFriendsFragment extends ListFragment {
         friendsListAdapter.notifyDataSetChanged();
 
         cancel_button = (Button) view.findViewById(R.id.cancel_button);
-        create_button = (Button) view.findViewById(R.id.create_button);
+        finish_button = (Button) view.findViewById(R.id.finish_button);
 
         cancel_button.setOnClickListener(new View.OnClickListener() {
 
@@ -167,14 +166,14 @@ public class NewTripAddFriendsFragment extends ListFragment {
             }
         });
 
-        create_button.setOnClickListener(new View.OnClickListener() {
+        finish_button.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View view) {
-                onNewTripAddFriendsListenerCallback
-                        .onNewTripAddFriendsUpdated(attendingFBFriendsList);
+                onTripAddFriendsListenerCallback
+                        .onTripAddFriendsUpdated(attendingFBFriendsList);
 
-                onNewTripAddFriendsListenerCallback.onCreateTripButtonPressed();
+                onTripAddFriendsListenerCallback.onFinishTripButtonPressed();
             }
         });
 
@@ -189,7 +188,7 @@ public class NewTripAddFriendsFragment extends ListFragment {
         // the embedded listener class.
         if (context instanceof Activity) {
             try {
-                onNewTripAddFriendsListenerCallback = (OnNewTripAddFriendsListener) context;
+                onTripAddFriendsListenerCallback = (OnTripAddFriendsListener) context;
             } catch (ClassCastException e) {
                 throw new ClassCastException(context.toString()
                         + " must implement OnNewTripAddFriendsListener");

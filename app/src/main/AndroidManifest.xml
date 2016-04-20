@@ -57,9 +57,9 @@
             android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
-            android:name=".NewTripActivity"
+            android:name=".EditTripActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
-            android:label="Add New Trip" />
+            android:label="Edit Trip" />
 
         <activity
             android:name=".TripInfoActivity"

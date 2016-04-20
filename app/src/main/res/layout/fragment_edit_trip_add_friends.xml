@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 
-    tools:context="cs407.onthedot.NewTripAddFriendsFragment">
+    tools:context=".EditTripAddFriendsFragment">
 
     <ListView
         android:id="@android:id/list"
@@ -24,8 +24,8 @@
         <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Create"
-            android:id="@+id/create_button"
+            android:text="Finish"
+            android:id="@+id/finish_button"
             android:layout_weight="1" />
 
         <Button

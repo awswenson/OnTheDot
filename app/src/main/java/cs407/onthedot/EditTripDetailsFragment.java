@@ -38,7 +38,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallback {
+public class EditTripDetailsFragment extends Fragment implements OnMapReadyCallback {
 
     private static final String ARG_MEETUP_TIME = "MEETUP_TIME";
     private static final String ARG_DESTINATION = "DESTINATION";
@@ -61,14 +61,14 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
 
     private Calendar meetupTime_calendar;
 
-    OnNewTripDetailsListener onNewTripDetailsListenerCallback;
+    OnTripDetailsListener onTripDetailsListenerCallback;
 
-    public interface OnNewTripDetailsListener {
+    public interface OnTripDetailsListener {
 
         /**
          * Update the meetup time and destination in a Trip object
          */
-        public void onNewTripDetailsUpdated(Date meetupTime, LatLng destination);
+        public void onTripDetailsUpdated(Date meetupTime, LatLng destination);
 
         /**
          * Determines what happens after the "Add Friends" button is clicked.  Ideally,
@@ -79,12 +79,12 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
 
     }
 
-    public NewTripDetailsFragment() {
+    public EditTripDetailsFragment() {
         // Required empty public constructor
     }
 
-    public static NewTripDetailsFragment newInstance(Date meetupTime, LatLng destination) {
-        NewTripDetailsFragment fragment = new NewTripDetailsFragment();
+    public static EditTripDetailsFragment newInstance(Date meetupTime, LatLng destination) {
+        EditTripDetailsFragment fragment = new EditTripDetailsFragment();
         Bundle args = new Bundle();
         args.putSerializable(ARG_MEETUP_TIME, meetupTime);
         args.putParcelable(ARG_DESTINATION, destination);
@@ -109,7 +109,7 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
                              Bundle savedInstanceState) {
 
         // Inflate the layout for this fragment
-        View view = inflater.inflate(R.layout.fragment_new_trip_details, container, false);
+        View view = inflater.inflate(R.layout.fragment_edit_trip_details, container, false);
 
         date_editText = (EditText) view.findViewById(R.id.date_editText);
         time_editText = (EditText) view.findViewById(R.id.time_editText);
@@ -160,10 +160,10 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
 
             @Override
             public void onClick(View view) {
-                onNewTripDetailsListenerCallback
-                        .onNewTripDetailsUpdated(meetupTime_calendar.getTime(), destination);
+                onTripDetailsListenerCallback
+                        .onTripDetailsUpdated(meetupTime_calendar.getTime(), destination);
 
-                onNewTripDetailsListenerCallback
+                onTripDetailsListenerCallback
                         .onAddFriendsButtonPressed();
             }
         });
@@ -195,7 +195,7 @@ public class NewTripDetailsFragment extends Fragment implements OnMapReadyCallba
         // the embedded listener class.
         if (context instanceof Activity) {
             try {
-                onNewTripDetailsListenerCallback = (OnNewTripDetailsListener) context;
+                onTripDetailsListenerCallback = (OnTripDetailsListener) context;
             } catch (ClassCastException e) {
                 throw new ClassCastException(context.toString()
                         + " must implement OnNewTripDetailsListener");

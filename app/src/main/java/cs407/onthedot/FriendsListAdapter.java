@@ -9,7 +9,6 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.List;
 
@@ -22,7 +21,7 @@ public class FriendsListAdapter extends ArrayAdapter<Friend> {
     Context context;
 
     public FriendsListAdapter(Context context, List<Friend> items) {
-        super(context, R.layout.fragment_new_trip_add_friends, items);
+        super(context, R.layout.fragment_edit_trip_add_friends, items);
         this.context = context;
     }
 

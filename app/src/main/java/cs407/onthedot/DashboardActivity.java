@@ -14,12 +14,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -31,10 +31,12 @@ import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class DashboardActivity extends AppCompatActivity {
 
     private final int ADD_NEW_TRIP_REQUEST = 1;
+    private final int EDIT_TRIP_REQUEST = 2;
 
     public static final String INTENT_TRIP_OBJECT = "TRIP_OBJECT";
 
@@ -81,7 +83,7 @@ public class DashboardActivity extends AppCompatActivity {
 
                 Intent intent = new Intent(view.getContext(), TripInfoActivity.class);
                 intent.putExtra(INTENT_TRIP_OBJECT, trip);
-                startActivity(intent);
+                startActivityForResult(intent, EDIT_TRIP_REQUEST);
             }
         });
 
@@ -97,15 +99,24 @@ public class DashboardActivity extends AppCompatActivity {
         ListUtils.setDynamicHeight(currentTrips_listView);
         ListUtils.setDynamicHeight(pastTrips_listView);
 
-        // Set up the "Add New Trip" button
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(view.getContext(), NewTripActivity.class);
-                startActivityForResult(intent, ADD_NEW_TRIP_REQUEST);
-            }
-        });
+
+        // Set up the "Add New Trip" button
+        if (fab != null) {
+            fab.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View view) {
+
+                    // TODO replace the LatLng with the initial location of the device
+                    Trip newTrip = new Trip(new LatLng(43, -89), new Date(), new ArrayList<Friend>(), false);
+
+                    Intent intent = new Intent(view.getContext(), EditTripActivity.class);
+                    intent.putExtra(INTENT_TRIP_OBJECT, newTrip);
+                    startActivityForResult(intent, ADD_NEW_TRIP_REQUEST);
+                }
+            });
+        }
 
         // Set up the button to delete the past (i.e. completed) trips
         deletePastTrips_button = (Button) findViewById(R.id.deletePastTrips_button);
@@ -187,24 +198,36 @@ public class DashboardActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
         // Check which request we're responding to and ensure the result was successful
-        if (requestCode == ADD_NEW_TRIP_REQUEST && resultCode == RESULT_OK) {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == ADD_NEW_TRIP_REQUEST) {
 
-            // Get the trip data from the Intent object
-            Trip newTrip = data.getParcelableExtra(INTENT_TRIP_OBJECT);
+                // Get the trip data from the Intent object
+                Trip newTrip = data.getParcelableExtra(INTENT_TRIP_OBJECT);
 
-            // Add the trip to the database and get the ID
-            long newTripId = onTheDotDatabase.addTrip(newTrip);
+                // Add the trip to the database and get the ID
+                long newTripId = onTheDotDatabase.addTrip(newTrip);
 
-            // Make sure that the trip was added to the database successfully
-            if (newTripId > 0) {
+                // Make sure that the trip was added to the database successfully
+                if (newTripId > 0) {
 
-                // Set the ID of the trip in the Trip object
-                newTrip.setTripID(newTripId);
+                    // Set the ID of the trip in the Trip object
+                    newTrip.setTripID(newTripId);
 
-                currentTripsList.add(newTrip);
+                    currentTripsList.add(newTrip);
 
-                currentTripsAdapter.notifyDataSetChanged();
-                ListUtils.setDynamicHeight(currentTrips_listView);
+                    currentTripsAdapter.notifyDataSetChanged();
+                    ListUtils.setDynamicHeight(currentTrips_listView);
+                }
+            } else if (requestCode == EDIT_TRIP_REQUEST) {
+
+                Trip editedTrip = data.getParcelableExtra(INTENT_TRIP_OBJECT);
+
+                // TODO update the trip object in the database
+
+                // Return back to the Trip info page with the update trip
+                Intent intent = new Intent(this, TripInfoActivity.class);
+                intent.putExtra(INTENT_TRIP_OBJECT, editedTrip);
+                startActivityForResult(intent, EDIT_TRIP_REQUEST);
             }
         }
     }

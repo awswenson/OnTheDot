@@ -1,5 +1,6 @@
 package cs407.onthedot;
 
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.support.v7.app.AppCompatActivity;
@@ -22,7 +23,8 @@ import java.util.Locale;
 
 public class TripInfoActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private final int GOOGLE_MAPS_ZOOM_LEVEL = 14;
+    private final int EDIT_TRIP_REQUEST = 2;
+    private final int GOOGLE_MAPS_ZOOM_LEVEL = 15;
 
     private Trip trip;
 
@@ -71,7 +73,9 @@ public class TripInfoActivity extends AppCompatActivity implements OnMapReadyCal
 
             @Override
             public void onClick(View view) {
-                // TODO
+                Intent intent = new Intent(view.getContext(), EditTripActivity.class);
+                intent.putExtra(DashboardActivity.INTENT_TRIP_OBJECT, trip);
+                startActivityForResult(intent, EDIT_TRIP_REQUEST);
             }
         });
 
@@ -118,5 +122,15 @@ public class TripInfoActivity extends AppCompatActivity implements OnMapReadyCal
         }
 
         destination_googleMaps.moveCamera(CameraUpdateFactory.newLatLngZoom(trip.getDestination(), GOOGLE_MAPS_ZOOM_LEVEL));
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+
+        // Check which request we're responding to and ensure the result was successful
+        if (requestCode == EDIT_TRIP_REQUEST && resultCode == RESULT_OK) {
+            setResult(RESULT_OK, data);
+            finish();
+        }
     }
 }

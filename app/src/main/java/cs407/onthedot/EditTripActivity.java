@@ -13,23 +13,21 @@ import java.util.Date;
 /**
  * Created by Tanner on 3/24/2016.
  */
-public class NewTripActivity extends AppCompatActivity implements NewTripDetailsFragment.OnNewTripDetailsListener, NewTripAddFriendsFragment.OnNewTripAddFriendsListener
-{
+public class EditTripActivity extends AppCompatActivity implements EditTripDetailsFragment.OnTripDetailsListener, EditTripAddFriendsFragment.OnTripAddFriendsListener {
 
-    private Trip newTrip;
+    private Trip trip;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_new_trip);
+        setContentView(R.layout.activity_edit_trip);
 
-        // TODO replace the LatLng with the initial location of the device
-        newTrip = new Trip(new LatLng(43, -89), new Date(), new ArrayList<Friend>(), false);
+        trip = getIntent().getParcelableExtra(DashboardActivity.INTENT_TRIP_OBJECT);
 
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.newTripContainer_frameLayout,
-                        NewTripDetailsFragment.newInstance(newTrip.getMeetupTime(), newTrip.getDestination()))
+                        EditTripDetailsFragment.newInstance(trip.getMeetupTime(), trip.getDestination()))
                 .addToBackStack(null)
                 .commit();
     }
@@ -42,9 +40,9 @@ public class NewTripActivity extends AppCompatActivity implements NewTripDetails
     }
 
     @Override
-    public void onNewTripDetailsUpdated(Date meetupTime, LatLng destination) {
-        newTrip.setMeetupTime(meetupTime);
-        newTrip.setDestination(destination);
+    public void onTripDetailsUpdated(Date meetupTime, LatLng destination) {
+        trip.setMeetupTime(meetupTime);
+        trip.setDestination(destination);
     }
 
     @Override
@@ -52,20 +50,20 @@ public class NewTripActivity extends AppCompatActivity implements NewTripDetails
         getSupportFragmentManager()
                 .beginTransaction()
             .replace(R.id.newTripContainer_frameLayout,
-                    NewTripAddFriendsFragment.newInstance(newTrip.getAttendingFBFriendsList()))
+                    EditTripAddFriendsFragment.newInstance(trip.getAttendingFBFriendsList()))
             .addToBackStack(null)
             .commit();
     }
 
     @Override
-    public void onNewTripAddFriendsUpdated(ArrayList<Friend> attendingFBFriendsList) {
-        newTrip.setAttendingFBFriendsList(attendingFBFriendsList);
+    public void onTripAddFriendsUpdated(ArrayList<Friend> attendingFBFriendsList) {
+        trip.setAttendingFBFriendsList(attendingFBFriendsList);
     }
 
     @Override
-    public void onCreateTripButtonPressed() {
+    public void onFinishTripButtonPressed() {
         Intent data = new Intent();
-        data.putExtra(DashboardActivity.INTENT_TRIP_OBJECT, newTrip);
+        data.putExtra(DashboardActivity.INTENT_TRIP_OBJECT, trip);
 
         // Activity finished OK, return the data so that we can add it to the database
         setResult(RESULT_OK, data);

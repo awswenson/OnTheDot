@@ -25,27 +25,29 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:paddingTop="@dimen/dashboard_margin_between_lists"
+            android:paddingLeft="@dimen/dashboard_margin_between_lists"
+            android:paddingRight="@dimen/dashboard_margin_between_lists"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Date:"
             android:id="@+id/date_textView" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:paddingLeft="@dimen/dashboard_margin_between_lists"
+            android:paddingRight="@dimen/dashboard_margin_between_lists"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Time:"
             android:id="@+id/time_textView" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingLeft="@dimen/activity_horizontal_margin"
-            android:paddingRight="@dimen/activity_horizontal_margin"
-            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:paddingLeft="@dimen/dashboard_margin_between_lists"
+            android:paddingRight="@dimen/dashboard_margin_between_lists"
+            android:paddingBottom="@dimen/dashboard_margin_between_lists"
+            android:textAppearance="?android:attr/textAppearanceLarge"
             android:text="Friends:"
             android:id="@+id/friends_textView" />
 
