@@ -120,7 +120,7 @@ public class DBHelper extends SQLiteOpenHelper {
             }
         } catch (Exception e) { // Error in between database transaction
             Log.d("DBHelper",
-                    "ERROR: Database Transaction was unsuccessful and threw an unexpected error",
+                    "ERROR: Database insert transaction was unsuccessful and threw an unexpected error",
                     e.getCause());
 
             tripID = -1;
@@ -230,33 +230,52 @@ public class DBHelper extends SQLiteOpenHelper {
      * Delete a trip from the database corresponding to the trip ID
      *
      * @param tripID The trip ID corresponding to the trip to delete
+     * @return True if the record and its corresponding participants were deleted from the
+     * database; false otherwise.
      */
-    public void deleteTripByTripID(long tripID) {
+    public boolean deleteTripByTripID(long tripID) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        StringBuilder sb = new StringBuilder();
+        db.beginTransaction();
 
-        sb.append("DELETE FROM ");
-        sb.append(TRIP_TABLE_NAME);
-        sb.append(" WHERE ");
-        sb.append(TRIP_COLUMN_TRIP_ID);
-        sb.append(" = ");
-        sb.append(tripID);
+        boolean success = true;
 
-        // Delete the trip corresponding to the trip ID
-        db.execSQL(sb.toString());
+        try {
 
-        sb = new StringBuilder();
+            // Delete the trip corresponding to the trip ID
+            int numRowsDeleted = db.delete(TRIP_TABLE_NAME,
+                    TRIP_COLUMN_TRIP_ID + " = ?",
+                    new String[]{String.valueOf(tripID)});
 
-        sb.append("DELETE FROM ");
-        sb.append(PARTICIPANTS_TABLE_NAME);
-        sb.append(" WHERE ");
-        sb.append(PARTICIPANTS_COLUMN_TRIP_ID);
-        sb.append(" = ");
-        sb.append(tripID);
+            // Ensure that the trip was deleted from the database. Technically, numRowsDeleted
+            // should return 1 since only one trip should be deleted.
+            if (numRowsDeleted <= 0) {
+                success = false;
+            }
+            else {
+                // Delete the trip's participants corresponding trip ID
+                numRowsDeleted = db.delete(PARTICIPANTS_TABLE_NAME,
+                        PARTICIPANTS_COLUMN_TRIP_ID + " = ?",
+                        new String[]{String.valueOf(tripID)});
 
-        // Delete the trip's participants corresponding trip ID
-        db.execSQL(sb.toString());
+                // Ensure that it all the trip's participants were deleted from the database
+                if (numRowsDeleted <= 0) {
+                    success = false;
+                }
+            }
+
+            if (success) {
+                db.setTransactionSuccessful();
+            }
+        } catch (Exception e) { // Error in between database transaction
+            Log.d("DBHelper",
+                    "ERROR: Database delete transaction was unsuccessful and threw an unexpected error",
+                    e.getCause());
+        } finally { // Make sure to end the transaction
+            db.endTransaction();
+        }
+
+        return success;
     }
 
     /**
@@ -267,11 +286,61 @@ public class DBHelper extends SQLiteOpenHelper {
      */
     public boolean updateTrip(Trip trip) {
 
+        boolean success = true;
+
         SQLiteDatabase db = this.getWritableDatabase();
 
-        // TODO Update the trip object in the database.  See example below
+        db.beginTransaction();
 
-        return true;
+        try {
+
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(TRIP_COLUMN_DATE, dateFormat.format(trip.getMeetupTime()));
+            contentValues.put(TRIP_COLUMN_LATITUDE, trip.getDestinationLatitude());
+            contentValues.put(TRIP_COLUMN_LONGITUDE, trip.getDestinationLongitude());
+            contentValues.put(TRIP_COLUMN_COMPLETE, ((trip.isTripComplete()) ? 1 : 0));
+
+            // Update the trip in the database
+            int numRowsUpdated = db.update(TRIP_TABLE_NAME,
+                    contentValues,
+                    TRIP_COLUMN_TRIP_ID + " = ?",
+                    new String[]{String.valueOf(trip.getTripID())});
+
+            // Ensure that the trip was updated in the database. Technically, numRowsUpdated
+            // should return 1 since only one trip should be updated.
+            if (numRowsUpdated <= 0) {
+                success = false;
+            }
+            else {
+
+                // Delete the trip's participants corresponding trip ID
+                int numRowsDeleted = db.delete(PARTICIPANTS_TABLE_NAME,
+                        PARTICIPANTS_COLUMN_TRIP_ID + " = ?",
+                        new String[]{String.valueOf(trip.getTripID())});
+
+                // Ensure that it all the trip's participants were deleted from the database
+                if (numRowsDeleted <= 0) {
+                    success = false;
+                }
+                else {
+
+                    // Re-add each participant to the database
+                    success = insertParticipants(trip.getTripID(), trip.getAttendingFBFriendsList());
+                }
+            }
+
+            if (success) {
+                db.setTransactionSuccessful();
+            }
+        } catch (Exception e) { // Error in between database transaction
+            Log.d("DBHelper",
+                    "ERROR: Database update transaction was unsuccessful and threw an unexpected error",
+                    e.getCause());
+        } finally { // Make sure to end the transaction
+            db.endTransaction();
+        }
+
+        return success;
     }
 
     private ArrayList<Trip> getAllTripsByTripIDFromCursor(Cursor resOfTripIDs) {
@@ -353,40 +422,6 @@ public class DBHelper extends SQLiteOpenHelper {
         return db.rawQuery(sb.toString(), null);
     }
 
-    private Cursor getTripByIDWithoutParticipants(long tripID){
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("SELECT * FROM ");
-        sb.append(TRIP_TABLE_NAME);
-        sb.append(" WHERE ");
-        sb.append(TRIP_COLUMN_TRIP_ID);
-        sb.append(" = ");
-        sb.append(tripID);
-
-        return db.rawQuery(sb.toString(), null);
-    }
-
-    private Cursor getParticipantsByTripID(long tripID){
-        SQLiteDatabase db = this.getReadableDatabase();
-
-        StringBuilder sb = new StringBuilder();
-
-        sb.append("SELECT ");
-        sb.append(PARTICIPANTS_COLUMN_PARTICIPANT_ID);
-        sb.append(", ");
-        sb.append(PARTICIPANTS_COLUMN_PARTICIPANT_NAME);
-        sb.append(" FROM ");
-        sb.append(PARTICIPANTS_TABLE_NAME);
-        sb.append(" WHERE ");
-        sb.append(PARTICIPANTS_COLUMN_TRIP_ID);
-        sb.append(" = ");
-        sb.append(tripID);
-
-        return db.rawQuery(sb.toString(), null);
-    }
-
     private Cursor getAllTripIDs(){
         SQLiteDatabase db = this.getReadableDatabase();
 
@@ -432,21 +467,6 @@ public class DBHelper extends SQLiteOpenHelper {
         return db.rawQuery(sb.toString(), null);
     }
 
-//    //example of a function that updates the values of a given entry in the database
-//    public boolean updateContact (Integer id, String name, String phone, String email, String street,String place)
-//    {
-//        SQLiteDatabase db = this.getWritableDatabase();
-//        ContentValues contentValues = new ContentValues();
-//        contentValues.put("name", name);
-//        contentValues.put("phone", phone);
-//        contentValues.put("email", email);
-//        contentValues.put("street", street);
-//        contentValues.put("place", place);
-//        db.update("events", contentValues, "id = ? ", new String[] { Integer.toString(id) } );
-//        return true;
-//    }
-//
-//
 //    //clear all tables. Use for debugging purposes.
 //    public void restartDBDebug(){
 //        SQLiteDatabase db = this.getWritableDatabase();

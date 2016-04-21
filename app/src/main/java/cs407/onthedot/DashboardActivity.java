@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -35,10 +36,16 @@ import java.util.Date;
 
 public class DashboardActivity extends AppCompatActivity {
 
+    /*
+      This is used to identify a single Trip object when passing it between Activities/Fragments
+     */
+    public static final String INTENT_TRIP_OBJECT = "TRIP_OBJECT";
+
+    /*
+      These are used to indicate which ActivityForResult we are starting
+     */
     private final int ADD_NEW_TRIP_REQUEST = 1;
     private final int EDIT_TRIP_REQUEST = 2;
-
-    public static final String INTENT_TRIP_OBJECT = "TRIP_OBJECT";
 
     private DBHelper onTheDotDatabase;
 
@@ -74,10 +81,16 @@ public class DashboardActivity extends AppCompatActivity {
         currentTripsAdapter = new DashboardAdapter(this, currentTripsList);
         currentTrips_listView.setAdapter(currentTripsAdapter);
 
+        pastTrips_listView = (ListView) findViewById(R.id.pastTrips_listView);
+        pastTripsAdapter = new DashboardAdapter(this, pastTripsList);
+        pastTrips_listView.setAdapter(pastTripsAdapter);
+
+        // Set up the behavior that occurs when we click on an item in the currentTrips list
         currentTrips_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+
                 DashboardAdapter adapter = (DashboardAdapter) ((ListView) parent).getAdapter();
                 Trip trip = adapter.getItem(position);
 
@@ -87,10 +100,6 @@ public class DashboardActivity extends AppCompatActivity {
             }
         });
 
-        pastTrips_listView = (ListView) findViewById(R.id.pastTrips_listView);
-        pastTripsAdapter = new DashboardAdapter(this, pastTripsList);
-        pastTrips_listView.setAdapter(pastTripsAdapter);
-
         currentTripsAdapter.notifyDataSetChanged();
         pastTripsAdapter.notifyDataSetChanged();
 
@@ -99,9 +108,9 @@ public class DashboardActivity extends AppCompatActivity {
         ListUtils.setDynamicHeight(currentTrips_listView);
         ListUtils.setDynamicHeight(pastTrips_listView);
 
+        // Set up the "Add New Trip" button
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
-        // Set up the "Add New Trip" button
         if (fab != null) {
             fab.setOnClickListener(new View.OnClickListener() {
 
@@ -124,11 +133,15 @@ public class DashboardActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                for (Trip trip : pastTripsList) {
-                    onTheDotDatabase.deleteTripByTripID(trip.getTripID());
-                }
 
-                pastTripsList.clear();
+                for (Trip trip : pastTripsList) {
+
+                    // Attempt to delete the trip from the database.  If it was unable to be
+                    // deleted from the database, don't remove it from the list.
+                    if (onTheDotDatabase.deleteTripByTripID(trip.getTripID())) {
+                        pastTripsList.remove(trip);
+                    }
+                }
 
                 pastTripsAdapter.notifyDataSetChanged();
                 ListUtils.setDynamicHeight(pastTrips_listView);
@@ -199,6 +212,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         // Check which request we're responding to and ensure the result was successful
         if (requestCode == ADD_NEW_TRIP_REQUEST) {
+
             if (resultCode == RESULT_OK) {
 
                 // Get the trip data from the Intent object
@@ -207,8 +221,13 @@ public class DashboardActivity extends AppCompatActivity {
                 // Add the trip to the database and get the ID
                 long newTripId = onTheDotDatabase.addTrip(newTrip);
 
-                // Make sure that the trip was added to the database successfully
-                if (newTripId > 0) {
+                // Make sure that the trip was added to the database successfully. If not,
+                // we do not add the trip to the list.
+                if (newTripId <= 0) {
+
+                    // TODO? display popup saying trip could not be created
+                }
+                else {
 
                     // Set the ID of the trip in the Trip object
                     newTrip.setTripID(newTripId);
@@ -217,56 +236,74 @@ public class DashboardActivity extends AppCompatActivity {
 
                     currentTripsAdapter.notifyDataSetChanged();
                     ListUtils.setDynamicHeight(currentTrips_listView);
+                    ListUtils.setDynamicHeight(pastTrips_listView);
                 }
             }
-        } else if (requestCode == EDIT_TRIP_REQUEST) {
+        }
+        else if (requestCode == EDIT_TRIP_REQUEST) {
 
-            if (resultCode == RESULT_FIRST_USER) { // Update the Trip object in the database
+            if (resultCode == TripInfoActivity.RESULT_UPDATE) { // Update the Trip object in the database
+
+                // Get the trip data from the Intent object
                 Trip editedTrip = data.getParcelableExtra(INTENT_TRIP_OBJECT);
 
-                // Update the trip and make sure it was successful
+                // Update the trip and make sure it was successful. If it wasn't, then do not
+                // remove it from the list.
                 if (!onTheDotDatabase.updateTrip(editedTrip)) {
 
-                    // TODO display popup saying trip could not be updated
+                    // TODO? display popup saying trip could not be updated
                 }
+                else {
 
-                /*
-                   TODO Update the Trip in the currentTripsList
-                   currentTripsList.remove(editedTrip);
-                   currentTripsList.add(editedTrip);
-                */
+                    // Update the list. No need to notify the adapter the data set changed because
+                    // we are just going back to the trip info page (will happen OnResume)
+                    currentTripsList.remove(editedTrip);
+                    currentTripsList.add(editedTrip);
 
-                // Return back to the Trip info page with the update trip
-                Intent intent = new Intent(this, TripInfoActivity.class);
-                intent.putExtra(INTENT_TRIP_OBJECT, editedTrip);
-                startActivityForResult(intent, EDIT_TRIP_REQUEST);
+                    // Return back to the Trip info page with the updated trip details
+                    Intent intent = new Intent(this, TripInfoActivity.class);
+                    intent.putExtra(INTENT_TRIP_OBJECT, editedTrip);
+                    startActivityForResult(intent, EDIT_TRIP_REQUEST);
+                }
+            }
+            else if (resultCode == TripInfoActivity.RESULT_DELETE) { // Delete the Trip object in the database
 
-            } else if (resultCode == (RESULT_FIRST_USER + 1)) { // Delete the Trip object in the database
+                // Get the trip data from the Intent object
                 Trip tripToDelete = data.getParcelableExtra(INTENT_TRIP_OBJECT);
 
-                onTheDotDatabase.deleteTripByTripID(tripToDelete.getTripID());
+                // Delete the trip from the database and ensure that it was actually deleted.
+                // If it wasn't, then don't remove it from the list
+                if (!onTheDotDatabase.deleteTripByTripID(tripToDelete.getTripID())) {
 
-                /*
-                   TODO Remove the Trip in the currentTripsList
-                   currentTripsList.remove(tripToDelete);
-                */
+                    // TODO? display popup saying trip could not be deleted
+                }
+                else {
 
-                currentTripsAdapter.notifyDataSetChanged();
-                ListUtils.setDynamicHeight(currentTrips_listView);
+                    // Remove the trip from the current trip list
+                    currentTripsList.remove(tripToDelete);
+
+                    currentTripsAdapter.notifyDataSetChanged();
+                    ListUtils.setDynamicHeight(currentTrips_listView);
+                    ListUtils.setDynamicHeight(pastTrips_listView);
+                }
             }
         }
     }
 
     @Override
-    public void onResume(){
-        super.onResume();
+    public void onResume() {
 
         currentTripsAdapter.notifyDataSetChanged();
         pastTripsAdapter.notifyDataSetChanged();
         ListUtils.setDynamicHeight(currentTrips_listView);
+        ListUtils.setDynamicHeight(pastTrips_listView);
+
+        super.onResume();
     }
 
-    public static Bitmap getFacebookProfilePicture(String URL) throws SocketException, SocketTimeoutException, MalformedURLException, IOException, Exception {
+    public static Bitmap getFacebookProfilePicture(String URL) throws SocketException,
+            SocketTimeoutException, MalformedURLException, IOException, Exception {
+
         Bitmap bitmap = null;
         InputStream in = (InputStream) new URL(URL).getContent();
         bitmap = BitmapFactory.decodeStream(in);
@@ -278,8 +315,9 @@ public class DashboardActivity extends AppCompatActivity {
 
         /**
          * Dynamically sets the height of the list view to accommodate two list views.  This should
-         * be called each time after the Adapter.notifyDataSetChanged is called for the
-         * given ListView.
+         * be called each time after the Adapter.notifyDataSetChanged is called for any ListView.
+         * This probably isn't the best way to keep two different scrollable lists on a single
+         * view, but it's one that I find works for now.
          */
         public static void setDynamicHeight(ListView listView) {
             DashboardAdapter dashboardAdapter = (DashboardAdapter) listView.getAdapter();

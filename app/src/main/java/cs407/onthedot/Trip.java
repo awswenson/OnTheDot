@@ -71,6 +71,10 @@ public class Trip implements Parcelable {
         this.tripComplete = tripComplete;
     }
 
+    /*
+      This constructor is used for the parsable interface. Only modify if a new variable
+      is added to the Trip object or an existing variable is deleted from the Trip object.
+     */
     public Trip(Parcel in) {
         this.tripID = in.readLong();
         this.destination = in.readParcelable(LatLng.class.getClassLoader());
@@ -129,6 +133,20 @@ public class Trip implements Parcelable {
     }
 
     /**
+     * Since each Trip object should have a unique tripID, we only look at the tripID when
+     * determining if two trips equal.
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Trip) {
+            return ((Trip) obj).tripID == this.tripID;
+        }
+        else {
+            return false;
+        }
+    }
+
+    /**
      * Get the address information based on the currently stored LatLng object
      *
      * @param context
@@ -154,6 +172,10 @@ public class Trip implements Parcelable {
         }
     }
 
+    /*
+      The methods below are required for the Parsable interface.  Only modify if a new variable
+      is added to the Trip object or an existing variable is deleted from the Trip object.
+     */
     @Override
     public int describeContents() {
         return 0;

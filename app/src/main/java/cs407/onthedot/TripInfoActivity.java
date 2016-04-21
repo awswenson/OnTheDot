@@ -20,7 +20,17 @@ import java.util.Locale;
 
 public class TripInfoActivity extends AppCompatActivity implements OnMapReadyCallback {
 
+    /*
+      These are used to indicate which result we are responding to back in the DashboardActivity.
+      We either want to delete the Trip or update the Trip details. Those actions should
+      happen in the DashboardActivity. This may not be the best way to handle this, but it's
+      the easiest for what we have so far.
+     */
+    public static final int RESULT_UPDATE = RESULT_FIRST_USER;
+    public static final int RESULT_DELETE = RESULT_FIRST_USER + 1;
+
     private final int EDIT_TRIP_REQUEST = 2;
+
     private final int GOOGLE_MAPS_ZOOM_LEVEL = 15;
 
     private Trip trip;
@@ -39,6 +49,7 @@ public class TripInfoActivity extends AppCompatActivity implements OnMapReadyCal
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_trip_info);
 
+        // Get the trip object from the Intent
         trip = getIntent().getParcelableExtra(DashboardActivity.INTENT_TRIP_OBJECT);
 
         SupportMapFragment mapFragment = (SupportMapFragment)
@@ -71,7 +82,7 @@ public class TripInfoActivity extends AppCompatActivity implements OnMapReadyCal
            we want to send the Trip object back (via OnActivityResult) to the DashboardActivity
            to be added to the database.  There, a new TripInfo activity is spawned with
            the edited trip
-        */
+         */
         editTrip_button.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -82,6 +93,11 @@ public class TripInfoActivity extends AppCompatActivity implements OnMapReadyCal
             }
         });
 
+        /* When the delete button is clicked, we want to pass the Trip object back to the
+           DashboardActivity.  Since we got to this Activity via an IntentForResult through
+           the DashboardActivity, we can just set the result and finish the activity.
+           The DashboardActivity will handle deleting the Trip object from the database/list.
+         */
         deleteTrip_button.setOnClickListener(new View.OnClickListener() {
 
             @Override
@@ -91,8 +107,8 @@ public class TripInfoActivity extends AppCompatActivity implements OnMapReadyCal
                 Intent data = new Intent();
                 data.putExtra(DashboardActivity.INTENT_TRIP_OBJECT, trip);
 
-                // (RESULT_FIRST_USER + 1) means to delete the Trip in the database
-                setResult((RESULT_FIRST_USER + 1), data);
+                // Indicate that we want to delete the Trip in the database
+                setResult((RESULT_DELETE), data);
                 finish();
             }
         });
@@ -102,17 +118,18 @@ public class TripInfoActivity extends AppCompatActivity implements OnMapReadyCal
     public void onMapReady(GoogleMap googleMap) {
         destination_googleMaps = googleMap;
 
+        // Use the method in the Trip object to get the address information
         Address address = trip.getAddressInformation(this);
 
         Marker mapMarker;
 
+        // Display a title over the marker if an address was able to be found.  Otherwise
+        // just display the marker.
         if (address != null) {
             mapMarker = destination_googleMaps.addMarker(new MarkerOptions()
                     .position(trip.getDestination())
                     .title(address.getAddressLine(0))
                     .snippet(address.getLocality() + ", " + address.getAdminArea() + " " + address.getPostalCode()));
-
-
         }
         else {
             mapMarker = destination_googleMaps.addMarker(new MarkerOptions()
@@ -121,6 +138,8 @@ public class TripInfoActivity extends AppCompatActivity implements OnMapReadyCal
 
         mapMarker.showInfoWindow();
 
+        // Move the map to the position marked by the marker. NOTE that the user will not
+        // be able to pan the map (it's static), so make sure the zoom level is sufficient
         destination_googleMaps.moveCamera(CameraUpdateFactory.newLatLngZoom(trip.getDestination(), GOOGLE_MAPS_ZOOM_LEVEL));
     }
 
@@ -130,8 +149,9 @@ public class TripInfoActivity extends AppCompatActivity implements OnMapReadyCal
         // Check which request we're responding to and ensure the result was successful
         if (requestCode == EDIT_TRIP_REQUEST && resultCode == RESULT_OK) {
 
-            // RESULT_FIRST_USER means to update the Trip in the database
-            setResult(RESULT_FIRST_USER, data);
+            // Indicate we want to update the Trip in the database. This should redirect to the
+            // onActivityResult method in DashboardActivity
+            setResult(RESULT_UPDATE, data);
             finish();
         }
     }

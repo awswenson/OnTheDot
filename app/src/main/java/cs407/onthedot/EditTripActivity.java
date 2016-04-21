@@ -22,13 +22,14 @@ public class EditTripActivity extends AppCompatActivity implements EditTripDetai
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_trip);
 
+        // Get the Trip object from the Intent
         trip = getIntent().getParcelableExtra(DashboardActivity.INTENT_TRIP_OBJECT);
 
+        // Start up the EditTripDetailsFragment first
         getSupportFragmentManager()
                 .beginTransaction()
                 .replace(R.id.newTripContainer_frameLayout,
                         EditTripDetailsFragment.newInstance(trip.getMeetupTime(), trip.getDestination()))
-                .addToBackStack(null)
                 .commit();
     }
 
@@ -49,9 +50,9 @@ public class EditTripActivity extends AppCompatActivity implements EditTripDetai
     public void onAddFriendsButtonPressed() {
         getSupportFragmentManager()
                 .beginTransaction()
-            .replace(R.id.newTripContainer_frameLayout,
+            .add(R.id.newTripContainer_frameLayout,
                     EditTripAddFriendsFragment.newInstance(trip.getAttendingFBFriendsList()))
-            .addToBackStack(null)
+            .addToBackStack("EDIT_TRIP_ADD_FRIENDS")
             .commit();
     }
 
