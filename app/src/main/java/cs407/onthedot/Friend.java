@@ -49,6 +49,11 @@ public class Friend implements Parcelable {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        return (obj instanceof Friend) && (this.id.equals(((Friend) obj).getId()));
+    }
+
+    @Override
     public int describeContents() {
         return 0;
     }

@@ -94,33 +94,28 @@ public class EditTripAddFriendsFragment extends ListFragment {
                                 String id = friend.getString("id");
                                 String name = friend.getString("name");
                                 entireFBFriendsList.add(new Friend(name, false, id));
-                            } catch(JSONException j) {
+                            } catch (JSONException j) {
                                 // Error getting the JSON, so do not add the name
                                 Log.d("NewTripAddFriendsFrag", "ERROR: Trouble parsing FB Friends JSON");
                             }
                         }
 
-                        /*
-                          TODO use the attendingFBFriendsList to highlight/select already selected friends in the ListView.
-                          Might want to do this after the entireFBFriendsList is populated from the call in OnCreate.
-                          That could happen before this point in time, or it could happen after.
-                        */
-                        //temp for testing purposes. Delete later
-                        Friend temp = new Friend("Alex", true, "10208447656324839");
-                        attendingFBFriendsList.add(temp);
+                        // Populate the HashMap that will house the id's of the people
+                        // who are invited currently
+                        HashSet<String> attendingFBFriendsHashMap = new HashSet<>();
+                        for (Friend attendingFriend : attendingFBFriendsList) {
 
-                        //populate hash that will house the id's of the people who are invited currently
-                        HashSet<String> allAttendingPeople = new HashSet<String>();
-                        for (int i = 0; i < attendingFBFriendsList.size(); i++){
-                            allAttendingPeople.add(attendingFBFriendsList.get(i).getId());
+                            attendingFBFriendsHashMap.add(attendingFriend.getId());
                         }
 
-                        //go through entire friends list and set attending for the ones who are in our hash
-                        for (int i = 0; i < entireFBFriendsList.size(); i++){
-                            String currId = entireFBFriendsList.get(i).getId();
-                            //if true, this person is in the attending list, so we should change their attending val
-                            if (allAttendingPeople.contains(currId)){
-                                entireFBFriendsList.get(i).setAttending(true);
+                        // Go through entire friends list and set attending for the ones who
+                        // are in the HashMap
+                        for (Friend friend : entireFBFriendsList) {
+
+                            // If this is true, this person is in the attending list.  We should
+                            // change their attending value to true.
+                            if (attendingFBFriendsHashMap.contains(friend.getId())) {
+                                friend.setAttending(true);
                             }
                         }
 
@@ -200,39 +195,40 @@ public class EditTripAddFriendsFragment extends ListFragment {
     public void onListItemClick(ListView l, View v, int pos, long id) {
         super.onListItemClick(l, v, pos, id);
 
-        /*
-          TODO If the friend is being selected for the trip, add the friend to the
-          attendingFBFriendsList.  If the friend is being deselected from the trip, then remove
-          the friend from attendingFBFriendsList.  DO NOT call
-          onNewTripAddFriendsListenerCallback.onNewTripAddFriendsUpdated(attendingFBFriendsList). We
-          only want to do that when the user presses "Create" or the back button.
-        */
         Friend selectedFriend = entireFBFriendsList.get(pos);
+
         CheckBox checkBox = (CheckBox) v.findViewById(R.id.toggleButton);
-        //if the friend just got invited and previously was not
-        if (checkIfFriendIsSelectedAlready(selectedFriend)){
-            checkBox.setChecked(true);
-        }
-        //if the friend is being uninvited
-        else{
+
+        // Check if the selectedFriend was already invited to the Trip. If so, then the
+        // user is uninviting them on the trip.
+        if (checkIfFriendIsSelectedAlready(selectedFriend)) { // The friend is being uninvited
+            attendingFBFriendsList.remove(selectedFriend);
             checkBox.setChecked(false);
+        }
+        else { // The friend is being invited
+            attendingFBFriendsList.add(selectedFriend);
+            checkBox.setChecked(true);
         }
     }
 
-    /*
-     *Checks if the given friend is already invited. This method also adds/removes the person to
-     * the list
+    /**
+     * Checks if the given friend is already invited.
      *
-    */
+     * @param friend The friend to check if they are already attending
+     * @return True if the friend was already in the attendingFBFriendsList; false otherwise.
+     */
     private boolean checkIfFriendIsSelectedAlready(Friend friend){
-        for (int i = 0; i < attendingFBFriendsList.size(); i++){
-            if (attendingFBFriendsList.get(i).getId().equals(friend.getId())){
-                attendingFBFriendsList.remove(i);
+
+        if (friend == null) {
+            return false;
+        }
+
+        for (Friend friendInList : attendingFBFriendsList) {
+            if (friendInList.equals(friend)) {
                 return true;
             }
         }
-        attendingFBFriendsList.add(friend);
+
         return false;
     }
-
 }
