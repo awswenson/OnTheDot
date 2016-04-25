@@ -57,7 +57,10 @@ public class EditTripActivity extends AppCompatActivity implements EditTripDetai
     @Override
     public void onAddFriendsButtonPressed(LatLng destination, LatLng start_location) {
 
-        distance = SphericalUtil.computeDistanceBetween(start_location, destination);
+        ArrayList<LatLng> path = new ArrayList<>();
+        path.add(destination);
+        path.add(start_location);
+        distance = SphericalUtil.computeLength(path);
         Toast.makeText(this, "The markers are " + formatNumber(distance) + " apart.", Toast.LENGTH_LONG).show();
 
         getSupportFragmentManager()
