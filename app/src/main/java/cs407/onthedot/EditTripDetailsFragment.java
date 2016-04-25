@@ -9,7 +9,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Address;
+import android.location.Criteria;
 import android.location.Geocoder;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -75,7 +78,7 @@ public class EditTripDetailsFragment extends Fragment implements OnMapReadyCallb
          * the class that implements this go the the "Add Friends" screen so that the user
          * can add friends to participate in the trip with
          */
-        public void onAddFriendsButtonPressed();
+        public void onAddFriendsButtonPressed(LatLng destination, LatLng start_location);
 
     }
 
@@ -164,7 +167,7 @@ public class EditTripDetailsFragment extends Fragment implements OnMapReadyCallb
                         .onTripDetailsUpdated(meetupTime_calendar.getTime(), destination);
 
                 onTripDetailsListenerCallback
-                        .onAddFriendsButtonPressed();
+                        .onAddFriendsButtonPressed(destination, getStartLocation());
             }
         });
 
@@ -383,5 +386,16 @@ public class EditTripDetailsFragment extends Fragment implements OnMapReadyCallb
         }
 
         mapMarker.showInfoWindow();
+    }
+
+    public LatLng getStartLocation() {
+        Location location = destination_googleMaps.getMyLocation();
+        LatLng start_location = null;
+
+        if (location != null) {
+            start_location = new LatLng(location.getLatitude(), location.getLongitude());
+        }
+
+        return start_location;
     }
 }
