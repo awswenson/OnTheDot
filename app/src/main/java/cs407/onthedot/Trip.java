@@ -17,7 +17,7 @@ import java.util.Locale;
 /**
  * Created by Alex Swenson on 4/2/16.
  */
-public class Trip implements Parcelable {
+public class Trip implements Parcelable, Comparable<Trip> {
 
     /*
       This is the ID that is assigned by the database to refer to this trip object.  DO NOT
@@ -199,4 +199,9 @@ public class Trip implements Parcelable {
             return new Trip[size];
         }
     };
+
+    @Override
+    public int compareTo(Trip trip) {
+        return this.meetupTime.compareTo((trip.getMeetupTime()));
+    }
 }

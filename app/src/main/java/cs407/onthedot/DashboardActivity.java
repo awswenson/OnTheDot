@@ -27,6 +27,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -100,14 +101,6 @@ public class DashboardActivity extends AppCompatActivity {
             }
         });
 
-        currentTripsAdapter.notifyDataSetChanged();
-        pastTripsAdapter.notifyDataSetChanged();
-
-        // Dynamically set the height of the two list views. See ListUtils.setDyamicHeight
-        // for documentation
-        ListUtils.setDynamicHeight(currentTrips_listView);
-        ListUtils.setDynamicHeight(pastTrips_listView);
-
         // Set up the "Add New Trip" button
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
 
@@ -134,55 +127,24 @@ public class DashboardActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                ArrayList<Trip> tripsToRemove = new ArrayList<>();
+
                 for (Trip trip : pastTripsList) {
 
                     // Attempt to delete the trip from the database.  If it was unable to be
                     // deleted from the database, don't remove it from the list.
                     if (onTheDotDatabase.deleteTripByTripID(trip.getTripID())) {
-                        pastTripsList.remove(trip);
+                        tripsToRemove.add(trip);
                     }
                 }
 
+                pastTripsList.removeAll(tripsToRemove);
+
                 pastTripsAdapter.notifyDataSetChanged();
+                ListUtils.setDynamicHeight(currentTrips_listView);
                 ListUtils.setDynamicHeight(pastTrips_listView);
             }
         });
-
-        // Test to get information about "me"
-        GraphRequest request = GraphRequest.newMeRequest(
-                AccessToken.getCurrentAccessToken(),
-                new GraphRequest.GraphJSONObjectCallback() {
-                    @Override
-                    public void onCompleted(
-                            JSONObject object,
-                            GraphResponse response) {
-                        // Application code
-                        Log.d("TEST GRAPH API ME", "onCompleted: " + object.toString());
-                    }
-                });
-        Bundle parameters = new Bundle();
-        parameters.putString("fields", "id,name,link");
-        request.setParameters(parameters);
-        request.executeAsync();
-
-        // Test to get information about "friends"
-        GraphRequest request2 = GraphRequest.newMyFriendsRequest(
-                AccessToken.getCurrentAccessToken(),
-                new GraphRequest.GraphJSONArrayCallback() {
-                    @Override
-                    public void onCompleted(
-                            JSONArray object,
-                            GraphResponse response) {
-                        // Application code
-                        Log.d("TEST GRAPH API FRIENDS", "onCompleted: " + object.toString());
-                        //parse JSON here and deliver it to
-                        //getFacebookProfilePicture(object.);
-                    }
-                });
-        Bundle parameters2 = new Bundle();
-        parameters2.putString("fields", "id,name,link,picture");
-        request2.setParameters(parameters2);
-        request2.executeAsync();
     }
 
     @Override
@@ -293,12 +255,43 @@ public class DashboardActivity extends AppCompatActivity {
     @Override
     public void onResume() {
 
+        // Check the trips to see if any of the statuses have changed
+        checkActiveTripStatusAndUpdateList();
+
+        // Dynamically set the height of the two list views. See ListUtils.setDyamicHeight
+        // for documentation
         currentTripsAdapter.notifyDataSetChanged();
         pastTripsAdapter.notifyDataSetChanged();
         ListUtils.setDynamicHeight(currentTrips_listView);
         ListUtils.setDynamicHeight(pastTrips_listView);
 
         super.onResume();
+    }
+
+    /**
+     * Checks to if any of the active trips' have been completed. That is, change the status
+     * of the trip to COMPLETE if the active trip's meet-up time has passed. Update the
+     * currentTripsList if any of the status' changed.
+     */
+    public void checkActiveTripStatusAndUpdateList() {
+
+        Date currentTime = new Date();
+
+        ArrayList<Trip> tripsToRemove = new ArrayList<>();
+
+        for (Trip trip : currentTripsList) {
+            if (currentTime.after(trip.getMeetupTime())) {
+                trip.setTripComplete(true);
+
+                // Update the status in the database
+                onTheDotDatabase.setTripCompleteStatus(trip.getTripID());
+
+                // Add the trip to the list to be removed from the
+                tripsToRemove.add(trip);
+            }
+        }
+
+        currentTripsList.removeAll(tripsToRemove);
     }
 
     public static Bitmap getFacebookProfilePicture(String URL) throws SocketException,

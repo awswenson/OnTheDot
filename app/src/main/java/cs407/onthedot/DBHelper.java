@@ -13,6 +13,7 @@ import com.google.android.gms.maps.model.LatLng;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -52,7 +53,7 @@ public class DBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(
                 "CREATE TABLE " + TRIP_TABLE_NAME + "(" +
-                        TRIP_COLUMN_TRIP_ID + " INTEGER PRIMARY KEY NOT NULL," +
+                        TRIP_COLUMN_TRIP_ID + " INTEGER PRIMARY KEY," +
                         TRIP_COLUMN_DATE + " TEXT," +
                         TRIP_COLUMN_LATITUDE + " REAL," +
                         TRIP_COLUMN_LONGITUDE + " REAL," +
@@ -258,8 +259,9 @@ public class DBHelper extends SQLiteOpenHelper {
                         PARTICIPANTS_COLUMN_TRIP_ID + " = ?",
                         new String[]{String.valueOf(tripID)});
 
-                // Ensure that it all the trip's participants were deleted from the database
-                if (numRowsDeleted <= 0) {
+                // Ensure that it all the trip's participants were deleted from the database.
+                // If the number was 0, then there was no participants for the trip
+                if (numRowsDeleted < 0) {
                     success = false;
                 }
             }
@@ -319,7 +321,7 @@ public class DBHelper extends SQLiteOpenHelper {
                         new String[]{String.valueOf(trip.getTripID())});
 
                 // Ensure that it all the trip's participants were deleted from the database
-                if (numRowsDeleted <= 0) {
+                if (numRowsDeleted < 0) {
                     success = false;
                 }
                 else {
@@ -335,6 +337,47 @@ public class DBHelper extends SQLiteOpenHelper {
         } catch (Exception e) { // Error in between database transaction
             Log.d("DBHelper",
                     "ERROR: Database update transaction was unsuccessful and threw an unexpected error",
+                    e.getCause());
+        } finally { // Make sure to end the transaction
+            db.endTransaction();
+        }
+
+        return success;
+    }
+
+    /**
+     * Set the status of the trip to be completed
+     *
+     * @param tripID The tripID that corresponds to the trip
+     * @return true is the status was successfully set; false otherwise
+     */
+    public boolean setTripCompleteStatus(long tripID) {
+
+        boolean success = true;
+
+        SQLiteDatabase db = this.getWritableDatabase();
+
+        db.beginTransaction();
+
+        try {
+
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(TRIP_COLUMN_COMPLETE, 1); // Set complete status to true (1)
+
+            // Update the trip in the database
+            int numRowsUpdated = db.update(TRIP_TABLE_NAME,
+                    contentValues,
+                    TRIP_COLUMN_TRIP_ID + " = ?",
+                    new String[]{String.valueOf(tripID)});
+
+            // Ensure that the status was set in the database. Technically, numRowsUpdated
+            // should return 1 since only one trip should be updated.
+            if (numRowsUpdated > 0) {
+                db.setTransactionSuccessful();
+            }
+        } catch (Exception e) { // Error in between database transaction
+            Log.d("DBHelper",
+                    "ERROR: Database set status transaction was unsuccessful and threw an unexpected error",
                     e.getCause());
         } finally { // Make sure to end the transaction
             db.endTransaction();
@@ -364,6 +407,9 @@ public class DBHelper extends SQLiteOpenHelper {
         }
 
         resOfTripIDs.close();
+
+        // Sort the list of Trips
+        Collections.sort(trips);
 
         return trips;
     }
@@ -408,7 +454,7 @@ public class DBHelper extends SQLiteOpenHelper {
         sb.append(PARTICIPANTS_COLUMN_PARTICIPANT_NAME);
         sb.append(" FROM ");
         sb.append(TRIP_TABLE_NAME);
-        sb.append(" t INNER JOIN ");
+        sb.append(" t LEFT OUTER JOIN ");
         sb.append(PARTICIPANTS_TABLE_NAME);
         sb.append(" p ON p.");
         sb.append(PARTICIPANTS_COLUMN_TRIP_ID);
@@ -472,5 +518,6 @@ public class DBHelper extends SQLiteOpenHelper {
 //        SQLiteDatabase db = this.getWritableDatabase();
 //        db.execSQL("DROP TABLE IF EXISTS " + TRIP_TABLE_NAME);
 //        db.execSQL("DROP TABLE IF EXISTS " + PARTICIPANTS_TABLE_NAME);
+//        onCreate(db);
 //    }
 }

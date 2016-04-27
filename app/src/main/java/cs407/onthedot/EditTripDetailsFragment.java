@@ -133,10 +133,17 @@ public class EditTripDetailsFragment extends Fragment implements OnMapReadyCallb
 
             @Override
             public void onClick(View view) {
-                new DatePickerDialog(view.getContext(), date,
+
+                // Today's date
+                Calendar today = Calendar.getInstance();
+
+                DatePickerDialog datePickerDialog = new DatePickerDialog(view.getContext(), date,
                         meetupTime_calendar.get(Calendar.YEAR),
                         meetupTime_calendar.get(Calendar.MONTH),
-                        meetupTime_calendar.get(Calendar.DAY_OF_MONTH)).show();
+                        meetupTime_calendar.get(Calendar.DAY_OF_MONTH));
+
+                datePickerDialog.getDatePicker().setMinDate(today.getTimeInMillis());
+                datePickerDialog.show();
             }
         });
 
@@ -144,10 +151,13 @@ public class EditTripDetailsFragment extends Fragment implements OnMapReadyCallb
 
             @Override
             public void onClick(View view) {
-                new TimePickerDialog(view.getContext(), time,
+
+                TimePickerDialog timePickerDialog = new TimePickerDialog(view.getContext(), time,
                         meetupTime_calendar.get(Calendar.HOUR_OF_DAY),
                         meetupTime_calendar.get(Calendar.MINUTE),
-                        false).show();
+                        false);
+
+                timePickerDialog.show();
             }
         });
 
