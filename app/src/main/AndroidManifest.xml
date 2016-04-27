@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    package="cs407.onthedot">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="cs407.onthedot" >
 
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
@@ -9,14 +8,15 @@
          location permissions for the 'MyLocation' functionality.
     -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
-
+        android:theme="@style/AppTheme" >
+        android:name="android.support.multidex.MultiDexApplication">
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
@@ -38,33 +38,27 @@
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
             android:label="@string/app_name"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
-
         <activity
             android:name=".LoginLandingPageActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
-
+            android:theme="@style/AppTheme.NoActionBar" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity
             android:name=".DashboardActivity"
             android:label="@string/app_name"
             android:theme="@style/AppTheme.NoActionBar" />
-
         <activity
             android:name=".EditTripActivity"
             android:configChanges="orientation|keyboardHidden|screenSize"
             android:label="Edit Trip" />
-
         <activity
             android:name=".TripInfoActivity"
             android:label="Trip Info" />
-
     </application>
 
 </manifest>
