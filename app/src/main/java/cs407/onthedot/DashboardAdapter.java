@@ -1,6 +1,7 @@
 package cs407.onthedot;
 
 import android.content.Context;
+import android.location.Address;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ public class DashboardAdapter extends BaseAdapter {
     private static class ViewHolder {
         ImageView destination_imageView;
         TextView destination_textView;
+        TextView additionalInfo_textView;
         TextView meetupTime_textView;
         TextView leaveIn_textView;
     }
@@ -62,6 +64,7 @@ public class DashboardAdapter extends BaseAdapter {
 
             viewHolder.destination_imageView = (ImageView) convertView.findViewById(R.id.destination_imageView);
             viewHolder.destination_textView = (TextView) convertView.findViewById(R.id.destination_textView);
+            viewHolder.additionalInfo_textView = (TextView) convertView.findViewById(R.id.additionalInfo_textView);
             viewHolder.meetupTime_textView = (TextView) convertView.findViewById(R.id.meetupTime_textView);
             viewHolder.leaveIn_textView = (TextView) convertView.findViewById(R.id.leaveIn_textView);
 
@@ -73,16 +76,36 @@ public class DashboardAdapter extends BaseAdapter {
         // Get the data item for this position
         final Trip trip = getItem(position);
 
-        /*
-         TODO Use Google Maps static (https://developers.google.com/maps/documentation/static-maps/)
-         to get an image with a marker of the destination and assign it to the ImageView
-        */
+        DownloadImage di = new DownloadImage(viewHolder.destination_imageView);
+        di.execute("http://maps.google.com/maps/api/staticmap?zoom=15&size=200x200&sensor=false&maptype=roadmap&markers=size:med|" +
+                trip.getDestinationLatitude() + "," +
+                trip.getDestinationLongitude());
 
-        // TODO Set the nearest point of interest using the LatLng object
-        viewHolder.destination_textView.setText(trip.getDestinationLatitude() + " " + trip.getDestinationLongitude());
+        Address address = trip.getAddressInformation(context);
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy HH:mm a", Locale.getDefault());
-        viewHolder.meetupTime_textView.setText(dateFormat.format(trip.getMeetupTime()));
+        if (address == null) {
+            String destinationString = trip.getDestinationLatitude() + " " +
+                    trip.getDestinationLongitude();
+
+            viewHolder.destination_textView.setText(destinationString);
+            viewHolder.additionalInfo_textView.setText("");
+        }
+        else {
+            String additionalInfoString = address.getLocality() + ", " +
+                    address.getAdminArea() + " " +
+                    address.getPostalCode();
+
+            viewHolder.destination_textView.setText(address.getAddressLine(0));
+            viewHolder.additionalInfo_textView.setText(additionalInfoString);
+        }
+
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy", Locale.getDefault());
+        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+        String meetUpString = "Meet-up at " +
+                timeFormat.format(trip.getMeetupTime()) + " on " +
+                dateFormat.format(trip.getMeetupTime());
+
+        viewHolder.meetupTime_textView.setText(meetUpString);
 
         // TODO Display when the user should leave
         viewHolder.leaveIn_textView.setText("Leave in the next 5 minutes.");
