@@ -1,5 +1,7 @@
 package cs407.onthedot;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -187,7 +189,17 @@ public class DashboardActivity extends AppCompatActivity {
                 // we do not add the trip to the list.
                 if (newTripId <= 0) {
 
-                    // TODO? display popup saying trip could not be created
+                    new AlertDialog.Builder(this)
+                            .setMessage("The trip could not be created. Please try again.")
+                            .setCancelable(true)
+                            .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+
+                                @Override
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            })
+                            .show();
                 }
                 else {
 
@@ -213,7 +225,17 @@ public class DashboardActivity extends AppCompatActivity {
                 // remove it from the list.
                 if (!onTheDotDatabase.updateTrip(editedTrip)) {
 
-                    // TODO? display popup saying trip could not be updated
+                    new AlertDialog.Builder(this)
+                            .setMessage("The trip could not be updated. Please try again.")
+                            .setCancelable(true)
+                            .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+
+                                @Override
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            })
+                            .show();
                 }
                 else {
 
@@ -237,7 +259,17 @@ public class DashboardActivity extends AppCompatActivity {
                 // If it wasn't, then don't remove it from the list
                 if (!onTheDotDatabase.deleteTripByTripID(tripToDelete.getTripID())) {
 
-                    // TODO? display popup saying trip could not be deleted
+                    new AlertDialog.Builder(this)
+                            .setMessage("The trip could not be deleted. Please try again.")
+                            .setCancelable(true)
+                            .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+
+                                @Override
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            })
+                            .show();
                 }
                 else {
 
@@ -277,7 +309,7 @@ public class DashboardActivity extends AppCompatActivity {
 
         Date currentTime = new Date();
 
-        ArrayList<Trip> tripsToRemove = new ArrayList<>();
+        ArrayList<Trip> tripsCompleted = new ArrayList<>();
 
         for (Trip trip : currentTripsList) {
             if (currentTime.after(trip.getMeetupTime())) {
@@ -287,11 +319,12 @@ public class DashboardActivity extends AppCompatActivity {
                 onTheDotDatabase.setTripCompleteStatus(trip.getTripID());
 
                 // Add the trip to the list to be removed from the
-                tripsToRemove.add(trip);
+                tripsCompleted.add(trip);
             }
         }
 
-        currentTripsList.removeAll(tripsToRemove);
+        currentTripsList.removeAll(tripsCompleted);
+        pastTripsList.addAll(tripsCompleted);
     }
 
     public static Bitmap getFacebookProfilePicture(String URL) throws SocketException,

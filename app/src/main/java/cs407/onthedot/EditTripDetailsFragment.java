@@ -192,7 +192,18 @@ public class EditTripDetailsFragment extends Fragment implements OnMapReadyCallb
 
                     onSearchButtonPressed(geocoder.getFromLocationName(searchText, NUMBER_OF_ADDR_SEARCH_RESULTS));
                 } catch (IOException e) {
-                    // TODO Display popup saying no location could be found
+
+                    new AlertDialog.Builder(getActivity())
+                            .setMessage("Your location could not be found. Please try again later.")
+                            .setCancelable(true)
+                            .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+
+                                @Override
+                                public void onClick(DialogInterface dialog, int id) {
+                                    dialog.cancel();
+                                }
+                            })
+                            .show();
                 }
             }
         });
@@ -293,9 +304,18 @@ public class EditTripDetailsFragment extends Fragment implements OnMapReadyCallb
         @Override
         public void onDateSet(DatePicker view, int year, int monthOfYear, int dayOfMonth) {
 
+            Calendar today = Calendar.getInstance();
+
             meetupTime_calendar.set(Calendar.YEAR, year);
             meetupTime_calendar.set(Calendar.MONTH, monthOfYear);
             meetupTime_calendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+
+            if (today.after(meetupTime_calendar)) {
+                meetupTime_calendar.set(Calendar.HOUR_OF_DAY, today.get(Calendar.HOUR_OF_DAY));
+                meetupTime_calendar.set(Calendar.MINUTE, today.get(Calendar.MINUTE));
+
+                setTimeOnEditText();
+            }
 
             setDateOnEditText();
         }
@@ -306,8 +326,27 @@ public class EditTripDetailsFragment extends Fragment implements OnMapReadyCallb
         @Override
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
 
+            Calendar today = Calendar.getInstance();
+
             meetupTime_calendar.set(Calendar.HOUR_OF_DAY, hourOfDay);
             meetupTime_calendar.set(Calendar.MINUTE, minute);
+
+            if (today.after(meetupTime_calendar)) {
+                meetupTime_calendar.set(Calendar.HOUR_OF_DAY, today.get(Calendar.HOUR_OF_DAY));
+                meetupTime_calendar.set(Calendar.MINUTE, today.get(Calendar.MINUTE));
+
+                new AlertDialog.Builder(getActivity())
+                        .setMessage("The meet-up time cannot be a time that has already passed. Please select another time.")
+                        .setCancelable(true)
+                        .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+
+                            @Override
+                            public void onClick(DialogInterface dialog, int id) {
+                                dialog.cancel();
+                            }
+                        })
+                        .show();
+            }
 
             setTimeOnEditText();
         }
