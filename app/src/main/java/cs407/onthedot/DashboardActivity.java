@@ -25,6 +25,7 @@ import com.facebook.GraphResponse;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
@@ -63,6 +64,8 @@ public class DashboardActivity extends AppCompatActivity {
 
     private Button deletePastTrips_button;
 
+    private Friend me;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -88,6 +91,36 @@ public class DashboardActivity extends AppCompatActivity {
         pastTripsAdapter = new DashboardAdapter(this, pastTripsList);
         pastTrips_listView.setAdapter(pastTripsAdapter);
 
+        /*
+          Get information about me and use it when creating new trips (we want to add a Friend
+          object with out information into the attending list so that it's easier to maintain
+          the trip participants on the server
+        */
+        GraphRequest request = GraphRequest.newMeRequest(
+                AccessToken.getCurrentAccessToken(),
+                new GraphRequest.GraphJSONObjectCallback() {
+
+                    @Override
+                    public void onCompleted(JSONObject object, GraphResponse response) {
+
+                        try {
+                            String id = object.getString("id");
+                            String name = object.getString("name");
+
+                            me = new Friend(name, false, id);
+                        } catch (JSONException j) {
+
+                            // Error getting the JSON, so do not create the Friend object
+                            Log.d("DashboardActivity", "ERROR: Trouble parsing FB JSON about me");
+                        }
+                    }
+                });
+
+        Bundle parameters = new Bundle();
+        parameters.putString("fields", "id,name,link");
+        request.setParameters(parameters);
+        request.executeAsync();
+
         // Set up the behavior that occurs when we click on an item in the currentTrips list
         currentTrips_listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
 
@@ -112,8 +145,15 @@ public class DashboardActivity extends AppCompatActivity {
                 @Override
                 public void onClick(View view) {
 
+                    ArrayList<Friend> participants = new ArrayList<>();
+
+                    // Add me to the participants list
+                    if (me != null) {
+                        participants.add(me);
+                    }
+
                     // TODO replace the LatLng with the initial location of the device
-                    Trip newTrip = new Trip(new LatLng(43, -89), new Date(), new ArrayList<Friend>(), false);
+                    Trip newTrip = new Trip(new LatLng(43, -89), new Date(), participants, false);
 
                     Intent intent = new Intent(view.getContext(), EditTripActivity.class);
                     intent.putExtra(INTENT_TRIP_OBJECT, newTrip);

@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/OnTheDot.iml" filepath="$PROJECT_DIR$/OnTheDot.iml" />
       <module fileurl="file://$PROJECT_DIR$/OntheDotBackend/OntheDotBackend.iml" filepath="$PROJECT_DIR$/OntheDotBackend/OntheDotBackend.iml" />
-      <module fileurl="file://$PROJECT_DIR$/OntheDotBackend/OntheDotBackend.iml" filepath="$PROJECT_DIR$/OntheDotBackend/OntheDotBackend.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
     </modules>
   </component>
