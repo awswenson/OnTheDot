@@ -6,11 +6,9 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -19,17 +17,11 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 
-import com.facebook.AccessToken;
-import com.facebook.GraphRequest;
-import com.facebook.GraphResponse;
+import com.cs407.onthedot.onthedotbackend.myApi.model.TaskBean;
 import com.google.android.gms.maps.model.LatLng;
-
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -111,6 +103,10 @@ public class DashboardActivity extends AppCompatActivity {
 
                 @Override
                 public void onClick(View view) {
+
+                    //test extracting the data
+                    TaskBean task = new TaskBean();
+                    //new EndpointsAsyncTask().doInBackgroundGET(new Pair<Context, TaskBean>(DashboardActivity.this, task));
 
                     // TODO replace the LatLng with the initial location of the device
                     Trip newTrip = new Trip(new LatLng(43, -89), new Date(), new ArrayList<Friend>(), false);
