@@ -107,8 +107,13 @@ public class DashboardAdapter extends BaseAdapter {
 
         viewHolder.meetupTime_textView.setText(meetUpString);
 
-        // TODO Display when the user should leave
-        viewHolder.leaveIn_textView.setText("Leave in the next 5 minutes.");
+        if (trip.isTripComplete()) {
+            viewHolder.leaveIn_textView.setText("");
+        }
+        else {
+            // TODO Display when the user should leave
+            viewHolder.leaveIn_textView.setText("Leave in the next 5 minutes.");
+        }
 
         // Return the completed view to render on screen
         return convertView;

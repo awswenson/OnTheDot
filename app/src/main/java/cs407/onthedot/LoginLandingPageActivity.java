@@ -1,10 +1,12 @@
 package cs407.onthedot;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.util.Pair;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
@@ -36,14 +38,13 @@ public class LoginLandingPageActivity extends AppCompatActivity implements Faceb
         //initialize view
         setContentView(R.layout.activity_login_landing_page);
 
-
         //testing out the backend here
         //test putting a task in
         TaskBean task = new TaskBean();
         task.setData("data1");
         task.setId(new Long(1));
         //new EndpointsAsyncTask().doInBackgroundPUT(new Pair<Context, TaskBean>(this, task));
-
+        //new EndpointsAsyncTask().execute(new Pair<Context, String>(this, "Manfred"));
 
         mAccessTokenTracker = new AccessTokenTracker() {
             @Override

@@ -11,6 +11,16 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/OntheDotBackend" />
+<<<<<<< HEAD
+=======
+            <option value="$PROJECT_DIR$/app" />
+          </set>
+        </option>
+        <option name="myModules">
+          <set>
+            <option value="$PROJECT_DIR$" />
+            <option value="$PROJECT_DIR$/OntheDotBackend" />
+>>>>>>> 08b516f287f2df602224b0135e417546584171a1
             <option value="$PROJECT_DIR$/app" />
           </set>
         </option>

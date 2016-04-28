@@ -13,6 +13,15 @@ import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 
 import java.io.IOException;
 import java.util.List;
+import android.widget.Toast;
+
+import com.cs407.onthedot.onthedotbackend.myApi.MyApi;
+import com.google.api.client.extensions.android.http.AndroidHttp;
+import com.google.api.client.extensions.android.json.AndroidJsonFactory;
+import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
+import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
+
+import java.io.IOException;
 
 /**
  * Created by connerhuff on 4/27/16.
@@ -104,7 +113,4 @@ class EndpointsAsyncTask extends AsyncTask<Pair<Context, TaskBean>, Void, String
             Toast.makeText(context, result.get(0).getData(), Toast.LENGTH_LONG).show();
         }
     }
-
-
-
 }
