@@ -5,14 +5,10 @@
       <GradleProjectSettings>
         <option name="distributionType" value="DEFAULT_WRAPPED" />
         <option name="externalProjectPath" value="$PROJECT_DIR$" />
-        <option name="gradleHome" value="$APPLICATION_HOME_DIR$/gradle/gradle-2.8" />
-        <option name="gradleJvm" value="1.8" />
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/OntheDotBackend" />
-<<<<<<< HEAD
-=======
             <option value="$PROJECT_DIR$/app" />
           </set>
         </option>
@@ -20,7 +16,6 @@
           <set>
             <option value="$PROJECT_DIR$" />
             <option value="$PROJECT_DIR$/OntheDotBackend" />
->>>>>>> 08b516f287f2df602224b0135e417546584171a1
             <option value="$PROJECT_DIR$/app" />
           </set>
         </option>

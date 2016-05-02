@@ -2,6 +2,7 @@ package cs407.onthedot;
 
 import android.content.Context;
 import android.location.Address;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,8 +10,21 @@ import android.widget.BaseAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -54,7 +68,7 @@ public class DashboardAdapter extends BaseAdapter {
     public View getView(int position, View convertView, ViewGroup parent) {
         // Check if an existing view is being reused, otherwise inflate the view
 
-        ViewHolder viewHolder; // view lookup cache stored in tag
+        final ViewHolder viewHolder; // view lookup cache stored in tag
 
         if (convertView == null) {
 
@@ -107,12 +121,74 @@ public class DashboardAdapter extends BaseAdapter {
 
         viewHolder.meetupTime_textView.setText(meetUpString);
 
-        if (trip.isTripComplete()) {
+        if (trip.isTripComplete()) { // Trip is complete so do not display anything
             viewHolder.leaveIn_textView.setText("");
         }
-        else {
-            // TODO Display when the user should leave
-            viewHolder.leaveIn_textView.setText("Leave in the next 5 minutes.");
+        else { // Display when the user should leave
+
+            String url = "https://maps.googleapis.com/maps/api/directions/json?" +
+                    "origin=" + "Madison,+WI+53715&" + // TODO change to use starting location
+                    "destination=" + trip.getDestinationLatitude() + "," + trip.getDestinationLongitude() +
+                    "&departure_time=" + trip.getMeetupTime().getTime() +
+                    "&traffic_model=best_guess&mode=walking";
+
+            RequestQueue queue = Volley.newRequestQueue(context);
+
+            JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                    (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+
+                        @Override
+                        public void onResponse(JSONObject response) {
+
+                            try {
+
+                                // routesArray contains ALL routes to get to the destination
+                                JSONArray routesArray = response.getJSONArray("routes");
+
+                                // Grab the first route
+                                JSONObject route = routesArray.getJSONObject(0);
+
+                                // Take all legs from the route (typically there should only be one
+                                JSONArray legs = route.getJSONArray("legs");
+
+                                // Grab first leg
+                                JSONObject leg = legs.getJSONObject(0);
+
+                                int duration = leg.getJSONObject("duration").getInt("value");
+
+                                Calendar leaveAtCalendar = Calendar.getInstance();
+                                leaveAtCalendar.setTime(trip.getMeetupTime());
+
+                                leaveAtCalendar.add(Calendar.SECOND, -duration);
+
+                                if ((new Date()).after(leaveAtCalendar.getTime())) {
+                                    String leaveText = "Leave now";
+
+                                    viewHolder.leaveIn_textView.setText(leaveText);
+                                }
+                                else {
+
+                                    SimpleDateFormat timeFormat =
+                                            new SimpleDateFormat("hh:mm a", Locale.getDefault());
+
+                                    String leaveText = "Leave at " +
+                                            timeFormat.format(leaveAtCalendar.getTime());
+
+                                    viewHolder.leaveIn_textView.setText(leaveText);
+                                }
+                            } catch (JSONException e) {
+                                viewHolder.leaveIn_textView.setText("");
+                            }
+                        }
+                    }, new Response.ErrorListener() {
+
+                        @Override
+                        public void onErrorResponse(VolleyError error) {
+                            viewHolder.leaveIn_textView.setText("");
+                        }
+                    });
+
+            queue.add(jsObjRequest);
         }
 
         // Return the completed view to render on screen
