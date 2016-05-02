@@ -75,7 +75,24 @@ public class TripInfoActivity extends AppCompatActivity implements OnMapReadyCal
 
         time_textView.append(" " + sdf.format(trip.getMeetupTime()));
 
-        // TODO Show the pictures of the attending friends
+        // Display none if no friends are attending (remember that we are added to the list
+        // so we need to check if there are more than 1 person in the list
+        if (trip.getAttendingFBFriendsList().size() <= 1) {
+            friends_textView.append(" You are the only participant");
+        }
+        else {
+
+            for (int i = 0; i < trip.getAttendingFBFriendsList().size(); i++) {
+                Friend attendingFBFriend = trip.getAttendingFBFriendsList().get(i);
+
+                if ((i + 1) == trip.getAttendingFBFriendsList().size()) {
+                    friends_textView.append(" " + attendingFBFriend.getName());
+                }
+                else {
+                    friends_textView.append(" " + attendingFBFriend.getName() + ",");
+                }
+            }
+        }
 
         /* When the edit button is clicked, we want to pass the Trip object to the EditTripActivity.
            We do this as an ActivityForResult. That is, if the user finishes editing the trip,

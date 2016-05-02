@@ -41,14 +41,19 @@
             android:text="Time:"
             android:id="@+id/time_textView" />
 
+        <Space
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/dashboard_margin_between_lists"/>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingLeft="@dimen/dashboard_margin_between_lists"
             android:paddingRight="@dimen/dashboard_margin_between_lists"
             android:paddingBottom="@dimen/dashboard_margin_between_lists"
-            android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Friends:"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Friends: "
+            android:maxLines="4"
             android:id="@+id/friends_textView" />
 
         <LinearLayout
