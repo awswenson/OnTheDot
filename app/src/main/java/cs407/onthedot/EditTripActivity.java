@@ -20,10 +20,10 @@ import java.util.Locale;
 /**
  * Created by Tanner on 3/24/2016.
  */
-public class EditTripActivity extends AppCompatActivity implements EditTripDetailsFragment.OnTripDetailsListener, EditTripAddFriendsFragment.OnTripAddFriendsListener {
+public class EditTripActivity extends AppCompatActivity implements EditTripDetailsFragment.OnTripDetailsListener,
+        EditTripAddFriendsFragment.OnTripAddFriendsListener {
 
     private Trip trip;
-    private double distance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,19 +49,14 @@ public class EditTripActivity extends AppCompatActivity implements EditTripDetai
     }
 
     @Override
-    public void onTripDetailsUpdated(Date meetupTime, LatLng destination) {
+    public void onTripDetailsUpdated(Date meetupTime, LatLng destination, LatLng startingLocation) {
         trip.setMeetupTime(meetupTime);
         trip.setDestination(destination);
+        trip.setStartingLocation(startingLocation);
     }
 
     @Override
-    public void onAddFriendsButtonPressed(LatLng destination, LatLng start_location) {
-
-        ArrayList<LatLng> path = new ArrayList<>();
-        path.add(destination);
-        path.add(start_location);
-        distance = SphericalUtil.computeLength(path);
-        Toast.makeText(this, "The markers are " + formatNumber(distance) + " apart.", Toast.LENGTH_LONG).show();
+    public void onAddFriendsButtonPressed() {
 
         getSupportFragmentManager()
                 .beginTransaction()
@@ -84,19 +79,6 @@ public class EditTripActivity extends AppCompatActivity implements EditTripDetai
         // Activity finished OK, return the data so that we can add it to the database
         setResult(RESULT_OK, data);
         finish();
-    }
-
-    private String formatNumber(double distance) {
-        String unit = "m";
-        if (distance < 1) {
-            distance *= 1000;
-            unit = "mm";
-        } else if (distance > 1000) {
-            distance /= 1000;
-            unit = "km";
-        }
-
-        return String.format("%4.3f%s", distance, unit);
     }
 
 }

@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
@@ -22,6 +23,9 @@ import com.cs407.onthedot.onthedotbackend.myApi.model.TaskBean;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONException;
@@ -36,7 +40,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class DashboardActivity extends AppCompatActivity {
+public class DashboardActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener {
 
     /*
       This is used to identify a single Trip object when passing it between Activities/Fragments
@@ -64,6 +69,10 @@ public class DashboardActivity extends AppCompatActivity {
 
     private Friend me;
 
+    private GoogleApiClient googleApiClient;
+
+    private Location lastKnownLocation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,6 +81,15 @@ public class DashboardActivity extends AppCompatActivity {
         setContentView(R.layout.activity_dashboard);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        // Create an instance of GoogleAPIClient.
+        if (googleApiClient == null) {
+            googleApiClient = new GoogleApiClient.Builder(this)
+                    .addConnectionCallbacks(this)
+                    .addOnConnectionFailedListener(this)
+                    .addApi(LocationServices.API)
+                    .build();
+        }
 
         // Initialize the database
         onTheDotDatabase = new DBHelper(this);
@@ -154,8 +172,10 @@ public class DashboardActivity extends AppCompatActivity {
                         participants.add(me);
                     }
 
-                    // TODO replace the LatLng with the initial location of the device
-                    Trip newTrip = new Trip(new LatLng(43, -89), new Date(), participants, false);
+                    LatLng location = new LatLng(lastKnownLocation.getLatitude(),
+                            lastKnownLocation.getLongitude());
+
+                    Trip newTrip = new Trip(location, location, new Date(), participants, false);
 
                     Intent intent = new Intent(view.getContext(), EditTripActivity.class);
                     intent.putExtra(INTENT_TRIP_OBJECT, newTrip);
@@ -327,7 +347,19 @@ public class DashboardActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onResume() {
+    protected void onStart() {
+        googleApiClient.connect();
+        super.onStart();
+    }
+
+    @Override
+    protected void onStop() {
+        googleApiClient.disconnect();
+        super.onStop();
+    }
+
+    @Override
+    protected void onResume() {
 
         // Check the trips to see if any of the statuses have changed
         checkActiveTripStatusAndUpdateList();
@@ -377,6 +409,28 @@ public class DashboardActivity extends AppCompatActivity {
         bitmap = BitmapFactory.decodeStream(in);
 
         return bitmap;
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(
+                googleApiClient);
+
+        if (lastKnownLocation == null) {
+            lastKnownLocation = new Location("");
+        }
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        // An unresolvable error has occurred and a connection to Google APIs
+        // could not be established. Display an error message, or handle
+        // the failure silently
     }
 
     public static class ListUtils {

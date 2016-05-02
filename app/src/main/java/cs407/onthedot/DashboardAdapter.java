@@ -127,8 +127,8 @@ public class DashboardAdapter extends BaseAdapter {
         else { // Display when the user should leave
 
             String url = "https://maps.googleapis.com/maps/api/directions/json?" +
-                    "origin=" + "Madison,+WI+53715&" + // TODO change to use starting location
-                    "destination=" + trip.getDestinationLatitude() + "," + trip.getDestinationLongitude() +
+                    "origin=" + trip.getStartingLocationLatitude() + "," + trip.getStartingLocationLongitude() +
+                    "&destination=" + trip.getDestinationLatitude() + "," + trip.getDestinationLongitude() +
                     "&departure_time=" + trip.getMeetupTime().getTime() +
                     "&traffic_model=best_guess&mode=walking";
 

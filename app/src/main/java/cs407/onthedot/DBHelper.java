@@ -29,11 +29,13 @@ public class DBHelper extends SQLiteOpenHelper {
     public static final String TRIP_TABLE_NAME = "TRIP";
     public static final String TRIP_COLUMN_TRIP_ID = "TRIP_ID";
     public static final String TRIP_COLUMN_DATE = "DATE";
-    public static final String TRIP_COLUMN_LATITUDE = "LATITUDE";
-    public static final String TRIP_COLUMN_LONGITUDE = "LONGITUDE";
+    public static final String TRIP_COLUMN_DEST_LATITUDE = "DEST_LATITUDE";
+    public static final String TRIP_COLUMN_DEST_LONGITUDE = "DEST_LONGITUDE";
+    public static final String TRIP_COLUMN_START_LATITUDE = "START_LATITUDE";
+    public static final String TRIP_COLUMN_START_LONGITUDE = "START_LONGITUDE";
     public static final String TRIP_COLUMN_COMPLETE = "TRIP_COMPLETE";
 
-    //for removing, must know the trip_id and the participant id
+    // For removing, must know the trip_id and the participant id
     public static final String PARTICIPANTS_TABLE_NAME = "PARTICIPANT";
     public static final String PARTICIPANTS_COLUMN_TRIP_ID = "TRIP_ID";
     public static final String PARTICIPANTS_COLUMN_PARTICIPANT_ID = "PARTICIPANT_ID";
@@ -55,8 +57,10 @@ public class DBHelper extends SQLiteOpenHelper {
                 "CREATE TABLE " + TRIP_TABLE_NAME + "(" +
                         TRIP_COLUMN_TRIP_ID + " INTEGER PRIMARY KEY," +
                         TRIP_COLUMN_DATE + " TEXT," +
-                        TRIP_COLUMN_LATITUDE + " REAL," +
-                        TRIP_COLUMN_LONGITUDE + " REAL," +
+                        TRIP_COLUMN_DEST_LATITUDE + " REAL," +
+                        TRIP_COLUMN_DEST_LONGITUDE + " REAL," +
+                        TRIP_COLUMN_START_LATITUDE + " REAL," +
+                        TRIP_COLUMN_START_LONGITUDE + " REAL," +
                         TRIP_COLUMN_COMPLETE + " INTEGER)"
         );
 
@@ -98,8 +102,10 @@ public class DBHelper extends SQLiteOpenHelper {
 
             ContentValues contentValues = new ContentValues();
             contentValues.put(TRIP_COLUMN_DATE, dateFormat.format(trip.getMeetupTime()));
-            contentValues.put(TRIP_COLUMN_LATITUDE, trip.getDestinationLatitude());
-            contentValues.put(TRIP_COLUMN_LONGITUDE, trip.getDestinationLongitude());
+            contentValues.put(TRIP_COLUMN_DEST_LATITUDE, trip.getDestinationLatitude());
+            contentValues.put(TRIP_COLUMN_DEST_LONGITUDE, trip.getDestinationLongitude());
+            contentValues.put(TRIP_COLUMN_START_LATITUDE, trip.getStartingLocationLatitude());
+            contentValues.put(TRIP_COLUMN_START_LONGITUDE, trip.getStartingLocationLongitude());
             contentValues.put(TRIP_COLUMN_COMPLETE, ((trip.isTripComplete())? 1 : 0));
 
             tripID = db.insert(TRIP_TABLE_NAME, null, contentValues);
@@ -161,8 +167,11 @@ public class DBHelper extends SQLiteOpenHelper {
         res.moveToFirst();
 
         // Gather all the trip information and create a new Trip object
-        LatLng destination = new LatLng(res.getDouble(res.getColumnIndex(TRIP_COLUMN_LATITUDE)),
-                res.getDouble(res.getColumnIndex(TRIP_COLUMN_LONGITUDE)));
+        LatLng destination = new LatLng(res.getDouble(res.getColumnIndex(TRIP_COLUMN_DEST_LATITUDE)),
+                res.getDouble(res.getColumnIndex(TRIP_COLUMN_DEST_LONGITUDE)));
+
+        LatLng startingLocation = new LatLng(res.getDouble(res.getColumnIndex(TRIP_COLUMN_START_LATITUDE)),
+                res.getDouble(res.getColumnIndex(TRIP_COLUMN_START_LONGITUDE)));
 
         boolean tripComplete = (res.getInt(res.getColumnIndex(TRIP_COLUMN_COMPLETE)) == 1);
 
@@ -177,7 +186,8 @@ public class DBHelper extends SQLiteOpenHelper {
             return null;
         }
 
-        Trip trip = new Trip(tripID, destination, meetupTime, new ArrayList<Friend>(), tripComplete);
+        Trip trip = new Trip(tripID, destination, startingLocation, meetupTime,
+                new ArrayList<Friend>(), tripComplete);
 
         // Get all the participant IDs and add them to the attendingFBFriendsList in the trip object
         while(!res.isAfterLast()) {
@@ -298,8 +308,10 @@ public class DBHelper extends SQLiteOpenHelper {
 
             ContentValues contentValues = new ContentValues();
             contentValues.put(TRIP_COLUMN_DATE, dateFormat.format(trip.getMeetupTime()));
-            contentValues.put(TRIP_COLUMN_LATITUDE, trip.getDestinationLatitude());
-            contentValues.put(TRIP_COLUMN_LONGITUDE, trip.getDestinationLongitude());
+            contentValues.put(TRIP_COLUMN_DEST_LATITUDE, trip.getDestinationLatitude());
+            contentValues.put(TRIP_COLUMN_DEST_LONGITUDE, trip.getDestinationLongitude());
+            contentValues.put(TRIP_COLUMN_START_LATITUDE, trip.getStartingLocationLatitude());
+            contentValues.put(TRIP_COLUMN_START_LONGITUDE, trip.getStartingLocationLongitude());
             contentValues.put(TRIP_COLUMN_COMPLETE, ((trip.isTripComplete()) ? 1 : 0));
 
             // Update the trip in the database
@@ -443,9 +455,13 @@ public class DBHelper extends SQLiteOpenHelper {
         sb.append(", t.");
         sb.append(TRIP_COLUMN_DATE);
         sb.append(", t.");
-        sb.append(TRIP_COLUMN_LATITUDE);
+        sb.append(TRIP_COLUMN_DEST_LATITUDE);
         sb.append(", t.");
-        sb.append(TRIP_COLUMN_LONGITUDE);
+        sb.append(TRIP_COLUMN_DEST_LONGITUDE);
+        sb.append(", t.");
+        sb.append(TRIP_COLUMN_START_LATITUDE);
+        sb.append(", t.");
+        sb.append(TRIP_COLUMN_START_LONGITUDE);
         sb.append(", t.");
         sb.append(TRIP_COLUMN_COMPLETE);
         sb.append(", p.");

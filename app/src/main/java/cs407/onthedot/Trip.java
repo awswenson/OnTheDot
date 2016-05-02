@@ -33,6 +33,13 @@ public class Trip implements Parcelable, Comparable<Trip> {
     private LatLng destination;
 
     /*
+      The starting location found when the trip was created/modified. Ideally, this should
+      be replaced in future versions with regular updates of the user's location current
+      location as the starting location.
+     */
+    private LatLng startingLocation;
+
+    /*
       Stored in a Date object, this stores the date and time of the meet-up.
      */
     private Date meetupTime;
@@ -51,9 +58,10 @@ public class Trip implements Parcelable, Comparable<Trip> {
      */
     private boolean tripComplete;
 
-    public Trip(LatLng destination, Date meetupTime, ArrayList<Friend> attendingFBFriendsList,
+    public Trip(LatLng destination, LatLng startingLocation, Date meetupTime, ArrayList<Friend> attendingFBFriendsList,
                 boolean tripComplete) {
         this.destination = destination;
+        this.startingLocation = startingLocation;
         this.meetupTime = meetupTime;
         this.attendingFBFriendsList = attendingFBFriendsList;
         this.tripComplete = tripComplete;
@@ -62,10 +70,11 @@ public class Trip implements Parcelable, Comparable<Trip> {
     /*
       Only use this when the tripID is known (i.e. been assigned by the database)
      */
-    public Trip(long tripID, LatLng destination, Date meetupTime, ArrayList<Friend> attendingFBFriendsList,
-                boolean tripComplete) {
+    public Trip(long tripID, LatLng destination, LatLng startingLocation, Date meetupTime,
+                ArrayList<Friend> attendingFBFriendsList, boolean tripComplete) {
         this.tripID = tripID;
         this.destination = destination;
+        this.startingLocation = startingLocation;
         this.meetupTime = meetupTime;
         this.attendingFBFriendsList = attendingFBFriendsList;
         this.tripComplete = tripComplete;
@@ -78,6 +87,7 @@ public class Trip implements Parcelable, Comparable<Trip> {
     public Trip(Parcel in) {
         this.tripID = in.readLong();
         this.destination = in.readParcelable(LatLng.class.getClassLoader());
+        this.startingLocation = in.readParcelable(LatLng.class.getClassLoader());
         this.meetupTime = ((Date) in.readSerializable());
         this.attendingFBFriendsList = new ArrayList<Friend>();
         in.readTypedList(this.attendingFBFriendsList, Friend.CREATOR);
@@ -106,6 +116,22 @@ public class Trip implements Parcelable, Comparable<Trip> {
 
     public void setDestination(LatLng destination) {
         this.destination = destination;
+    }
+
+    public LatLng getStartingLocation() {
+        return startingLocation;
+    }
+
+    public void setStartingLocation(LatLng startingLocation) {
+        this.startingLocation = startingLocation;
+    }
+
+    public double getStartingLocationLatitude() {
+        return startingLocation.latitude;
+    }
+
+    public double getStartingLocationLongitude() {
+        return startingLocation.longitude;
     }
 
     public Date getMeetupTime() {
@@ -185,6 +211,7 @@ public class Trip implements Parcelable, Comparable<Trip> {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(tripID);
         dest.writeParcelable(destination, flags);
+        dest.writeParcelable(startingLocation, flags);
         dest.writeSerializable(meetupTime);
         dest.writeTypedList(attendingFBFriendsList);
         dest.writeInt(tripComplete ? 1 : 0);

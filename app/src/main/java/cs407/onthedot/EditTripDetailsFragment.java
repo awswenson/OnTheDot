@@ -71,14 +71,14 @@ public class EditTripDetailsFragment extends Fragment implements OnMapReadyCallb
         /**
          * Update the meetup time and destination in a Trip object
          */
-        public void onTripDetailsUpdated(Date meetupTime, LatLng destination);
+        public void onTripDetailsUpdated(Date meetupTime, LatLng destination, LatLng startingLocation);
 
         /**
          * Determines what happens after the "Add Friends" button is clicked.  Ideally,
          * the class that implements this go the the "Add Friends" screen so that the user
          * can add friends to participate in the trip with
          */
-        public void onAddFriendsButtonPressed(LatLng destination, LatLng start_location);
+        public void onAddFriendsButtonPressed();
 
     }
 
@@ -174,10 +174,10 @@ public class EditTripDetailsFragment extends Fragment implements OnMapReadyCallb
             @Override
             public void onClick(View view) {
                 onTripDetailsListenerCallback
-                        .onTripDetailsUpdated(meetupTime_calendar.getTime(), destination);
+                        .onTripDetailsUpdated(meetupTime_calendar.getTime(), destination, getStartLocation());
 
                 onTripDetailsListenerCallback
-                        .onAddFriendsButtonPressed(destination, getStartLocation());
+                        .onAddFriendsButtonPressed();
             }
         });
 
@@ -439,12 +439,12 @@ public class EditTripDetailsFragment extends Fragment implements OnMapReadyCallb
 
     public LatLng getStartLocation() {
         Location location = destination_googleMaps.getMyLocation();
-        LatLng start_location = null;
+        LatLng startLocation = null;
 
         if (location != null) {
-            start_location = new LatLng(location.getLatitude(), location.getLongitude());
+            startLocation = new LatLng(location.getLatitude(), location.getLongitude());
         }
 
-        return start_location;
+        return startLocation;
     }
 }
