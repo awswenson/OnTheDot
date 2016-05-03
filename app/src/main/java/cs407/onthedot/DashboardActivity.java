@@ -1,6 +1,9 @@
 package cs407.onthedot;
 
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -19,6 +22,12 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.ListView;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.cs407.onthedot.onthedotbackend.myApi.model.TaskBean;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
@@ -28,6 +37,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -37,8 +47,11 @@ import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 public class DashboardActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
@@ -270,6 +283,9 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
 
                     currentTripsList.add(newTrip);
 
+                    // Create a notification to go off at the time the user should leave
+                    createNotificationHandler(newTrip);
+
                     currentTripsAdapter.notifyDataSetChanged();
                     ListUtils.setDynamicHeight(currentTrips_listView);
                     ListUtils.setDynamicHeight(pastTrips_listView);
@@ -306,6 +322,9 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
                     currentTripsList.remove(editedTrip);
                     currentTripsList.add(editedTrip);
 
+                    // Create a notification to go off at the time the user should leave
+                    createNotificationHandler(editedTrip);
+
                     // Return back to the Trip info page with the updated trip details
                     Intent intent = new Intent(this, TripInfoActivity.class);
                     intent.putExtra(INTENT_TRIP_OBJECT, editedTrip);
@@ -337,6 +356,9 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
 
                     // Remove the trip from the current trip list
                     currentTripsList.remove(tripToDelete);
+
+                    // Delete the notification
+                    deleteNotificationHandler(tripToDelete);
 
                     currentTripsAdapter.notifyDataSetChanged();
                     ListUtils.setDynamicHeight(currentTrips_listView);
@@ -372,6 +394,103 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
         ListUtils.setDynamicHeight(pastTrips_listView);
 
         super.onResume();
+    }
+
+    /**
+     * When a trip is created or updated, a notification will be created or delayed and created
+     * when the user should leave based on distance, best route, and traffic conditions.
+     *
+     * @param trip The trip to create a notification
+     */
+    public void createNotificationHandler(final Trip trip) {
+
+        String url = "https://maps.googleapis.com/maps/api/directions/json?" +
+                "origin=" + trip.getStartingLocationLatitude() + "," + trip.getStartingLocationLongitude() +
+                "&destination=" + trip.getDestinationLatitude() + "," + trip.getDestinationLongitude() +
+                "&departure_time=" + trip.getMeetupTime().getTime() +
+                "&traffic_model=best_guess&mode=walking";
+
+        RequestQueue queue = Volley.newRequestQueue(this);
+
+        final Context context = this;
+
+        JsonObjectRequest jsObjRequest = new JsonObjectRequest
+                (Request.Method.GET, url, null, new Response.Listener<JSONObject>() {
+
+                    @Override
+                    public void onResponse(JSONObject response) {
+
+                        try {
+
+                            // routesArray contains ALL routes to get to the destination
+                            JSONArray routesArray = response.getJSONArray("routes");
+
+                            // Grab the first route
+                            JSONObject route = routesArray.getJSONObject(0);
+
+                            // Take all legs from the route (typically there should only be one
+                            JSONArray legs = route.getJSONArray("legs");
+
+                            // Grab first leg
+                            JSONObject leg = legs.getJSONObject(0);
+
+                            int duration = leg.getJSONObject("duration").getInt("value");
+
+                            Calendar leaveAtCalendar = Calendar.getInstance();
+                            leaveAtCalendar.setTime(trip.getMeetupTime());
+
+                            leaveAtCalendar.add(Calendar.SECOND, -duration);
+
+                            // Set the seconds to 0 so that the timer fires immediately at the clock change
+                            leaveAtCalendar.set(Calendar.SECOND, 0);
+                            leaveAtCalendar.set(Calendar.MILLISECOND, 0);
+
+                            // Create an alarm to go off when the user needs to leave. When the
+                            // alarm goes off, it will create a notification that the user will see
+                            AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+                            Intent intent = new Intent(context, NotificationHandler.class);
+                            intent.putExtra(INTENT_TRIP_OBJECT, trip);
+
+                            PendingIntent alarmIntent =
+                                    PendingIntent.getBroadcast(context, (int) trip.getTripID(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+                            // Set the alarm to go off at the time to leave. According to the
+                            // documentation, if an alarm with same intent is made, the previous
+                            // one is canceled (i.e. no need to call cancel method)
+                            alarmManager.setExact(AlarmManager.RTC_WAKEUP, leaveAtCalendar.getTimeInMillis(), alarmIntent);
+
+                        } catch (JSONException e) {
+
+                        }
+                    }
+                }, new Response.ErrorListener() {
+
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+
+        queue.add(jsObjRequest);
+    }
+
+    /**
+     * Deletes a notification handler that may still exist for a trip
+     *
+     * @param trip The trip to delete a planned notification
+     */
+    public void deleteNotificationHandler(Trip trip) {
+
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        Intent intent = new Intent(this, NotificationHandler.class);
+        intent.putExtra(INTENT_TRIP_OBJECT, trip);
+
+        PendingIntent pendingIntent =
+                PendingIntent.getBroadcast(this, (int) trip.getTripID(), intent, PendingIntent.FLAG_CANCEL_CURRENT);
+
+        alarmManager.cancel(pendingIntent);
     }
 
     /**

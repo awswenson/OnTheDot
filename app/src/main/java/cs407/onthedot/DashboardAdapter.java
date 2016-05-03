@@ -113,8 +113,8 @@ public class DashboardAdapter extends BaseAdapter {
             viewHolder.additionalInfo_textView.setText(additionalInfoString);
         }
 
-        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yy", Locale.getDefault());
-        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm a", Locale.getDefault());
+        SimpleDateFormat dateFormat = new SimpleDateFormat("M/d/yy", Locale.getDefault());
+        SimpleDateFormat timeFormat = new SimpleDateFormat("h:mm a", Locale.getDefault());
         String meetUpString = "Meet-up at " +
                 timeFormat.format(trip.getMeetupTime()) + " on " +
                 dateFormat.format(trip.getMeetupTime());

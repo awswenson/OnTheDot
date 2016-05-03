@@ -353,7 +353,7 @@ public class EditTripDetailsFragment extends Fragment implements OnMapReadyCallb
     };
 
     private void setDateOnEditText() {
-        String dateFormat = "MM/dd/yy";
+        String dateFormat = "M/d/yy";
         SimpleDateFormat sdf = new SimpleDateFormat(dateFormat, Locale.US);
 
         date_editText.setText(sdf.format(meetupTime_calendar.getTime()));
