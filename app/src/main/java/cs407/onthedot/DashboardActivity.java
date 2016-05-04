@@ -221,7 +221,7 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
 
         //debug cloud endpoint
         //new EndpointsPortal().pushToRemote();
-        new EndpointsPortal().sayHi();
+        new EndpointsPortal().pushToRemote();
     }
 
     @Override

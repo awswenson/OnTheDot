@@ -25,7 +25,7 @@ import javax.inject.Named;
 
 /** An endpoint class we are exposing */
 @Api(
-  name = "taskApi",
+  name = "tripApi",
   version = "v1",
   namespace = @ApiNamespace(
     ownerDomain = "onthedotbackend.onthedot.cs407.com",
@@ -35,15 +35,15 @@ import javax.inject.Named;
 )
 public class MyEndpoint {
 
-    @ApiMethod(name = "storeTask")
-    public void storeTask(TaskBean taskBean) {
+    @ApiMethod(name = "storeTrip")
+    public void storeTrip(TripBean tripBean) {
         DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
         Transaction txn = datastoreService.beginTransaction();
         try {
-            Key taskBeanParentKey = KeyFactory.createKey("TaskBeanParent", "todo.txt");
-            Entity taskEntity = new Entity("TaskBean", taskBean.getId(), taskBeanParentKey);
-            taskEntity.setProperty("data", taskBean.getData());
-            datastoreService.put(taskEntity);
+            Key tripBeanParentKey = KeyFactory.createKey("TripBeanParent", "todo.txt");
+            Entity tripEntity = new Entity("TripBean", tripBean.getId(), tripBeanParentKey);
+            tripEntity.setProperty("data", tripBean.getData());
+            datastoreService.put(tripEntity);
             txn.commit();
         } finally {
             if (txn.isActive()) {
@@ -52,30 +52,30 @@ public class MyEndpoint {
         }
     }
 
-    @ApiMethod(name = "getTasks")
-    public List<TaskBean> getTasks() {
+    @ApiMethod(name = "getTrips")
+    public List<TripBean> getTrips() {
         DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
-        Key taskBeanParentKey = KeyFactory.createKey("TaskBeanParent", "todo.txt");
-        Query query = new Query(taskBeanParentKey);
+        Key tripBeanParentKey = KeyFactory.createKey("TripBeanParent", "todo.txt");
+        Query query = new Query(tripBeanParentKey);
         List<Entity> results = datastoreService.prepare(query).asList(FetchOptions.Builder.withDefaults());
-        ArrayList<TaskBean> taskBeans = new ArrayList<TaskBean>();
+        ArrayList<TripBean> tripBeans = new ArrayList<TripBean>();
         for (Entity result : results) {
-            TaskBean taskBean = new TaskBean();
-            taskBean.setId(result.getKey().getId());
-            taskBean.setData((String) result.getProperty("data"));
-            taskBeans.add(taskBean);
+            TripBean tripBean = new TripBean();
+            tripBean.setId(result.getKey().getId());
+            tripBean.setData((String) result.getProperty("data"));
+            tripBeans.add(tripBean);
         }
 
-        return taskBeans;
+        return tripBeans;
     }
 
-    @ApiMethod(name = "clearTasks")
-    public void clearTasks() {
+    @ApiMethod(name = "clearTrips")
+    public void clearTrips() {
         DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
         Transaction txn = datastoreService.beginTransaction();
         try {
-            Key taskBeanParentKey = KeyFactory.createKey("TaskBeanParent", "todo.txt");
-            Query query = new Query(taskBeanParentKey);
+            Key tripBeanParentKey = KeyFactory.createKey("TripBeanParent", "todo.txt");
+            Query query = new Query(tripBeanParentKey);
             List<Entity> results = datastoreService.prepare(query).asList(FetchOptions.Builder.withDefaults());
             for (Entity result : results) {
                 datastoreService.delete(result.getKey());
@@ -88,9 +88,10 @@ public class MyEndpoint {
         }
     }
 
+    //used for testing purposes
     @ApiMethod(name = "sayHi")
-    public TaskBean sayHi(@Named("name") String name) {
-        TaskBean response = new TaskBean();
+    public TripBean sayHi(@Named("name") String name) {
+        TripBean response = new TripBean();
         response.setData("Hi, " + name);
         return response;
     }
