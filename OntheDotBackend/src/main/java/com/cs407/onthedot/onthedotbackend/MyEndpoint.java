@@ -42,6 +42,7 @@ public class MyEndpoint {
         try {
             Key tripBeanParentKey = KeyFactory.createKey("TripBeanParent", "todo.txt");
             Entity tripEntity = new Entity("TripBean", tripBean.getId(), tripBeanParentKey);
+            new Entity()
             tripEntity.setProperty("data", tripBean.getData());
             datastoreService.put(tripEntity);
             txn.commit();
