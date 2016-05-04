@@ -26,6 +26,11 @@ public class FacebookLoginFragment extends android.app.Fragment {
         Bundle args = new Bundle();
         fragment.setArguments(args);
         //this comment is here just to text a new branch actually being made
+        int i = 0;
+        i++;
+        if (i < 2){
+            i--;
+        }
         return fragment;
     }
 
