@@ -9,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.cs407.onthedot.onthedotbackend.myApi.model.TaskBean;
 import com.facebook.AccessToken;
 import com.facebook.AccessTokenTracker;
 import com.facebook.CallbackManager;
@@ -38,14 +37,6 @@ public class LoginLandingPageActivity extends AppCompatActivity implements Faceb
 
         //testing out the backend here
         //test putting a task in
-        TaskBean task = new TaskBean();
-        task.setData("data1");
-        task.setId(new Long(1));
-        //new EndpointsAsyncTask().insertBean(task);
-        //insertBean
-        //new EndpointsAsyncTask().doInBackgroundPUT(new Pair<Context, TaskBean>(this, task));
-        //new EndpointsAsyncTask().doInBackgroundPUT(this, task);
-        //new EndpointsAsyncTask().execute(new Pair<Context, String>(this, "Conner"));
 
         mAccessTokenTracker = new AccessTokenTracker() {
             @Override

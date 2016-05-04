@@ -28,7 +28,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.cs407.onthedot.onthedotbackend.myApi.model.TaskBean;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
@@ -47,11 +46,9 @@ import java.net.MalformedURLException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.URL;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 public class DashboardActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
@@ -176,8 +173,7 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
 
 
                     //test extracting the data
-                    TaskBean task = new TaskBean();
-                    //new EndpointsAsyncTask().doInBackgroundGET(new Pair<Context, TaskBean>(DashboardActivity.this, task));
+                    //TaskBean task = new TaskBean();
                     ArrayList<Friend> participants = new ArrayList<>();
 
                     // Add me to the participants list
@@ -222,6 +218,10 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
                 ListUtils.setDynamicHeight(pastTrips_listView);
             }
         });
+
+        //debug cloud endpoint
+        //new EndpointsPortal().pushToRemote();
+        new EndpointsPortal().sayHi();
     }
 
     @Override
