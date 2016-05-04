@@ -42,7 +42,7 @@ public class MyEndpoint {
         try {
             Key tripBeanParentKey = KeyFactory.createKey("TripBeanParent", "todo.txt");
             Entity tripEntity = new Entity("TripBean", tripBean.getId(), tripBeanParentKey);
-            new Entity()
+            //new Entity()
             tripEntity.setProperty("data", tripBean.getData());
             datastoreService.put(tripEntity);
             txn.commit();
@@ -58,6 +58,9 @@ public class MyEndpoint {
         DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
         Key tripBeanParentKey = KeyFactory.createKey("TripBeanParent", "todo.txt");
         Query query = new Query(tripBeanParentKey);
+        //TODO use these two functions to provide queryability
+        //query.setFilter(new Query.FilterPredicate("id", Query.FilterOperator.EQUAL, "2"));
+        //query.setKeysOnly();
         List<Entity> results = datastoreService.prepare(query).asList(FetchOptions.Builder.withDefaults());
         ArrayList<TripBean> tripBeans = new ArrayList<TripBean>();
         for (Entity result : results) {
@@ -70,8 +73,8 @@ public class MyEndpoint {
         return tripBeans;
     }
 
-    @ApiMethod(name = "clearTrips")
-    public void clearTrips() {
+    @ApiMethod(name = "clearTripsById")
+    public void clearTripsById(@Named("id") Long id) {
         DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
         Transaction txn = datastoreService.beginTransaction();
         try {
@@ -79,7 +82,11 @@ public class MyEndpoint {
             Query query = new Query(tripBeanParentKey);
             List<Entity> results = datastoreService.prepare(query).asList(FetchOptions.Builder.withDefaults());
             for (Entity result : results) {
-                datastoreService.delete(result.getKey());
+                Key key = result.getKey();
+                Long resultId = key.getId();
+                if (resultId == id){
+                    datastoreService.delete(result.getKey());
+                }
             }
             txn.commit();
         } finally {

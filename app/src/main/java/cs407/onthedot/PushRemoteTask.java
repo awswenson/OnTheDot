@@ -17,11 +17,14 @@ public class PushRemoteTask extends AsyncTask<TripApi, Void, Void> {
 
         TripBean trip = new TripBean();
         trip.setData("Hello");
-        trip.setId(new Long(1));
-        //try{
-            //trip = new EndpointsPortal().tripApiService.sayHi("Jason").execute();
+        trip.setId(new Long(4));
+        TripBean trip2 = new TripBean();
+        trip2.setId(new Long(2));
+        trip2.setData("Conner");
         try{
-            new EndpointsPortal().tripApiService.storeTrip(trip).execute();
+            //new EndpointsPortal().tripApiService.storeTrip(trip).execute();
+            //new EndpointsPortal().tripApiService.storeTrip(trip2).execute();
+            new EndpointsPortal().tripApiService.clearTripsById(new Long(2));
         }catch (IOException e){
             Log.e("Async exception", "Error when pushing trips", e);
         }

@@ -1,6 +1,6 @@
 {
  "kind": "discovery#restDescription",
- "etag": "\"H01Z-1ikbwOw463Un2bFZHenx1g/VAdq0RcqFjAJOaBpE-34A-cpkk4\"",
+ "etag": "\"H01Z-1ikbwOw463Un2bFZHenx1g/1o3S9KaQIjdxJyVV3IzOjq5ynLg\"",
  "discoveryVersion": "v1",
  "id": "tripApi:v1",
  "name": "tripApi",
@@ -100,10 +100,21 @@
   }
  },
  "methods": {
-  "clearTrips": {
-   "id": "tripApi.clearTrips",
-   "path": "clearTrips",
+  "clearTripsById": {
+   "id": "tripApi.clearTripsById",
+   "path": "clearTripsById/{id}",
    "httpMethod": "POST",
+   "parameters": {
+    "id": {
+     "type": "string",
+     "required": true,
+     "format": "int64",
+     "location": "path"
+    }
+   },
+   "parameterOrder": [
+    "id"
+   ],
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"
    ]

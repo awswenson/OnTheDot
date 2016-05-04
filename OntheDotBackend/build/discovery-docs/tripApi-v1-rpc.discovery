@@ -1,6 +1,6 @@
 {
  "kind": "discovery#rpcDescription",
- "etag": "\"H01Z-1ikbwOw463Un2bFZHenx1g/VAdq0RcqFjAJOaBpE-34A-cpkk4\"",
+ "etag": "\"H01Z-1ikbwOw463Un2bFZHenx1g/1o3S9KaQIjdxJyVV3IzOjq5ynLg\"",
  "discoveryVersion": "v1",
  "id": "tripApi:v1",
  "name": "tripApi",
@@ -98,8 +98,18 @@
   }
  },
  "methods": {
-  "tripApi.clearTrips": {
-   "id": "tripApi.clearTrips",
+  "tripApi.clearTripsById": {
+   "id": "tripApi.clearTripsById",
+   "parameters": {
+    "id": {
+     "type": "string",
+     "required": true,
+     "format": "int64"
+    }
+   },
+   "parameterOrder": [
+    "id"
+   ],
    "scopes": [
     "https://www.googleapis.com/auth/userinfo.email"
    ]
