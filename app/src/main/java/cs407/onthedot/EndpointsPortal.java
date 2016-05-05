@@ -3,6 +3,7 @@ package cs407.onthedot;
 import android.content.Context;
 
 import com.cs407.onthedot.onthedotbackend.tripApi.TripApi;
+import com.cs407.onthedot.onthedotbackend.tripApi.model.ParticipantBean;
 import com.cs407.onthedot.onthedotbackend.tripApi.model.TripBean;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
@@ -38,6 +39,18 @@ public class EndpointsPortal  {
 
 
 
+    public synchronized void addParticipant(ParticipantBean part) {
+        new AddParticipantTask(part).execute();
+    }
+
+    public synchronized void getParticipants() {
+        new GetParticipantsTask().execute();
+    }
+
+    public synchronized void clearParticipantByIds(Long partId, Long tripId) {
+        new ClearParticipantByIdsTask(partId, tripId).execute();
+    }
+
     public synchronized void addTrip(TripBean trip) {
         new AddTripTask(trip).execute();
     }
@@ -51,6 +64,7 @@ public class EndpointsPortal  {
     }
 
 
+    /*
     //used for testing purposes to ensure backend is able to be communicated with
     public synchronized void sayHi() {
 
@@ -60,10 +74,11 @@ public class EndpointsPortal  {
             //trip.setData("Test data");
             new PullRemoteTask().execute();
             //taskApiService.sayHi("Jason").execute();
-            /*
+
         } catch (IOException e) {
             Log.e("Endpoint sayHi", "Error when loading tasks", e);
         }
-        */
+
     }
+    */
 }

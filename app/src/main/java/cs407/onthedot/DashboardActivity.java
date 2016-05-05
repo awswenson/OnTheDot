@@ -28,6 +28,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.cs407.onthedot.onthedotbackend.tripApi.model.ParticipantBean;
 import com.cs407.onthedot.onthedotbackend.tripApi.model.TripBean;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
@@ -222,6 +223,7 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
         });
 
         //debug cloud endpoint
+        /*
         TripBean tripBean = new TripBean();
         tripBean.setId(new Long(23));
         tripBean.setDate("23");
@@ -231,9 +233,20 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
         tripBean.setStartLong("23");
         tripBean.setTripComplete("23");
         tripBean.setFriendsList("1,2,3,4,5,6,7,8");
+        */
         //new EndpointsPortal().addTrip(tripBean);
         //new EndpointsPortal().getTrips();
         //new EndpointsPortal().clearTripById(new Long(23));
+
+        /*
+        ParticipantBean part = new ParticipantBean();
+        part.setParticipantId(new Long(1));
+        part.setParticipantName("Conner");
+        part.setTripId(new Long(1));
+        */
+        //new EndpointsPortal().addParticipant(part);
+        //new EndpointsPortal().getParticipants();
+        //new EndpointsPortal().clearParticipantByIds(new Long(1), new Long(1));
 
     }
 
