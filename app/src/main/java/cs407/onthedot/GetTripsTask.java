@@ -46,8 +46,6 @@ public class GetTripsTask extends AsyncTask<TripApi, Void, TripBeanCollection> {
     }
 
     protected void onPostExecute(TripBeanCollection collection) {
-        Log.e("Get trips returned", "Yay");
-
         ArrayList<Trip> trips = new ArrayList<>();
 
         for (TripBean tripBean : collection.getItems()) {
@@ -66,7 +64,8 @@ public class GetTripsTask extends AsyncTask<TripApi, Void, TripBeanCollection> {
 
                 boolean tripComplete = "1".equals(tripBean.getTripComplete());
 
-                ArrayList<Friend> friends = new ArrayList<Friend>(); // TODO Change to parse a Friends list
+                ArrayList<Friend> friends =
+                        Friend.getFriendsListFromString(tripBean.getFriendsList());
 
                 trips.add(new Trip(tripID, destination, startingLocation,
                         meetupTime, friends, tripComplete));

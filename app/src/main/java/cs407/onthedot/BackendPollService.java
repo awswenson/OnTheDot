@@ -63,17 +63,26 @@ public class BackendPollService extends IntentService {
     }
 
     /**
-     * Handles the action of synchronizing the local database with the backend database
-     * in the provided background thread.
+     * Handles the action of synchronizing the local DB with the trips list.
      */
     private void handleSynchronizeLocalDB(ArrayList<Trip> trips) {
-
+        // TODO This is where we will diff the local DB with the trips list. Use
+        // the newTripAddedNotification() to send a notification whenever a new trip is added
+        // to the database that wasn't there before.
     }
 
+    /**
+     * Handles the action of getting the list of trips from the backend DB
+     */
     public void handleGetTripsFromBackend() {
         new EndpointsPortal().getTrips(this);
     }
 
+    /**
+     * Creates a notification informing the user of a newly added trip.
+     *
+     * @param trip The newly added trip
+     */
     private void newTripAddedNotification(Trip trip) {
 
         // Make sure a trip was actually added. If the Trip is null, just return

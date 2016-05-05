@@ -1,7 +1,6 @@
 package cs407.onthedot;
 
 import android.content.Context;
-import android.util.Log;
 
 import com.cs407.onthedot.onthedotbackend.tripApi.TripApi;
 import com.cs407.onthedot.onthedotbackend.tripApi.model.TripBean;
