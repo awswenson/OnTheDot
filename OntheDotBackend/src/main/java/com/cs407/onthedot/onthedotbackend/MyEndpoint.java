@@ -43,7 +43,7 @@ public class MyEndpoint {
             Key tripBeanParentKey = KeyFactory.createKey("TripBeanParent", "todo.txt");
             Entity tripEntity = new Entity("TripBean", tripBean.getId(), tripBeanParentKey);
             //new Entity()
-            tripEntity.setProperty("data", tripBean.getData());
+            //tripEntity.setProperty("data", tripBean.getData());
             datastoreService.put(tripEntity);
             txn.commit();
         } finally {
@@ -66,7 +66,7 @@ public class MyEndpoint {
         for (Entity result : results) {
             TripBean tripBean = new TripBean();
             tripBean.setId(result.getKey().getId());
-            tripBean.setData((String) result.getProperty("data"));
+            //tripBean.setData((String) result.getProperty("data"));
             tripBeans.add(tripBean);
         }
 
@@ -100,7 +100,7 @@ public class MyEndpoint {
     @ApiMethod(name = "sayHi")
     public TripBean sayHi(@Named("name") String name) {
         TripBean response = new TripBean();
-        response.setData("Hi, " + name);
+        //response.setData("Hi, " + name);
         return response;
     }
 

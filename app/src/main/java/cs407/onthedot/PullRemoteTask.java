@@ -32,6 +32,6 @@ public class PullRemoteTask extends AsyncTask<TripApi, Void, TripBean> {
     */
 
     protected void onPostExecute(TripBean tripBean) {
-        Log.e("SayHiResults", tripBean.getData());
+        Log.e("SayHiResults", null);
     }
 }

@@ -40,7 +40,7 @@ public class EndpointsPortal  {
     public synchronized void pushToRemote() {
         TripBean trip = new TripBean();
         trip.setId(new Long(1));
-        trip.setData("Test data");
+        //trip.setData("Test data");
         //tripApiService.storeTrip(trip).execute();
         //new ClearTripTask().execute();
         Log.e("Endpoints put sent out", "Hooray");
@@ -53,7 +53,7 @@ public class EndpointsPortal  {
         try {
             List<TripBean> remoteTrips = tripApiService.getTrips().execute().getItems();
             for (TripBean trip : remoteTrips){
-                Log.e("Endpoints pull success", trip.getData());
+                Log.e("Endpoints pull success", null);
             }
         } catch (IOException e) {
             Log.e("Endpoint Exception pull", "Error when loading trips", e);
@@ -75,7 +75,7 @@ public class EndpointsPortal  {
        // try {
             TripBean trip = new TripBean();
             trip.setId(new Long(1));
-            trip.setData("Test data");
+            //trip.setData("Test data");
             new PullRemoteTask().execute();
             //taskApiService.sayHi("Jason").execute();
             /*
