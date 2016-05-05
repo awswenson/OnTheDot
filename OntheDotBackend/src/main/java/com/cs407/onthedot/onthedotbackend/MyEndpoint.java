@@ -109,14 +109,11 @@ public class MyEndpoint {
         }
     }
 
-    //used for testing purposes
-    @ApiMethod(name = "sayHi")
-    public TripBean sayHi(@Named("name") String name) {
-        TripBean response = new TripBean();
-        //response.setData("Hi, " + name);
-        return response;
-    }
 
+
+
+
+    //Start the participant portion of our API
     @ApiMethod(name = "storeParticipant")
     public void storeParticipant(ParticipantBean partBean) {
         DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
