@@ -222,10 +222,19 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
         });
 
         //debug cloud endpoint
-        new EndpointsPortal().clearTripById(new Long(2));
-        new EndpointsPortal().getTrips();
-        //new EndpointsPortal().(new Long(2));
-        //GetTripsTask
+        TripBean tripBean = new TripBean();
+        tripBean.setId(new Long(23));
+        tripBean.setDate("23");
+        tripBean.setDestLat("23");
+        tripBean.setDestLong("23");
+        tripBean.setStartLat("23");
+        tripBean.setStartLong("23");
+        tripBean.setTripComplete("23");
+        tripBean.setFriendsList("1,2,3,4,5,6,7,8");
+        //new EndpointsPortal().addTrip(tripBean);
+        //new EndpointsPortal().getTrips();
+        //new EndpointsPortal().clearTripById(new Long(23));
+
     }
 
     @Override

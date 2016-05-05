@@ -43,7 +43,14 @@ public class MyEndpoint {
             Key tripBeanParentKey = KeyFactory.createKey("TripBeanParent", "todo.txt");
             Entity tripEntity = new Entity("TripBean", tripBean.getId(), tripBeanParentKey);
             //new Entity()
-            //tripEntity.setProperty("data", tripBean.getData());
+            tripEntity.setProperty("id", tripBean.getId());
+            tripEntity.setProperty("date", tripBean.getDate());
+            tripEntity.setProperty("destLat", tripBean.getDestLat());
+            tripEntity.setProperty("destLong", tripBean.getDestLong());
+            tripEntity.setProperty("startLat", tripBean.getStartLat());
+            tripEntity.setProperty("startLong", tripBean.getStartLong());
+            tripEntity.setProperty("tripComplete", tripBean.getTripComplete());
+            tripEntity.setProperty("friendsList", tripBean.getFriendsList());
             datastoreService.put(tripEntity);
             txn.commit();
         } finally {
@@ -66,7 +73,13 @@ public class MyEndpoint {
         for (Entity result : results) {
             TripBean tripBean = new TripBean();
             tripBean.setId(result.getKey().getId());
-            //tripBean.setData((String) result.getProperty("data"));
+            tripBean.setDate((String) result.getProperty("date"));
+            tripBean.setDestLat((String) result.getProperty("destLat"));
+            tripBean.setDestLong((String) result.getProperty("destLong"));
+            tripBean.setStartLat((String) result.getProperty("startLat"));
+            tripBean.setStartLong((String) result.getProperty("startLong"));
+            tripBean.setTripComplete((String) result.getProperty("tripComplete"));
+            tripBean.setFriendsList((String) result.getProperty("friendsList"));
             tripBeans.add(tripBean);
         }
 

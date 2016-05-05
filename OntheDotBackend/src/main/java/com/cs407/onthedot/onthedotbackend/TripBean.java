@@ -55,4 +55,13 @@ public class TripBean {
     public void setTripComplete(String tripComplete) {
         this.tripComplete = tripComplete;
     }
+
+    private String friendsList;
+    public String getFriendsList() {
+        return friendsList;
+    }
+
+    public void setFriendsList(String friendsList) {
+        this.friendsList = friendsList;
+    }
 }

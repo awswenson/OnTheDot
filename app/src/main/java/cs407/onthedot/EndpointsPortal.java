@@ -1,7 +1,5 @@
 package cs407.onthedot;
 
-import android.util.Log;
-
 import com.cs407.onthedot.onthedotbackend.tripApi.TripApi;
 import com.cs407.onthedot.onthedotbackend.tripApi.model.TripBean;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -10,7 +8,6 @@ import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
 import com.google.api.client.googleapis.services.GoogleClientRequestInitializer;
 
 import java.io.IOException;
-import java.util.List;
 
 /**
  * Created by connerhuff on 5/3/16.
@@ -36,28 +33,11 @@ public class EndpointsPortal  {
         tripApiService = builder.build();
     }
 
-    //changed this to bypass the whole localfiletaskrepo thing
-    public synchronized void pushToRemote() {
-        TripBean trip = new TripBean();
-        trip.setId(new Long(1));
-        //trip.setData("Test data");
-        //tripApiService.storeTrip(trip).execute();
-        //new ClearTripTask().execute();
-        Log.e("Endpoints put sent out", "Hooray");
-
-    }
 
 
-    public synchronized void pullFromRemote() {
 
-        try {
-            List<TripBean> remoteTrips = tripApiService.getTrips().execute().getItems();
-            for (TripBean trip : remoteTrips){
-                Log.e("Endpoints pull success", null);
-            }
-        } catch (IOException e) {
-            Log.e("Endpoint Exception pull", "Error when loading trips", e);
-        }
+    public synchronized void addTrip(TripBean trip) {
+        new AddTripTask(trip).execute();
     }
 
     public synchronized void getTrips() {
