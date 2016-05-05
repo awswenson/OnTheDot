@@ -61,11 +61,15 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
      */
     public static final String INTENT_TRIP_OBJECT = "TRIP_OBJECT";
 
+    private static final String INTENT_FACEBOOK_ID = "INTENT_FACEBOOK_ID";
+
     /*
       These are used to indicate which ActivityForResult we are starting
      */
     private final int ADD_NEW_TRIP_REQUEST = 1;
     private final int EDIT_TRIP_REQUEST = 2;
+
+    private int TIME_TO_POLL_BACKEND = 60000; // This is in milliseconds
 
     private DBHelper onTheDotDatabase;
 
@@ -133,12 +137,15 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
                     public void onCompleted(JSONObject object, GraphResponse response) {
 
                         try {
-                            String id = object.getString("id");
+                            String facebookID = object.getString("id");
                             String name = object.getString("name");
 
-                            me = new Friend(name, false, id);
-                        } catch (JSONException j) {
+                            me = new Friend(name, false, facebookID);
 
+                            // Since we have data on "me," start the service to poll the backend
+                            // for new trips
+                            startBackendPollAlarm(facebookID);
+                        } catch (JSONException j) {
                             // Error getting the JSON, so do not create the Friend object
                             Log.d("DashboardActivity", "ERROR: Trouble parsing FB JSON about me");
                         }
@@ -248,28 +255,6 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
         //new EndpointsPortal().getParticipants(new Long(1));
         //new EndpointsPortal().clearParticipantByIds(new Long(1), new Long(1));
 
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_dashboard, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -423,12 +408,48 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
     }
 
     /**
+     * This method starts an alarm that will repeatedly fire every so often
+     * (see TIME_TO_POLL_BACKEND) to poll the backend for new/updated/removed trips.
+     *
+     * Ideally, polling is bad and can waste system resources. But due to the limited time frame and
+     * complexity of trying to implement Push Notifications, this was the next best option.
+     *
+     * @param facebookID The ID corresponding to the user of this device. This will be used to
+     *                   fetch the trips that the user is a participant of.
+     */
+    public void startBackendPollAlarm(String facebookID) {
+
+        if (facebookID == null) {
+            return; // Don't start the alarm if we don't know the user's ID
+        }
+
+        // Create an alarm to go off when we want to poll the backend for new data
+        AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+
+        Intent intent = new Intent(this, BackendPollHandler.class);
+        intent.putExtra(INTENT_FACEBOOK_ID, facebookID);
+
+        PendingIntent alarmIntent =
+                PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // Set the alarm to go off at the time to leave. According to the
+        // documentation, if an alarm with same intent is made, the previous
+        // one is canceled (i.e. no need to call cancel method)
+        alarmManager.setRepeating(AlarmManager.RTC_WAKEUP,
+                System.currentTimeMillis(), TIME_TO_POLL_BACKEND, alarmIntent);
+    }
+
+    /**
      * When a trip is created or updated, a notification will be created or delayed and created
      * when the user should leave based on distance, best route, and traffic conditions.
      *
      * @param trip The trip to create a notification
      */
     public void createNotificationHandler(final Trip trip) {
+
+        if (trip == null) {
+            return; // Don't create a notification for a null trip
+        }
 
         String url = "https://maps.googleapis.com/maps/api/directions/json?" +
                 "origin=" + trip.getStartingLocationLatitude() + "," + trip.getStartingLocationLongitude() +
@@ -507,6 +528,10 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
      * @param trip The trip to delete a planned notification
      */
     public void deleteNotificationHandler(Trip trip) {
+
+        if (trip == null) {
+            return; // Return since we don't know which notification to cancel
+        }
 
         AlarmManager alarmManager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
 
@@ -587,6 +612,11 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
          * view, but it's one that I find works for now.
          */
         public static void setDynamicHeight(ListView listView) {
+
+            if (listView == null) {
+                return; // We can't do anything with a ListView that hasn't been created
+            }
+
             DashboardAdapter dashboardAdapter = (DashboardAdapter) listView.getAdapter();
 
             // Check to make sure the adapter is not null

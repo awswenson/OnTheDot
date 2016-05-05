@@ -49,6 +49,10 @@ public class GetTripsTask extends AsyncTask<TripApi, Void, TripBeanCollection> {
     protected void onPostExecute(TripBeanCollection collection) {
         ArrayList<Trip> trips = new ArrayList<>();
 
+        if (collection == null || collection.isEmpty()) {
+            return;
+        }
+
         for (TripBean tripBean : collection.getItems()) {
 
             try {
