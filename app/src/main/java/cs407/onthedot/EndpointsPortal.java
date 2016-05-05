@@ -19,7 +19,6 @@ public class EndpointsPortal  {
 
     final public TripApi tripApiService;
 
-
     public EndpointsPortal() {
         // Production testing
         //TripApi.Builder builder = new TripApi.Builder(AndroidHttp.newCompatibleTransport(), new AndroidJsonFactory(), null);
@@ -36,26 +35,23 @@ public class EndpointsPortal  {
         tripApiService = builder.build();
     }
 
-
-
-
-    public synchronized void addParticipant(ParticipantBean part) {
-        new AddParticipantTask(part).execute();
+    public synchronized void addParticipant(long tripID, Friend friend) {
+        new AddParticipantTask(tripID, friend).execute();
     }
 
-    public synchronized void getParticipants(Long facebookId) {
+    public synchronized void getParticipants(String facebookId) {
         new GetParticipantsTask(facebookId).execute();
     }
 
-    public synchronized void clearParticipantByIds(Long partId, Long tripId) {
-        new ClearParticipantByIdsTask(partId, tripId).execute();
+    public synchronized void clearParticipantByIds(String facebookId, Long tripId) {
+        new ClearParticipantByIdsTask(facebookId, tripId).execute();
     }
 
-    public synchronized void addTrip(TripBean trip) {
+    public synchronized void addTrip(Trip trip) {
         new AddTripTask(trip).execute();
     }
 
-    public synchronized void getTrips(Context context, Long facebookId) {
+    public synchronized void getTrips(Context context, String facebookId) {
         new GetTripsTask(context, facebookId).execute();
     }
 

@@ -14,12 +14,12 @@ public class ParticipantBean {
         this.tripId = tripId;
     }
 
-    private Long participantId;
-    public Long getParticipantId() {
+    private String participantId;
+    public String getParticipantId() {
         return participantId;
     }
 
-    public void setParticipantId(Long participantId) {
+    public void setParticipantId(String participantId) {
         this.participantId = participantId;
     }
 

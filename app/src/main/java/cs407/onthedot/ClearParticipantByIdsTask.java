@@ -12,41 +12,27 @@ import java.io.IOException;
  */
 public class ClearParticipantByIdsTask extends AsyncTask<TripApi, Void, Long> {
 
-    Long partIdToClear;
+    String partIdToClear;
     Long tripIdToClear;
 
-    public ClearParticipantByIdsTask(Long partId, Long tripId) {
+    public ClearParticipantByIdsTask(String partId, Long tripId) {
         super();
-        // do stuff
-        partIdToClear = partId;
-        tripIdToClear = tripId;
 
+        this.partIdToClear = partId;
+        this.tripIdToClear = tripId;
     }
 
-
     protected Long doInBackground(TripApi... tripApiService) {
-        try{
+        try {
             new EndpointsPortal().tripApiService.clearParticipantByPartAndTripId(
                     this.partIdToClear, this.tripIdToClear).execute();
-        }catch (IOException e){
+        } catch (IOException e){
             Log.e("Async exception", "Error when pushing trips", e);
         }
 
-        /*
-        }
-        catch (IOException e){
-            Log.e("Async exception", "Error when loading trips", e);
-        }
-        */
         return null;
         //return trip;
     }
-
-    /*
-    protected void onProgressUpdate(Void v) {
-
-    }
-    */
 
     protected void onPostExecute(Long id) {
         //Log.e("SayHiResults", tripBean.getData());

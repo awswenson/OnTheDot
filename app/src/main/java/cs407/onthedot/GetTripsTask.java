@@ -24,9 +24,9 @@ public class GetTripsTask extends AsyncTask<TripApi, Void, TripBeanCollection> {
             "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
     private Context context;
-    private Long facebookId;
+    private String facebookId;
 
-    public GetTripsTask(Context context, Long facebookId) {
+    public GetTripsTask(Context context, String facebookId) {
         super();
 
         this.context = context;
@@ -55,15 +55,13 @@ public class GetTripsTask extends AsyncTask<TripApi, Void, TripBeanCollection> {
 
                 long tripID = tripBean.getId();
 
-                LatLng destination = new LatLng(Double.parseDouble(tripBean.getDestLat()),
-                        Double.parseDouble(tripBean.getDestLong()));
+                LatLng destination = new LatLng(tripBean.getDestLat(), tripBean.getDestLong());
 
-                LatLng startingLocation = new LatLng(Double.parseDouble(tripBean.getStartLat()),
-                        Double.parseDouble(tripBean.getStartLong()));
+                LatLng startingLocation = new LatLng(tripBean.getStartLat(), tripBean.getStartLong());
 
                 Date meetupTime = dateFormat.parse(tripBean.getDate());
 
-                boolean tripComplete = "1".equals(tripBean.getTripComplete());
+                boolean tripComplete = tripBean.getTripComplete();
 
                 ArrayList<Friend> friends =
                         Friend.getFriendsListFromString(tripBean.getFriendsList());

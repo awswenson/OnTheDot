@@ -62,7 +62,7 @@ public class MyEndpoint {
     }
 
     @ApiMethod(name = "getTrips")
-    public List<TripBean> getTrips(@Named("id") Long facebookId) {
+    public List<TripBean> getTrips(@Named("id") String facebookId) {
         //first get all the participants associated with the given facebook id
         List<ParticipantBean> participantList =  getParticipants(facebookId);
         //put the entries into a hash table for efficiency
@@ -86,11 +86,11 @@ public class MyEndpoint {
                 TripBean tripBean = new TripBean();
                 tripBean.setId(result.getKey().getId());
                 tripBean.setDate((String) result.getProperty("date"));
-                tripBean.setDestLat((String) result.getProperty("destLat"));
-                tripBean.setDestLong((String) result.getProperty("destLong"));
-                tripBean.setStartLat((String) result.getProperty("startLat"));
-                tripBean.setStartLong((String) result.getProperty("startLong"));
-                tripBean.setTripComplete((String) result.getProperty("tripComplete"));
+                tripBean.setDestLat((Double) result.getProperty("destLat"));
+                tripBean.setDestLong((Double) result.getProperty("destLong"));
+                tripBean.setStartLat((Double) result.getProperty("startLat"));
+                tripBean.setStartLong((Double) result.getProperty("startLong"));
+                tripBean.setTripComplete((Boolean) result.getProperty("tripComplete"));
                 tripBean.setFriendsList((String) result.getProperty("friendsList"));
                 tripBeans.add(tripBean);
             }
@@ -150,7 +150,7 @@ public class MyEndpoint {
 
     //returns the participant entries that match the users facebookId
     @ApiMethod(name = "getParticipants")
-    public List<ParticipantBean> getParticipants(@Named("facebookId") Long facebookId) {
+    public List<ParticipantBean> getParticipants(@Named("facebookId") String facebookId) {
         DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
         Key partBeanParentKey = KeyFactory.createKey("ParticipantBeanParent", "todo.txt");
         Query query = new Query(partBeanParentKey);
@@ -160,9 +160,9 @@ public class MyEndpoint {
         List<Entity> results = datastoreService.prepare(query).asList(FetchOptions.Builder.withDefaults());
         ArrayList<ParticipantBean> partBeans = new ArrayList<ParticipantBean>();
         for (Entity result : results) {
-            if (facebookId.compareTo((Long) result.getProperty("participantId")) == 0) {
+            if (facebookId.equals(result.getProperty("participantId"))) {
                 ParticipantBean partBean = new ParticipantBean();
-                partBean.setParticipantId((Long) result.getProperty("participantId"));
+                partBean.setParticipantId((String) result.getProperty("participantId"));
                 partBean.setTripId((Long) result.getProperty("tripId"));
                 partBean.setParticipantName((String) result.getProperty("participantName"));
                 partBeans.add(partBean);
@@ -173,7 +173,7 @@ public class MyEndpoint {
     }
 
     @ApiMethod(name = "clearParticipantByPartAndTripId")
-    public void clearParticipantByPartAndTripId(@Named("partId") Long partId, @Named("tripId") Long tripId) {
+    public void clearParticipantByPartAndTripId(@Named("partId") String partId, @Named("tripId") Long tripId) {
         DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
         Transaction txn = datastoreService.beginTransaction();
         try {
@@ -183,7 +183,7 @@ public class MyEndpoint {
             for (Entity result : results) {
                 Long partIdResult = (Long) result.getProperty("participantId");
                 Long tripIdResult = (Long) result.getProperty("tripId");
-                if (tripIdResult.compareTo(tripId) == 0 && partIdResult.compareTo(partId) == 0){
+                if (tripIdResult.compareTo(tripId) == 0 && partIdResult.equals(partId)) {
                     datastoreService.delete(result.getKey());
                 }
             }

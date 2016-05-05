@@ -13,16 +13,17 @@ import java.io.IOException;
  */
 public class GetParticipantsTask extends AsyncTask<TripApi, Void, ParticipantBeanCollection> {
 
-    private Long facebookId;
+    private String facebookId;
 
-    public GetParticipantsTask(Long facebookId) {
+    public GetParticipantsTask(String facebookId) {
         super();
+
         this.facebookId = facebookId;
     }
 
-
     protected ParticipantBeanCollection doInBackground(TripApi... tripApiService) {
         ParticipantBeanCollection partBeans = new ParticipantBeanCollection();
+
         try {
             partBeans = new EndpointsPortal().tripApiService.getParticipants(this.facebookId).execute();
         } catch (IOException e){

@@ -26,6 +26,9 @@ public class BackendPollService extends IntentService {
     private static final String INTENT_TRIPS_ARRAY_LIST =
             "INTENT_TRIPS_ARRAY_LIST";
 
+    private static final String INTENT_FACEBOOK_ID =
+            "INTENT_FACEBOOK_ID";
+
     public BackendPollService() {
         super("BackendPollService");
     }
@@ -41,9 +44,10 @@ public class BackendPollService extends IntentService {
         context.startService(intent);
     }
 
-    public static void startGetTripsFromBackend(Context context) {
+    public static void startGetTripsFromBackend(Context context, String facebookID) {
         Intent intent = new Intent(context, BackendPollService.class);
         intent.setAction(ACTION_GET_TRIPS_FROM_BACKEND);
+        intent.putExtra(INTENT_FACEBOOK_ID, facebookID);
         context.startService(intent);
     }
 
@@ -57,7 +61,8 @@ public class BackendPollService extends IntentService {
                 handleSynchronizeLocalDB(trips);
             }
             else if (ACTION_GET_TRIPS_FROM_BACKEND.equals(action)) {
-                handleGetTripsFromBackend();
+                String facebookID = intent.getStringExtra(INTENT_FACEBOOK_ID);
+                handleGetTripsFromBackend(facebookID);
             }
         }
     }
@@ -74,8 +79,10 @@ public class BackendPollService extends IntentService {
     /**
      * Handles the action of getting the list of trips from the backend DB
      */
-    public void handleGetTripsFromBackend() {
-        new EndpointsPortal().getTrips(this);
+    public void handleGetTripsFromBackend(String facebookID) {
+        if (facebookID != null) {
+            new EndpointsPortal().getTrips(this, facebookID);
+        }
     }
 
     /**

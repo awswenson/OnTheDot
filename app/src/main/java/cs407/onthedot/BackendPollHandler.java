@@ -10,9 +10,15 @@ import android.util.Log;
  */
 public class BackendPollHandler extends BroadcastReceiver {
 
+    private static final String INTENT_FACEBOOK_ID =
+            "INTENT_FACEBOOK_ID";
+
     @Override
     public void onReceive(Context context, Intent intent) {
-        BackendPollService.startGetTripsFromBackend(context);
+
+        String facebookID = intent.getStringExtra(INTENT_FACEBOOK_ID);
+
+        BackendPollService.startGetTripsFromBackend(context, facebookID);
         Log.d("BackendPollHandler",
                 "Called BackendPollService.startGetTripsFromBackend() from BackendPollHandler.onReceive");
     }

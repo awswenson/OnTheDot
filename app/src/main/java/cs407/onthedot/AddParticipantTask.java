@@ -15,17 +15,23 @@ public class AddParticipantTask extends AsyncTask<TripApi, Void, Void> {
 
     ParticipantBean partToAdd;
 
-    public AddParticipantTask(ParticipantBean partBean) {
+    public AddParticipantTask(long tripID, Friend friend) {
         super();
-        // do stuff
-        partToAdd = partBean;
+
+        ParticipantBean participantBean = new ParticipantBean();
+
+        participantBean.setParticipantId(friend.getId());
+        participantBean.setParticipantName(friend.getName());
+        participantBean.setTripId(tripID);
+
+        this.partToAdd = participantBean;
     }
 
 
     protected Void doInBackground(TripApi... tripApiService) {
-        try{
+        try {
             new EndpointsPortal().tripApiService.storeParticipant(this.partToAdd).execute();
-        }catch (IOException e){
+        } catch (IOException e) {
             Log.e("Async exception", "Error when adding a participant", e);
         }
         return null;

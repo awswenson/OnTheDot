@@ -2,6 +2,7 @@ package com.cs407.onthedot.onthedotbackend;
 
 /** The object model for the data we are sending through endpoints */
 public class TripBean {
+
     private Long id;
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
@@ -10,49 +11,43 @@ public class TripBean {
     public String getDate() { return date; }
     public void setDate(String date) { this.date = date; }
 
-
-    public String getDestLat() {
+    private Double destLat;
+    public Double getDestLat() {
         return destLat;
     }
-
-    private String destLat;
-    public void setDestLat(String destLat) {
+    public void setDestLat(Double destLat) {
         this.destLat = destLat;
     }
 
-    private String destLong;
-    public String getDestLong() {
+    private Double destLong;
+    public Double getDestLong() {
         return destLong;
     }
-
-    public void setDestLong(String destLong) {
+    public void setDestLong(Double destLong) {
         this.destLong = destLong;
     }
 
-    private String startLat;
-    public String getStartLat() {
+    private Double startLat;
+    public Double getStartLat() {
         return startLat;
     }
-
-    public void setStartLat(String startLat) {
+    public void setStartLat(Double startLat) {
         this.startLat = startLat;
     }
 
-    private String startLong;
-    public String getStartLong() {
+    private Double startLong;
+    public Double getStartLong() {
         return startLong;
     }
-
-    public void setStartLong(String startLong) {
+    public void setStartLong(Double startLong) {
         this.startLong = startLong;
     }
 
-    private String tripComplete;
-    public String getTripComplete() {
+    private Boolean tripComplete;
+    public Boolean getTripComplete() {
         return tripComplete;
     }
-
-    public void setTripComplete(String tripComplete) {
+    public void setTripComplete(Boolean tripComplete) {
         this.tripComplete = tripComplete;
     }
 
@@ -60,7 +55,6 @@ public class TripBean {
     public String getFriendsList() {
         return friendsList;
     }
-
     public void setFriendsList(String friendsList) {
         this.friendsList = friendsList;
     }
