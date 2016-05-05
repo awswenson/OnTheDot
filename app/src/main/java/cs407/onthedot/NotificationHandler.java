@@ -36,7 +36,7 @@ public class NotificationHandler extends BroadcastReceiver {
         String contentText = "Depart for "
                 + trip.getAddressInformation(context).getAddressLine(0) +
                 " right now to arrive at exactly " + timeFormat.format(trip.getMeetupTime()) +
-                ". Click for more details.";
+                ". Tap for more details.";
 
         Notification notification = new NotificationCompat.Builder(context)
                 .setContentTitle("Leave Now")

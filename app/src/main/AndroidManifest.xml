@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="cs407.onthedot" >
+    package="cs407.onthedot">
 
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
@@ -17,7 +17,7 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme" >
+        android:theme="@style/AppTheme">
         android:name="android.support.multidex.MultiDexApplication">
         <meta-data
             android:name="com.facebook.sdk.ApplicationId"
@@ -43,7 +43,7 @@
         <activity
             android:name=".LoginLandingPageActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar" >
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -61,13 +61,18 @@
         <activity
             android:name=".TripInfoActivity"
             android:label="Trip Info"
-            android:parentActivityName=".DashboardActivity" >
+            android:parentActivityName=".DashboardActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".DashboardActivity" />
         </activity>
 
         <receiver android:name=".NotificationHandler" />
+        <receiver android:name=".BackendPollHandler" />
+
+        <service
+            android:name=".BackendPollService"
+            android:exported="false" />
     </application>
 
 </manifest>
