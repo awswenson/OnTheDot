@@ -117,4 +117,69 @@ public class MyEndpoint {
         return response;
     }
 
+    @ApiMethod(name = "storeParticipant")
+    public void storeParticipant(ParticipantBean partBean) {
+        DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
+        Transaction txn = datastoreService.beginTransaction();
+        try {
+            Key partBeanParentKey = KeyFactory.createKey("ParticipantBeanParent", "todo.txt");
+            //Entity tripEntity = new Entity("ParticipantBean", partBean.getId(), partBeanParentKey);
+            Entity partEntity = new Entity("ParticipantBean", partBeanParentKey);
+            //new Entity()
+            partEntity.setProperty("participantId", partBean.getParticipantId());
+            partEntity.setProperty("tripId", partBean.getTripId());
+            partEntity.setProperty("participantName", partBean.getParticipantName());
+            datastoreService.put(partEntity);
+            txn.commit();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+            }
+        }
+    }
+
+    @ApiMethod(name = "getParticipants")
+    public List<ParticipantBean> getParticipants() {
+        DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
+        Key partBeanParentKey = KeyFactory.createKey("ParticipantBeanParent", "todo.txt");
+        Query query = new Query(partBeanParentKey);
+        //TODO use these two functions to provide queryability
+        //query.setFilter(new Query.FilterPredicate("id", Query.FilterOperator.EQUAL, "2"));
+        //query.setKeysOnly();
+        List<Entity> results = datastoreService.prepare(query).asList(FetchOptions.Builder.withDefaults());
+        ArrayList<ParticipantBean> partBeans = new ArrayList<ParticipantBean>();
+        for (Entity result : results) {
+            ParticipantBean partBean = new ParticipantBean();
+            partBean.setParticipantId((Long) result.getProperty("participantId"));
+            partBean.setTripId((Long) result.getProperty("tripId"));
+            partBean.setParticipantName((String) result.getProperty("participantName"));
+            partBeans.add(partBean);
+        }
+
+        return partBeans;
+    }
+
+    @ApiMethod(name = "clearParticipantByPartAndTripId")
+    public void clearParticipantByPartAndTripId(@Named("partId") Long partId, @Named("tripId") Long tripId) {
+        DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
+        Transaction txn = datastoreService.beginTransaction();
+        try {
+            Key partBeanParentKey = KeyFactory.createKey("ParticipantBeanParent", "todo.txt");
+            Query query = new Query(partBeanParentKey);
+            List<Entity> results = datastoreService.prepare(query).asList(FetchOptions.Builder.withDefaults());
+            for (Entity result : results) {
+                Long partIdResult = (Long) result.getProperty("participantId");
+                Long tripIdResult = (Long) result.getProperty("tripId");
+                if (tripIdResult.compareTo(tripId) == 0 && partIdResult.compareTo(partId) == 0){
+                    datastoreService.delete(result.getKey());
+                }
+            }
+            txn.commit();
+        } finally {
+            if (txn.isActive()) {
+                txn.rollback();
+            }
+        }
+    }
+
 }
