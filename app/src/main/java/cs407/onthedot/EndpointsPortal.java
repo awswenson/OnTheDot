@@ -1,5 +1,8 @@
 package cs407.onthedot;
 
+import android.content.Context;
+import android.util.Log;
+
 import com.cs407.onthedot.onthedotbackend.tripApi.TripApi;
 import com.cs407.onthedot.onthedotbackend.tripApi.model.TripBean;
 import com.google.api.client.extensions.android.http.AndroidHttp;
@@ -40,8 +43,8 @@ public class EndpointsPortal  {
         new AddTripTask(trip).execute();
     }
 
-    public synchronized void getTrips() {
-        new GetTripsTask().execute();
+    public synchronized void getTrips(Context context) {
+        new GetTripsTask(context).execute();
     }
 
     public synchronized void clearTripById(Long id) {

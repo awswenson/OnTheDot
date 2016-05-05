@@ -3,6 +3,9 @@ package cs407.onthedot;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 /**
  * Created by connerhuff on 4/9/16.
  */
@@ -74,4 +77,38 @@ public class Friend implements Parcelable {
             return new Friend[size];
         }
     };
+
+    public static ArrayList<Friend> getFriendsListFromString(String friendsList) {
+
+        ArrayList<Friend> friends = new ArrayList<>();
+
+        String friendStrings[] = friendsList.split(";");
+
+        for (String friendString : friendStrings) {
+            String friendValues[] = friendString.split(",");
+
+            Friend friend =
+                    new Friend(friendValues[0], "1".equals(friendValues[1]), friendValues[2]);
+
+            friends.add(friend);
+        }
+
+        return friends;
+    }
+
+    public static String getFriendsStringFromArray(ArrayList<Friend> friendsList) {
+
+        StringBuilder friendsString = new StringBuilder();
+
+        for (Friend friend : friendsList) {
+            friendsString.append(friend.getName());
+            friendsString.append(",");
+            friendsString.append(friend.attending ? "1" : "0");
+            friendsString.append(",");
+            friendsString.append(friend.getId());
+            friendsString.append(";");
+        }
+
+        return friendsString.toString();
+    }
 }

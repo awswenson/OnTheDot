@@ -9,6 +9,7 @@ import android.content.Context;
 import android.support.v7.app.NotificationCompat;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Locale;
 
 /**
@@ -16,8 +17,14 @@ import java.util.Locale;
  */
 public class BackendPollService extends IntentService {
 
-    private static final String ACTION_SYNCHRONIZE_LOCAL_FROM_BACKEND =
-            "cs407.onthedot.action.SYNCHRONIZE_LOCAL_FROM_BACKEND";
+    private static final String ACTION_SYNCHRONIZE_LOCAL_DB =
+            "cs407.onthedot.action.SYNCHRONIZE_LOCAL_DB";
+
+    private static final String ACTION_GET_TRIPS_FROM_BACKEND =
+            "cs407.onthedot.action.GET_TRIPS_FROM_BACKEND";
+
+    private static final String INTENT_TRIPS_ARRAY_LIST =
+            "INTENT_TRIPS_ARRAY_LIST";
 
     public BackendPollService() {
         super("BackendPollService");
@@ -27,9 +34,16 @@ public class BackendPollService extends IntentService {
      * Starts this service to synchronize the local database with the backend database. If
      * the service is already performing a task this action will be queued.
      */
-    public static void startSynchronizeLocalFromBackend(Context context) {
+    public static void startSynchronizeLocalDB(Context context, ArrayList<Trip> trips) {
         Intent intent = new Intent(context, BackendPollService.class);
-        intent.setAction(ACTION_SYNCHRONIZE_LOCAL_FROM_BACKEND);
+        intent.setAction(ACTION_SYNCHRONIZE_LOCAL_DB);
+        intent.putExtra(INTENT_TRIPS_ARRAY_LIST, trips);
+        context.startService(intent);
+    }
+
+    public static void startGetTripsFromBackend(Context context) {
+        Intent intent = new Intent(context, BackendPollService.class);
+        intent.setAction(ACTION_GET_TRIPS_FROM_BACKEND);
         context.startService(intent);
     }
 
@@ -38,8 +52,12 @@ public class BackendPollService extends IntentService {
         if (intent != null) {
             final String action = intent.getAction();
 
-            if (ACTION_SYNCHRONIZE_LOCAL_FROM_BACKEND.equals(action)) {
-                handleSynchronizeLocalFromBackend();
+            if (ACTION_SYNCHRONIZE_LOCAL_DB.equals(action)) {
+                ArrayList<Trip> trips = intent.getParcelableArrayListExtra(INTENT_TRIPS_ARRAY_LIST);
+                handleSynchronizeLocalDB(trips);
+            }
+            else if (ACTION_GET_TRIPS_FROM_BACKEND.equals(action)) {
+                handleGetTripsFromBackend();
             }
         }
     }
@@ -48,8 +66,12 @@ public class BackendPollService extends IntentService {
      * Handles the action of synchronizing the local database with the backend database
      * in the provided background thread.
      */
-    private void handleSynchronizeLocalFromBackend() {
-        // TODO: implement
+    private void handleSynchronizeLocalDB(ArrayList<Trip> trips) {
+
+    }
+
+    public void handleGetTripsFromBackend() {
+        new EndpointsPortal().getTrips(this);
     }
 
     private void newTripAddedNotification(Trip trip) {

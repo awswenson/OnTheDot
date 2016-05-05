@@ -12,8 +12,8 @@ public class BackendPollHandler extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        BackendPollService.startSynchronizeLocalFromBackend(context);
+        BackendPollService.startGetTripsFromBackend(context);
         Log.d("BackendPollHandler",
-                "Called BackendPollService.startActionSynchronizeDataFromBackend() from BackendPollHandler.onReceive");
+                "Called BackendPollService.startGetTripsFromBackend() from BackendPollHandler.onReceive");
     }
 }
