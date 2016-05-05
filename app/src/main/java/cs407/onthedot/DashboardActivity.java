@@ -28,6 +28,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
+import com.cs407.onthedot.onthedotbackend.tripApi.model.TripBean;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
@@ -49,6 +50,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 public class DashboardActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
@@ -220,8 +222,10 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
         });
 
         //debug cloud endpoint
-        //new EndpointsPortal().pushToRemote();
-        new EndpointsPortal().pushToRemote();
+        new EndpointsPortal().clearTripById(new Long(2));
+        new EndpointsPortal().getTrips();
+        //new EndpointsPortal().(new Long(2));
+        //GetTripsTask
     }
 
     @Override

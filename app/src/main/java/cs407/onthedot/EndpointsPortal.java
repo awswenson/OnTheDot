@@ -17,7 +17,7 @@ import java.util.List;
  */
 public class EndpointsPortal  {
 
-    final TripApi tripApiService;
+    final public TripApi tripApiService;
 
 
     public EndpointsPortal() {
@@ -33,41 +33,16 @@ public class EndpointsPortal  {
                         abstractGoogleClientRequest.setDisableGZipContent(true);
                     }
                 });
-
         tripApiService = builder.build();
-
     }
 
     //changed this to bypass the whole localfiletaskrepo thing
     public synchronized void pushToRemote() {
-        /*
-        ArrayList<String> taskStrList = TaskIo.loadTasksStrFromFile(LocalFileTaskRepository.TODO_TXT_FILE);
-
-        taskApiService.clearTasks().execute();
-
-        long id = 1;
-        for (String taskStr : taskStrList) {
-            TaskBean taskBean = new TaskBean();
-            taskBean.setData(taskStr);
-            taskBean.setId(id++);
-            taskApiService.storeTask(taskBean).execute();
-        }
-
-        //lastSync = new Date();
-
-        */
-        //TODO get all of the trips from the local,
-
-        //and then put them into the remote database
-        //for () {
-            //reform the trips into TripBeans
-            //tripApiService.storeTrip().execute();
-        //}
         TripBean trip = new TripBean();
         trip.setId(new Long(1));
         trip.setData("Test data");
         //tripApiService.storeTrip(trip).execute();
-        new PushRemoteTask().execute();
+        //new ClearTripTask().execute();
         Log.e("Endpoints put sent out", "Hooray");
 
     }
@@ -76,20 +51,6 @@ public class EndpointsPortal  {
     public synchronized void pullFromRemote() {
 
         try {
-            /*
-            // Remote Call
-            List<TaskBean> remoteTasks = taskApiService.getTasks().execute().getItems();
-
-            if (remoteTasks != null) {
-                ArrayList<Task> taskList = new ArrayList<Task>();
-                for (TaskBean taskBean : remoteTasks) {
-                    taskList.add(new Task(taskBean.getId(), taskBean.getData()));
-                }
-                store(taskList);
-                reload();
-                lastSync = new Date();
-            }
-            */
             List<TripBean> remoteTrips = tripApiService.getTrips().execute().getItems();
             for (TripBean trip : remoteTrips){
                 Log.e("Endpoints pull success", trip.getData());
@@ -97,6 +58,14 @@ public class EndpointsPortal  {
         } catch (IOException e) {
             Log.e("Endpoint Exception pull", "Error when loading trips", e);
         }
+    }
+
+    public synchronized void getTrips() {
+        new GetTripsTask().execute();
+    }
+
+    public synchronized void clearTripById(Long id) {
+        new ClearTripTask(id).execute();
     }
 
 
