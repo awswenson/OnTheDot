@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -25,11 +24,13 @@ public class GetTripsTask extends AsyncTask<TripApi, Void, TripBeanCollection> {
             "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
     private Context context;
+    private Long facebookId;
 
-    public GetTripsTask(Context context) {
+    public GetTripsTask(Context context, Long facebookId) {
         super();
 
         this.context = context;
+        this.facebookId = facebookId;
     }
 
 
@@ -37,7 +38,7 @@ public class GetTripsTask extends AsyncTask<TripApi, Void, TripBeanCollection> {
         TripBeanCollection tripBeans = new TripBeanCollection();
 
         try {
-            tripBeans = new EndpointsPortal().tripApiService.getTrips().execute();
+            tripBeans = new EndpointsPortal().tripApiService.getTrips(this.facebookId).execute();
         } catch (IOException e){
             Log.e("Async exception", "Error when pushing trips", e);
         }

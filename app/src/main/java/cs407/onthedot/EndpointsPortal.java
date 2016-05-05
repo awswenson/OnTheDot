@@ -43,8 +43,8 @@ public class EndpointsPortal  {
         new AddParticipantTask(part).execute();
     }
 
-    public synchronized void getParticipants() {
-        new GetParticipantsTask().execute();
+    public synchronized void getParticipants(Long facebookId) {
+        new GetParticipantsTask(facebookId).execute();
     }
 
     public synchronized void clearParticipantByIds(Long partId, Long tripId) {
@@ -55,8 +55,8 @@ public class EndpointsPortal  {
         new AddTripTask(trip).execute();
     }
 
-    public synchronized void getTrips(Context context) {
-        new GetTripsTask(context).execute();
+    public synchronized void getTrips(Context context, Long facebookId) {
+        new GetTripsTask(context, facebookId).execute();
     }
 
     public synchronized void clearTripById(Long id) {

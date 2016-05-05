@@ -13,15 +13,18 @@ import java.io.IOException;
  */
 public class GetParticipantsTask extends AsyncTask<TripApi, Void, ParticipantBeanCollection> {
 
-    public GetParticipantsTask() {
+    private Long facebookId;
+
+    public GetParticipantsTask(Long facebookId) {
         super();
+        this.facebookId = facebookId;
     }
 
 
     protected ParticipantBeanCollection doInBackground(TripApi... tripApiService) {
         ParticipantBeanCollection partBeans = new ParticipantBeanCollection();
         try {
-            partBeans = new EndpointsPortal().tripApiService.getParticipants().execute();
+            partBeans = new EndpointsPortal().tripApiService.getParticipants(this.facebookId).execute();
         } catch (IOException e){
             Log.e("Async exception", "Error when pushing participants", e);
         }

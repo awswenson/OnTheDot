@@ -19,6 +19,7 @@ import com.google.appengine.api.datastore.Query;
 import com.google.appengine.api.datastore.Transaction;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 import javax.inject.Named;
@@ -61,7 +62,17 @@ public class MyEndpoint {
     }
 
     @ApiMethod(name = "getTrips")
-    public List<TripBean> getTrips() {
+    public List<TripBean> getTrips(@Named("id") Long facebookId) {
+        //first get all the participants associated with the given facebook id
+        List<ParticipantBean> participantList =  getParticipants(facebookId);
+        //put the entries into a hash table for efficiency
+        HashSet<Long> map = new HashSet<Long>();
+        for (ParticipantBean bean : participantList){
+            map.add(bean.getTripId());
+        }
+
+        //finish the remainder of the query but only get the trips that match the trip id's returned
+        //by the first query.
         DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
         Key tripBeanParentKey = KeyFactory.createKey("TripBeanParent", "todo.txt");
         Query query = new Query(tripBeanParentKey);
@@ -71,16 +82,18 @@ public class MyEndpoint {
         List<Entity> results = datastoreService.prepare(query).asList(FetchOptions.Builder.withDefaults());
         ArrayList<TripBean> tripBeans = new ArrayList<TripBean>();
         for (Entity result : results) {
-            TripBean tripBean = new TripBean();
-            tripBean.setId(result.getKey().getId());
-            tripBean.setDate((String) result.getProperty("date"));
-            tripBean.setDestLat((String) result.getProperty("destLat"));
-            tripBean.setDestLong((String) result.getProperty("destLong"));
-            tripBean.setStartLat((String) result.getProperty("startLat"));
-            tripBean.setStartLong((String) result.getProperty("startLong"));
-            tripBean.setTripComplete((String) result.getProperty("tripComplete"));
-            tripBean.setFriendsList((String) result.getProperty("friendsList"));
-            tripBeans.add(tripBean);
+            if (map.contains(result.getKey().getId())){
+                TripBean tripBean = new TripBean();
+                tripBean.setId(result.getKey().getId());
+                tripBean.setDate((String) result.getProperty("date"));
+                tripBean.setDestLat((String) result.getProperty("destLat"));
+                tripBean.setDestLong((String) result.getProperty("destLong"));
+                tripBean.setStartLat((String) result.getProperty("startLat"));
+                tripBean.setStartLong((String) result.getProperty("startLong"));
+                tripBean.setTripComplete((String) result.getProperty("tripComplete"));
+                tripBean.setFriendsList((String) result.getProperty("friendsList"));
+                tripBeans.add(tripBean);
+            }
         }
 
         return tripBeans;
@@ -135,8 +148,9 @@ public class MyEndpoint {
         }
     }
 
+    //returns the participant entries that match the users facebookId
     @ApiMethod(name = "getParticipants")
-    public List<ParticipantBean> getParticipants() {
+    public List<ParticipantBean> getParticipants(@Named("facebookId") Long facebookId) {
         DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
         Key partBeanParentKey = KeyFactory.createKey("ParticipantBeanParent", "todo.txt");
         Query query = new Query(partBeanParentKey);
@@ -146,11 +160,13 @@ public class MyEndpoint {
         List<Entity> results = datastoreService.prepare(query).asList(FetchOptions.Builder.withDefaults());
         ArrayList<ParticipantBean> partBeans = new ArrayList<ParticipantBean>();
         for (Entity result : results) {
-            ParticipantBean partBean = new ParticipantBean();
-            partBean.setParticipantId((Long) result.getProperty("participantId"));
-            partBean.setTripId((Long) result.getProperty("tripId"));
-            partBean.setParticipantName((String) result.getProperty("participantName"));
-            partBeans.add(partBean);
+            if (facebookId.compareTo((Long) result.getProperty("participantId")) == 0) {
+                ParticipantBean partBean = new ParticipantBean();
+                partBean.setParticipantId((Long) result.getProperty("participantId"));
+                partBean.setTripId((Long) result.getProperty("tripId"));
+                partBean.setParticipantName((String) result.getProperty("participantName"));
+                partBeans.add(partBean);
+            }
         }
 
         return partBeans;

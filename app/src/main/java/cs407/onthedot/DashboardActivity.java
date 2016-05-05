@@ -235,7 +235,7 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
         tripBean.setFriendsList("1,2,3,4,5,6,7,8");
         */
         //new EndpointsPortal().addTrip(tripBean);
-        //new EndpointsPortal().getTrips();
+        //new EndpointsPortal().getTrips(this, new Long(1));
         //new EndpointsPortal().clearTripById(new Long(23));
 
         /*
@@ -245,7 +245,7 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
         part.setTripId(new Long(1));
         */
         //new EndpointsPortal().addParticipant(part);
-        //new EndpointsPortal().getParticipants();
+        //new EndpointsPortal().getParticipants(new Long(1));
         //new EndpointsPortal().clearParticipantByIds(new Long(1), new Long(1));
 
     }
