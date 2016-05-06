@@ -11,6 +11,7 @@ import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Locale;
 
 /**
@@ -105,7 +106,7 @@ public class BackendService extends IntentService {
     private void handleSynchronizeLocalDB(ArrayList<Trip> trips) {
 
         // Delete the trips that exist in the local DB but not on the backend DB.
-        ArrayList<Trip> tripsToDelete = DBHelper.getInstance(this).getAllTrips();
+        ArrayList<Trip> tripsToDelete = DBHelper.getInstance(this).getAllActiveTrips();
         tripsToDelete.removeAll(trips);
 
         for (Trip tripToDelete : tripsToDelete) {
@@ -117,7 +118,7 @@ public class BackendService extends IntentService {
 
         // Update the trips that already exist in the local DB. They may or may not have
         // even changed, but we don't know so we update them anyways.
-        ArrayList<Trip> tripsToUpdate = DBHelper.getInstance(this).getAllTrips();
+        ArrayList<Trip> tripsToUpdate = DBHelper.getInstance(this).getAllActiveTrips();
         tripsToUpdate.retainAll(trips);
 
         for (Trip tripToUpdate : tripsToUpdate) {
@@ -130,7 +131,7 @@ public class BackendService extends IntentService {
         // Add the trips that aren't in the local DB to the DB. Fire a notification informing the
         // user of a newly added trip.
         ArrayList<Trip> tripsToAdd = trips;
-        tripsToAdd.removeAll(DBHelper.getInstance(this).getAllTrips());
+        tripsToAdd.removeAll(DBHelper.getInstance(this).getAllActiveTrips());
 
         for (Trip tripToAdd : tripsToAdd) {
             if (DBHelper.getInstance(this).addTrip(tripToAdd) <= 0) {
@@ -147,6 +148,23 @@ public class BackendService extends IntentService {
      * Handles the action of getting the list of trips from the backend DB
      */
     public void handleGetTripsFromBackend(String facebookID) {
+
+        // First, set trips that have already passed to completed and delete the
+        // trip from the backend
+        Date currentTime = new Date();
+
+        for (Trip trip :  DBHelper.getInstance(this).getAllActiveTrips()) {
+            if (currentTime.after(trip.getMeetupTime())) {
+                trip.setTripComplete(true);
+
+                // Update the status in the database
+                DBHelper.getInstance(this).setTripCompleteStatus(trip.getTripID());
+
+                // Remove the trip from the backend
+                new EndpointsPortal().clearTrip(this, trip);
+            }
+        }
+
         if (facebookID != null) {
             new EndpointsPortal().getTrips(this, facebookID);
         }

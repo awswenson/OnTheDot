@@ -44,8 +44,8 @@ public class EndpointsPortal  {
         new GetParticipantsTask(facebookId).execute();
     }
 
-    public synchronized void clearParticipantByIds(String facebookId, Long tripId) {
-        new ClearParticipantByIdsTask(facebookId, tripId).execute();
+    public synchronized void clearParticipant(Friend friend, Long tripId) {
+        new ClearParticipantTask(friend, tripId).execute();
     }
 
     public synchronized void addTrip(Context context, Trip trip) {

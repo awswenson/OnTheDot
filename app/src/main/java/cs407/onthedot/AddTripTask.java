@@ -68,7 +68,7 @@ public class AddTripTask extends AsyncTask<TripApi, Void, Long> {
         try {
             tripBean = new EndpointsPortal().tripApiService.storeTrip(this.tripBeanToAdd).execute();
         } catch (IOException e){
-            Log.e("Async exception", "Error when adding a trip", e);
+            Log.e("AddTripTask", "Error when adding a trip from calling storeTrip()", e);
         }
         if (tripBean != null)
             return tripBean.getId(); // TODO return the tripID that was returned from the DB

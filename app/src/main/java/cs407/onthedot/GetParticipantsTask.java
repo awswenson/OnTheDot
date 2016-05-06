@@ -5,6 +5,7 @@ import android.util.Log;
 
 import com.cs407.onthedot.onthedotbackend.tripApi.TripApi;
 import com.cs407.onthedot.onthedotbackend.tripApi.model.ParticipantBeanCollection;
+import com.cs407.onthedot.onthedotbackend.tripApi.model.TripBeanCollection;
 
 import java.io.IOException;
 
@@ -27,45 +28,15 @@ public class GetParticipantsTask extends AsyncTask<TripApi, Void, ParticipantBea
         try {
             partBeans = new EndpointsPortal().tripApiService.getParticipants(this.facebookId).execute();
         } catch (IOException e){
-            Log.e("Async exception", "Error when pushing participants", e);
+            Log.e("GetParticipantsTask", "Error when getting participants from backend from getParticipants()", e);
         }
 
         return partBeans;
     }
 
-    /*
     protected void onPostExecute(TripBeanCollection collection) {
-        ArrayList<Trip> trips = new ArrayList<>();
 
-        for (TripBean tripBean : collection.getItems()) {
-
-            try {
-
-                long tripID = tripBean.getId();
-
-                LatLng destination = new LatLng(Double.parseDouble(tripBean.getDestLat()),
-                        Double.parseDouble(tripBean.getDestLong()));
-
-                LatLng startingLocation = new LatLng(Double.parseDouble(tripBean.getStartLat()),
-                        Double.parseDouble(tripBean.getStartLong()));
-
-                Date meetupTime = dateFormat.parse(tripBean.getDate());
-
-                boolean tripComplete = "1".equals(tripBean.getTripComplete());
-
-                ArrayList<Friend> friends =
-                        Friend.getFriendsListFromString(tripBean.getFriendsList());
-
-                trips.add(new Trip(tripID, destination, startingLocation,
-                        meetupTime, friends, tripComplete));
-            } catch (Exception e) {
-                // Just don't add the trip to the list
-            }
-        }
-
-        BackendService.startSynchronizeLocalDB(context, trips);
     }
-    */
 
 }
 

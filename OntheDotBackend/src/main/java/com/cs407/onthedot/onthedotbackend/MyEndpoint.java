@@ -191,9 +191,9 @@ public class MyEndpoint {
             Query query = new Query(partBeanParentKey);
             List<Entity> results = datastoreService.prepare(query).asList(FetchOptions.Builder.withDefaults());
             for (Entity result : results) {
-                Long partIdResult = (Long) result.getProperty("participantId");
+                String partIdResult = (String) result.getProperty("participantId");
                 Long tripIdResult = (Long) result.getProperty("tripId");
-                if (tripIdResult.compareTo(tripId) == 0 && partIdResult.equals(partId)) {
+                if (tripIdResult == tripId && partIdResult.equals(partId)) {
                     datastoreService.delete(result.getKey());
                 }
             }

@@ -584,6 +584,9 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
 
                 // Add the trip to the list to be removed from the
                 tripsCompleted.add(trip);
+
+                // Remove the trip from the backend
+                new EndpointsPortal().clearTrip(this, trip);
             }
         }
 

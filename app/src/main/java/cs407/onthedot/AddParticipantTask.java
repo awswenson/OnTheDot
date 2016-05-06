@@ -32,21 +32,13 @@ public class AddParticipantTask extends AsyncTask<TripApi, Void, Void> {
         try {
             new EndpointsPortal().tripApiService.storeParticipant(this.partToAdd).execute();
         } catch (IOException e) {
-            Log.e("Async exception", "Error when adding a participant", e);
+            Log.e("AddParticipantTask", "Error when adding a participant from calling storeParticipant()", e);
         }
         return null;
     }
 
-    /*
-    protected void onProgressUpdate(Void v) {
-
-    }
-    */
-
     protected void onPostExecute(Void v) {
-        Log.e("Add partic returned", "Yay");
-        //maybe put local database stuff in here
-        //maybe put a listener reference in here and then handle it elsewhere
+        // No need to do anything here
     }
 
 }

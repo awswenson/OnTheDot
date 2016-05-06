@@ -40,7 +40,7 @@ public class GetTripsTask extends AsyncTask<TripApi, Void, TripBeanCollection> {
         try {
             tripBeans = new EndpointsPortal().tripApiService.getTrips(this.facebookId).execute();
         } catch (IOException e){
-            Log.e("Async exception", "Error when pushing trips", e);
+            Log.e("GetTripsTask", "Error when getting trips from backend from getTrips()", e);
         }
 
         return tripBeans;

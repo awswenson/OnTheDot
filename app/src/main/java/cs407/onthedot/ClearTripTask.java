@@ -44,7 +44,7 @@ public class ClearTripTask extends AsyncTask<TripApi, Void, Void> {
     protected void onPostExecute(Void v) {
 
         for (Friend friend : tripToDelete.getAttendingFBFriendsList()) {
-            new EndpointsPortal().clearParticipantByIds(friend.getId(), tripToDelete.getTripID());
+            new EndpointsPortal().clearParticipant(friend, tripToDelete.getTripID());
         }
 
         DBHelper.getInstance(context).deleteTripByTripID(tripToDelete.getTripID());
