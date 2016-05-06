@@ -18,8 +18,8 @@ public class BackendPollHandler extends BroadcastReceiver {
 
         String facebookID = intent.getStringExtra(INTENT_FACEBOOK_ID);
 
-        BackendPollService.startGetTripsFromBackend(context, facebookID);
+        BackendService.startGetTripsFromBackend(context, facebookID);
         Log.d("BackendPollHandler",
-                "Called BackendPollService.startGetTripsFromBackend() from BackendPollHandler.onReceive");
+                "Called BackendService.startGetTripsFromBackend() from BackendPollHandler.onReceive");
     }
 }

@@ -71,7 +71,7 @@
         <receiver android:name=".BackendPollHandler" />
 
         <service
-            android:name=".BackendPollService"
+            android:name=".BackendService"
             android:exported="false" />
     </application>
 

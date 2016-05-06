@@ -77,7 +77,7 @@ public class GetTripsTask extends AsyncTask<TripApi, Void, TripBeanCollection> {
             }
         }
 
-        BackendPollService.startSynchronizeLocalDB(context, trips);
+        BackendService.startSynchronizeLocalDB(context, trips);
     }
 
 }

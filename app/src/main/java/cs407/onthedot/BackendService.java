@@ -11,13 +11,12 @@ import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Locale;
 
 /**
  * Created by AlexanderSwenson on 5/4/16.
  */
-public class BackendPollService extends IntentService {
+public class BackendService extends IntentService {
 
     private static final String ACTION_SYNCHRONIZE_LOCAL_DB =
             "cs407.onthedot.action.SYNCHRONIZE_LOCAL_DB";
@@ -28,6 +27,9 @@ public class BackendPollService extends IntentService {
     private static final String ACTION_ADD_TRIP =
             "cs407.onthedot.action.ADD_TRIP";
 
+    private static final String ACTION_DELETE_TRIP =
+            "cs407.onthedot.action.DELETE_TRIP";
+
     private static final String INTENT_TRIP =
             "INTENT_TRIP";
 
@@ -37,8 +39,11 @@ public class BackendPollService extends IntentService {
     private static final String INTENT_FACEBOOK_ID =
             "INTENT_FACEBOOK_ID";
 
-    public BackendPollService() {
-        super("BackendPollService");
+    private static final String INTENT_TRIP_ID =
+            "INTENT_TRIP_ID";
+
+    public BackendService() {
+        super("BackendService");
     }
 
     /**
@@ -46,23 +51,30 @@ public class BackendPollService extends IntentService {
      * the service is already performing a task this action will be queued.
      */
     public static void startSynchronizeLocalDB(Context context, ArrayList<Trip> trips) {
-        Intent intent = new Intent(context, BackendPollService.class);
+        Intent intent = new Intent(context, BackendService.class);
         intent.setAction(ACTION_SYNCHRONIZE_LOCAL_DB);
         intent.putExtra(INTENT_TRIPS_ARRAY_LIST, trips);
         context.startService(intent);
     }
 
     public static void startGetTripsFromBackend(Context context, String facebookID) {
-        Intent intent = new Intent(context, BackendPollService.class);
+        Intent intent = new Intent(context, BackendService.class);
         intent.setAction(ACTION_GET_TRIPS_FROM_BACKEND);
         intent.putExtra(INTENT_FACEBOOK_ID, facebookID);
         context.startService(intent);
     }
 
     public static void startAddTrip(Context context, Trip trip) {
-        Intent intent = new Intent(context, BackendPollService.class);
+        Intent intent = new Intent(context, BackendService.class);
         intent.setAction(ACTION_ADD_TRIP);
         intent.putExtra(INTENT_TRIP, trip);
+        context.startService(intent);
+    }
+
+    public static void startDeleteTrip(Context context, long tripID) {
+        Intent intent = new Intent(context, BackendService.class);
+        intent.setAction(ACTION_DELETE_TRIP);
+        intent.putExtra(INTENT_TRIP_ID, tripID);
         context.startService(intent);
     }
 
@@ -83,6 +95,10 @@ public class BackendPollService extends IntentService {
                 Trip trip = intent.getParcelableExtra(INTENT_TRIP);
                 handleAddTrip(trip);
             }
+            else if (ACTION_DELETE_TRIP.equals(action)) {
+                long tripID = intent.getLongExtra(INTENT_TRIP_ID, 0);
+                handleDeleteTrip(tripID);
+            }
         }
     }
 
@@ -97,7 +113,7 @@ public class BackendPollService extends IntentService {
 
         for (Trip tripToDelete : tripsToDelete) {
             if (!DBHelper.getInstance(this).deleteTripByTripID(tripToDelete.getTripID())) {
-                Log.d("BackendPollService", "handleSynchronizeLocalDB failed to delete trip with ID " +
+                Log.d("BackendService", "handleSynchronizeLocalDB failed to delete trip with ID " +
                         tripToDelete.getTripID());
             }
         }
@@ -109,7 +125,7 @@ public class BackendPollService extends IntentService {
 
         for (Trip tripToUpdate : tripsToUpdate) {
             if (!DBHelper.getInstance(this).updateTrip(tripToUpdate)) {
-                Log.d("BackendPollService", "handleSynchronizeLocalDB failed to update trip with ID " +
+                Log.d("BackendService", "handleSynchronizeLocalDB failed to update trip with ID " +
                         tripToUpdate.getTripID());
             }
         }
@@ -121,7 +137,7 @@ public class BackendPollService extends IntentService {
 
         for (Trip tripToAdd : tripsToAdd) {
             if (DBHelper.getInstance(this).addTrip(tripToAdd) <= 0) {
-                Log.d("BackendPollService", "handleSynchronizeLocalDB failed to add trip with ID " +
+                Log.d("BackendService", "handleSynchronizeLocalDB failed to add trip with ID " +
                         tripToAdd.getTripID());
             }
             else {
@@ -139,10 +155,20 @@ public class BackendPollService extends IntentService {
         }
     }
 
+    /**
+     * Handles the action of getting adding the trip to the local and backend DB
+     */
     public void handleAddTrip(Trip trip) {
         if (trip != null) {
             new EndpointsPortal().addTrip(this, trip);
         }
+    }
+
+    /**
+     * Handles the action of getting deleting the trip to the local and backend DB
+     */
+    public void handleDeleteTrip(long tripID) {
+        new EndpointsPortal().clearTripById(this, tripID);
     }
 
     /**

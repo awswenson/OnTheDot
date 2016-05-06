@@ -63,7 +63,7 @@ public class GetParticipantsTask extends AsyncTask<TripApi, Void, ParticipantBea
             }
         }
 
-        BackendPollService.startSynchronizeLocalDB(context, trips);
+        BackendService.startSynchronizeLocalDB(context, trips);
     }
     */
 
