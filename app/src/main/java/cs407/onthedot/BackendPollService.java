@@ -7,9 +7,11 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.Context;
 import android.support.v7.app.NotificationCompat;
+import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Locale;
 
 /**
@@ -71,9 +73,44 @@ public class BackendPollService extends IntentService {
      * Handles the action of synchronizing the local DB with the trips list.
      */
     private void handleSynchronizeLocalDB(ArrayList<Trip> trips) {
-        // TODO This is where we will diff the local DB with the trips list. Use
-        // the newTripAddedNotification() to send a notification whenever a new trip is added
-        // to the database that wasn't there before.
+
+        // Delete the trips that exist in the local DB but not on the backend DB.
+        ArrayList<Trip> tripsToDelete = DBHelper.getInstance(this).getAllTrips();
+        tripsToDelete.removeAll(trips);
+
+        for (Trip tripToDelete : tripsToDelete) {
+            if (!DBHelper.getInstance(this).deleteTripByTripID(tripToDelete.getTripID())) {
+                Log.d("BackendPollService", "handleSynchronizeLocalDB failed to delete trip with ID " +
+                        tripToDelete.getTripID());
+            }
+        }
+
+        // Update the trips that already exist in the local DB. They may or may not have
+        // even changed, but we don't know so we update them anyways.
+        ArrayList<Trip> tripsToUpdate = DBHelper.getInstance(this).getAllTrips();
+        tripsToUpdate.retainAll(trips);
+
+        for (Trip tripToUpdate : tripsToUpdate) {
+            if (!DBHelper.getInstance(this).updateTrip(tripToUpdate)) {
+                Log.d("BackendPollService", "handleSynchronizeLocalDB failed to update trip with ID " +
+                        tripToUpdate.getTripID());
+            }
+        }
+
+        // Add the trips that aren't in the local DB to the DB. Fire a notification informing the
+        // user of a newly added trip.
+        ArrayList<Trip> tripsToAdd = trips;
+        tripsToAdd.removeAll(DBHelper.getInstance(this).getAllTrips());
+
+        for (Trip tripToAdd : tripsToAdd) {
+            if (DBHelper.getInstance(this).addTrip(tripToAdd) <= 0) {
+                Log.d("BackendPollService", "handleSynchronizeLocalDB failed to add trip with ID " +
+                        tripToAdd.getTripID());
+            }
+            else {
+                newTripAddedNotification(tripToAdd);
+            }
+        }
     }
 
     /**
