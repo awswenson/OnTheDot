@@ -120,7 +120,7 @@ public class MyEndpoint {
             for (Entity result : results) {
                 Key key = result.getKey();
                 Long resultId = key.getId();
-                if (resultId == id){
+                if (resultId.equals(id)){
                     datastoreService.delete(result.getKey());
                 }
             }
@@ -193,7 +193,7 @@ public class MyEndpoint {
             for (Entity result : results) {
                 String partIdResult = (String) result.getProperty("participantId");
                 Long tripIdResult = (Long) result.getProperty("tripId");
-                if (tripIdResult == tripId && partIdResult.equals(partId)) {
+                if (tripIdResult.equals(tripId) && partIdResult.equals(partId)) {
                     datastoreService.delete(result.getKey());
                 }
             }
