@@ -71,8 +71,6 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
 
     private int TIME_TO_POLL_BACKEND = 60000; // This is in milliseconds
 
-    private DBHelper onTheDotDatabase;
-
     private ArrayList<Trip> currentTripsList;
     private ArrayList<Trip> pastTripsList;
 
@@ -108,12 +106,9 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
                     .build();
         }
 
-        // Initialize the database
-        onTheDotDatabase = new DBHelper(this);
-
         // Initialize the two trip lists
-        currentTripsList = onTheDotDatabase.getAllActiveTrips();
-        pastTripsList = onTheDotDatabase.getAllPastTrips();
+        currentTripsList = DBHelper.getInstance(this).getAllActiveTrips();
+        pastTripsList = DBHelper.getInstance(this).getAllPastTrips();
 
         // Get the two ListViews and setup the DashboardAdapter for each view
         currentTrips_listView = (ListView) findViewById(R.id.currentTrips_listView);
@@ -209,23 +204,7 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
 
             @Override
             public void onClick(View v) {
-
-                ArrayList<Trip> tripsToRemove = new ArrayList<>();
-
-                for (Trip trip : pastTripsList) {
-
-                    // Attempt to delete the trip from the database.  If it was unable to be
-                    // deleted from the database, don't remove it from the list.
-                    if (onTheDotDatabase.deleteTripByTripID(trip.getTripID())) {
-                        tripsToRemove.add(trip);
-                    }
-                }
-
-                pastTripsList.removeAll(tripsToRemove);
-
-                pastTripsAdapter.notifyDataSetChanged();
-                ListUtils.setDynamicHeight(currentTrips_listView);
-                ListUtils.setDynamicHeight(pastTrips_listView);
+                deletePastTrips();
             }
         });
 
@@ -266,41 +245,9 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
             if (resultCode == RESULT_OK) {
 
                 // Get the trip data from the Intent object
-                Trip newTrip = data.getParcelableExtra(INTENT_TRIP_OBJECT);
+                Trip tripToAdd = data.getParcelableExtra(INTENT_TRIP_OBJECT);
 
-                // Add the trip to the database and get the ID
-                long newTripId = onTheDotDatabase.addTrip(newTrip);
-
-                // Make sure that the trip was added to the database successfully. If not,
-                // we do not add the trip to the list.
-                if (newTripId <= 0) {
-
-                    new AlertDialog.Builder(this)
-                            .setMessage("The trip could not be created. Please try again.")
-                            .setCancelable(true)
-                            .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-
-                                @Override
-                                public void onClick(DialogInterface dialog, int id) {
-                                    dialog.cancel();
-                                }
-                            })
-                            .show();
-                }
-                else {
-
-                    // Set the ID of the trip in the Trip object
-                    newTrip.setTripID(newTripId);
-
-                    currentTripsList.add(newTrip);
-
-                    // Create a notification to go off at the time the user should leave
-                    createNotificationHandler(newTrip);
-
-                    currentTripsAdapter.notifyDataSetChanged();
-                    ListUtils.setDynamicHeight(currentTrips_listView);
-                    ListUtils.setDynamicHeight(pastTrips_listView);
-                }
+                addTrip(tripToAdd);
             }
         }
         else if (requestCode == EDIT_TRIP_REQUEST) {
@@ -308,73 +255,21 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
             if (resultCode == TripInfoActivity.RESULT_UPDATE) { // Update the Trip object in the database
 
                 // Get the trip data from the Intent object
-                Trip editedTrip = data.getParcelableExtra(INTENT_TRIP_OBJECT);
+                Trip tripToUpdate = data.getParcelableExtra(INTENT_TRIP_OBJECT);
 
-                // Update the trip and make sure it was successful. If it wasn't, then do not
-                // remove it from the list.
-                if (!onTheDotDatabase.updateTrip(editedTrip)) {
+                updateTrip(tripToUpdate);
 
-                    new AlertDialog.Builder(this)
-                            .setMessage("The trip could not be updated. Please try again.")
-                            .setCancelable(true)
-                            .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-
-                                @Override
-                                public void onClick(DialogInterface dialog, int id) {
-                                    dialog.cancel();
-                                }
-                            })
-                            .show();
-                }
-                else {
-
-                    // Update the list. No need to notify the adapter the data set changed because
-                    // we are just going back to the trip info page (will happen OnResume)
-                    currentTripsList.remove(editedTrip);
-                    currentTripsList.add(editedTrip);
-
-                    // Create a notification to go off at the time the user should leave
-                    createNotificationHandler(editedTrip);
-
-                    // Return back to the Trip info page with the updated trip details
-                    Intent intent = new Intent(this, TripInfoActivity.class);
-                    intent.putExtra(INTENT_TRIP_OBJECT, editedTrip);
-                    startActivityForResult(intent, EDIT_TRIP_REQUEST);
-                }
+                // Return back to the Trip info page
+                Intent intent = new Intent(this, TripInfoActivity.class);
+                intent.putExtra(INTENT_TRIP_OBJECT, tripToUpdate);
+                startActivityForResult(intent, EDIT_TRIP_REQUEST);
             }
             else if (resultCode == TripInfoActivity.RESULT_DELETE) { // Delete the Trip object in the database
 
                 // Get the trip data from the Intent object
                 Trip tripToDelete = data.getParcelableExtra(INTENT_TRIP_OBJECT);
 
-                // Delete the trip from the database and ensure that it was actually deleted.
-                // If it wasn't, then don't remove it from the list
-                if (!onTheDotDatabase.deleteTripByTripID(tripToDelete.getTripID())) {
-
-                    new AlertDialog.Builder(this)
-                            .setMessage("The trip could not be deleted. Please try again.")
-                            .setCancelable(true)
-                            .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-
-                                @Override
-                                public void onClick(DialogInterface dialog, int id) {
-                                    dialog.cancel();
-                                }
-                            })
-                            .show();
-                }
-                else {
-
-                    // Remove the trip from the current trip list
-                    currentTripsList.remove(tripToDelete);
-
-                    // Delete the notification
-                    deleteNotificationHandler(tripToDelete);
-
-                    currentTripsAdapter.notifyDataSetChanged();
-                    ListUtils.setDynamicHeight(currentTrips_listView);
-                    ListUtils.setDynamicHeight(pastTrips_listView);
-                }
+                deleteTrip(tripToDelete);
             }
         }
     }
@@ -405,6 +300,163 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
         ListUtils.setDynamicHeight(pastTrips_listView);
 
         super.onResume();
+    }
+
+    /**
+     * Inserts a trip into the DB and creates the notification for the trip. Also adds the
+     * trip to the ListView.
+     *
+     * @param tripToAdd The Trip to add
+     * @return true if the trip was successful added; false otherwise.
+     */
+    public boolean addTrip(Trip tripToAdd) {
+
+        // Add the trip to the database and get the ID
+        long newTripId = DBHelper.getInstance(this).addTrip(tripToAdd);
+
+        // Make sure that the trip was added to the database successfully. If not,
+        // we do not add the trip to the list.
+        if (newTripId <= 0) {
+
+            new AlertDialog.Builder(this)
+                    .setMessage("The trip could not be created. Please try again.")
+                    .setCancelable(true)
+                    .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    })
+                    .show();
+
+            return false;
+        }
+        else {
+
+            // Set the ID of the trip in the Trip object
+            tripToAdd.setTripID(newTripId);
+
+            currentTripsList.add(tripToAdd);
+
+            // Create a notification to go off at the time the user should leave
+            createNotificationHandler(tripToAdd);
+
+            currentTripsAdapter.notifyDataSetChanged();
+            ListUtils.setDynamicHeight(currentTrips_listView);
+            ListUtils.setDynamicHeight(pastTrips_listView);
+
+            return true;
+        }
+    }
+
+    /**
+     * Updates an active trip from the DB and updates the notification that was created for
+     * the trip. Also updates the trip in the ListView.
+     *
+     * @param tripToUpdate The Trip to delete
+     * @return true if the trip was successful updated; false otherwise.
+     */
+    public boolean updateTrip(Trip tripToUpdate) {
+
+        // Update the trip and make sure it was successful. If it wasn't, then do not
+        // remove it from the list.
+        if (!DBHelper.getInstance(this).updateTrip(tripToUpdate)) {
+
+            new AlertDialog.Builder(this)
+                    .setMessage("The trip could not be updated. Please try again.")
+                    .setCancelable(true)
+                    .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    })
+                    .show();
+
+            return false;
+        }
+        else {
+
+            // Update the list. No need to notify the adapter the data set changed because
+            // we are just going back to the trip info page (will happen OnResume)
+            currentTripsList.remove(tripToUpdate);
+            currentTripsList.add(tripToUpdate);
+
+            // Create a notification to go off at the time the user should leave
+            createNotificationHandler(tripToUpdate);
+
+            return true;
+        }
+    }
+
+    /**
+     * Deletes an active trip from the DB and cancels the notification created for the trip.
+     * Also deletes the trip from the ListView
+     *
+     * @param tripToDelete The Trip to delete
+     * @return true if the trip was successful deleted; false otherwise.
+     */
+    public boolean deleteTrip(Trip tripToDelete) {
+
+        // Delete the trip from the database and ensure that it was actually deleted.
+        // If it wasn't, then don't remove it from the list
+        if (!DBHelper.getInstance(this).deleteTripByTripID(tripToDelete.getTripID())) {
+
+            new AlertDialog.Builder(this)
+                    .setMessage("The trip could not be deleted. Please try again.")
+                    .setCancelable(true)
+                    .setNeutralButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.cancel();
+                        }
+                    })
+                    .show();
+
+            return false;
+        }
+        else {
+
+            // Remove the trip from the current trip list
+            currentTripsList.remove(tripToDelete);
+
+            // Delete the notification
+            deleteNotificationHandler(tripToDelete);
+
+            currentTripsAdapter.notifyDataSetChanged();
+            ListUtils.setDynamicHeight(currentTrips_listView);
+            ListUtils.setDynamicHeight(pastTrips_listView);
+
+            return true;
+        }
+    }
+
+    /**
+     * Delete all the past trips from the local DB and updates the ListView accordingly.
+     */
+    public void deletePastTrips() {
+        ArrayList<Trip> tripsToDelete = new ArrayList<>();
+
+        for (Trip trip : pastTripsList) {
+
+            // Attempt to delete the trip from the database.  If it was unable to be
+            // deleted from the database, don't remove it from the list.
+            if (DBHelper.getInstance(this).deleteTripByTripID(trip.getTripID())) {
+                tripsToDelete.add(trip);
+            }
+        }
+
+        // Don't spend time redrawing the ListViews if there was nothing to delete
+        if (!tripsToDelete.isEmpty()) {
+            pastTripsList.removeAll(tripsToDelete);
+
+            pastTripsAdapter.notifyDataSetChanged();
+            ListUtils.setDynamicHeight(currentTrips_listView);
+            ListUtils.setDynamicHeight(pastTrips_listView);
+        }
     }
 
     /**
@@ -560,7 +612,7 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
                 trip.setTripComplete(true);
 
                 // Update the status in the database
-                onTheDotDatabase.setTripCompleteStatus(trip.getTripID());
+                DBHelper.getInstance(this).setTripCompleteStatus(trip.getTripID());
 
                 // Add the trip to the list to be removed from the
                 tripsCompleted.add(trip);
@@ -583,8 +635,12 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
 
     @Override
     public void onConnected(Bundle bundle) {
-        lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(
-                googleApiClient);
+        try {
+            lastKnownLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    googleApiClient);
+        } catch(SecurityException e) {
+            // TODO for now, assume that the user has given the app permission
+        }
 
         if (lastKnownLocation == null) {
             lastKnownLocation = new Location("");

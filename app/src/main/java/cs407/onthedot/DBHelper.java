@@ -23,6 +23,8 @@ import java.util.Locale;
  */
 public class DBHelper extends SQLiteOpenHelper {
 
+    private static DBHelper databaseInstance;
+
     public static final String DATABASE_NAME = "OnTheDot.db";
     public static final int DATABASE_VERSION = 1;
 
@@ -49,6 +51,14 @@ public class DBHelper extends SQLiteOpenHelper {
 
     public DBHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    }
+
+    public static synchronized DBHelper getInstance(Context context) {
+
+        if (databaseInstance == null) {
+            databaseInstance = new DBHelper(context.getApplicationContext());
+        }
+        return databaseInstance;
     }
 
     @Override
