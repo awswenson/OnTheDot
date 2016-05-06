@@ -77,6 +77,11 @@ public class AddTripTask extends AsyncTask<TripApi, Void, Long> {
 
     protected void onPostExecute(Long tripID) {
         this.tripToAdd.setTripID(tripID);
+
+        for (Friend friend : tripToAdd.getAttendingFBFriendsList()) {
+            new EndpointsPortal().addParticipant(tripID, friend);
+        }
+
         DBHelper.getInstance(context).addTrip(tripToAdd);
 
         // If the DashboardActivity called this, then add the trip to the ListView

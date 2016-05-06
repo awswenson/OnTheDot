@@ -42,6 +42,11 @@ public class ClearTripTask extends AsyncTask<TripApi, Void, Void> {
     }
 
     protected void onPostExecute(Void v) {
+
+        for (Friend friend : tripToDelete.getAttendingFBFriendsList()) {
+            new EndpointsPortal().clearParticipantByIds(friend.getId(), tripToDelete.getTripID());
+        }
+
         DBHelper.getInstance(context).deleteTripByTripID(tripToDelete.getTripID());
 
         // If the DashboardActivity called this, then add the trip to the ListView
