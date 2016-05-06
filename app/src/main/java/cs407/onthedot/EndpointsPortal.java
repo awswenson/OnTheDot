@@ -24,13 +24,14 @@ public class EndpointsPortal  {
         // Local testing
         TripApi.Builder builder = new TripApi.Builder(AndroidHttp.newCompatibleTransport(), new AndroidJsonFactory(), null)
                 //.setRootUrl("http://10.0.2.2:8080/_ah/api/")
-                .setRootUrl("http://poised-team-129420.appspot.com/_ah/api/")
+                .setRootUrl("https://poised-team-129420.appspot.com/_ah/api/")
                 .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
                     @Override
                     public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
                         abstractGoogleClientRequest.setDisableGZipContent(true);
                     }
                 });
+        //poised%2Dteam%2D129420%2Eappspot%2Ecom
         //<project_id>.appspot.com
         tripApiService = builder.build();
     }
