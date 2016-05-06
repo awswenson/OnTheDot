@@ -37,14 +37,17 @@ import javax.inject.Named;
 public class MyEndpoint {
 
     @ApiMethod(name = "storeTrip")
-    public void storeTrip(TripBean tripBean) {
+    public TripBean storeTrip(TripBean tripBean) {
         DatastoreService datastoreService = DatastoreServiceFactory.getDatastoreService();
         Transaction txn = datastoreService.beginTransaction();
+        Entity tripEntity = null;
         try {
             Key tripBeanParentKey = KeyFactory.createKey("TripBeanParent", "todo.txt");
-            Entity tripEntity = new Entity("TripBean", tripBean.getId(), tripBeanParentKey);
-            //new Entity()
-            tripEntity.setProperty("id", tripBean.getId());
+            //Entity tripEntity = new Entity("TripBean", tripBean.getId(), tripBeanParentKey);
+            //will auto generate an id and then we assign that id to the tripEntity.
+            tripEntity = new Entity("TripBean", tripBeanParentKey);
+
+
             tripEntity.setProperty("date", tripBean.getDate());
             tripEntity.setProperty("destLat", tripBean.getDestLat());
             tripEntity.setProperty("destLong", tripBean.getDestLong());
@@ -52,13 +55,20 @@ public class MyEndpoint {
             tripEntity.setProperty("startLong", tripBean.getStartLong());
             tripEntity.setProperty("tripComplete", tripBean.getTripComplete());
             tripEntity.setProperty("friendsList", tripBean.getFriendsList());
-            datastoreService.put(tripEntity);
+            Key tempKey = datastoreService.put(tripEntity);
+            Long l = tempKey.getId();
+            tripEntity.setProperty("id", tempKey.getId());
             txn.commit();
         } finally {
             if (txn.isActive()) {
                 txn.rollback();
             }
         }
+        if (tripEntity != null){
+            tripBean.setId(tripEntity.getKey().getId());
+        }
+
+        return tripBean;
     }
 
     @ApiMethod(name = "getTrips")

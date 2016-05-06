@@ -34,6 +34,7 @@ public class AddTripTask extends AsyncTask<TripApi, Void, Long> {
         TripBean tripBean = new TripBean();
 
         tripBean.setId(trip.getTripID()); // I think this should be null since we want to get an ID from the backend
+        //We can still set it... it just gets ignored by the backend anyways... I will leave it here just in case for now
         tripBean.setDate(dateFormat.format(trip.getMeetupTime()));
         tripBean.setDestLat(trip.getDestinationLatitude());
         tripBean.setDestLong(trip.getDestinationLongitude());
@@ -41,28 +42,30 @@ public class AddTripTask extends AsyncTask<TripApi, Void, Long> {
         tripBean.setStartLong(trip.getStartingLocationLongitude());
         tripBean.setTripComplete(trip.isTripComplete());
         tripBean.setFriendsList(Friend.getFriendsStringFromArray(trip.getAttendingFBFriendsList()));
-
         this.tripBeanToAdd = tripBean;
     }
 
 
     protected Long doInBackground(TripApi... tripApiService) {
+        TripBean tripBean = null;
         try {
-            new EndpointsPortal().tripApiService.storeTrip(this.tripBeanToAdd).execute();
+            tripBean = new EndpointsPortal().tripApiService.storeTrip(this.tripBeanToAdd).execute();
         } catch (IOException e){
             Log.e("Async exception", "Error when adding a trip", e);
         }
-        return Long.valueOf(0); // TODO return the tripID that was returned from the DB
+        if (tripBean != null)
+            return tripBean.getId(); // TODO return the tripID that was returned from the DB
+        return new Long(0);//if you get an id of zero treat it like an error occured
     }
 
     protected void onPostExecute(Long tripID) {
 
+        //Log.d("Returned trip id", tripID.toString());
+        //String s = tripID.toString();
         this.tripToAdd.setTripID(tripID);
         DBHelper.getInstance(context).addTrip(tripToAdd);
-
-
-
         // TODO
     }
+
 
 }

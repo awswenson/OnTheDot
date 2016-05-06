@@ -14,8 +14,6 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -28,8 +26,6 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.JsonObjectRequest;
 import com.android.volley.toolbox.Volley;
-import com.cs407.onthedot.onthedotbackend.tripApi.model.ParticipantBean;
-import com.cs407.onthedot.onthedotbackend.tripApi.model.TripBean;
 import com.facebook.AccessToken;
 import com.facebook.GraphRequest;
 import com.facebook.GraphResponse;
@@ -51,7 +47,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 public class DashboardActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
@@ -209,6 +204,7 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
         });
 
         //debug cloud endpoint
+
         /*
         TripBean tripBean = new TripBean();
         tripBean.setId(new Long(23));
@@ -220,10 +216,13 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
         tripBean.setTripComplete("23");
         tripBean.setFriendsList("1,2,3,4,5,6,7,8");
         */
-        //new EndpointsPortal().addTrip(tripBean);
+        /*
+        Trip trip = new Trip(new LatLng(100, 50), new LatLng(50, 100), new Date(), new ArrayList<Friend>(), false);
+
+        new EndpointsPortal().addTrip(this, trip);
         //new EndpointsPortal().getTrips(this, new Long(1));
         //new EndpointsPortal().clearTripById(new Long(23));
-
+        */
         /*
         ParticipantBean part = new ParticipantBean();
         part.setParticipantId(new Long(1));
