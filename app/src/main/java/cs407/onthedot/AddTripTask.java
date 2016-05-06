@@ -1,5 +1,6 @@
 package cs407.onthedot;
 
+import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -13,15 +14,22 @@ import java.util.Locale;
 /**
  * Created by connerhuff on 5/4/16.
  */
-public class AddTripTask extends AsyncTask<TripApi, Void, Void> {
+public class AddTripTask extends AsyncTask<TripApi, Void, Long> {
 
     private final SimpleDateFormat dateFormat = new SimpleDateFormat(
             "yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
-    TripBean tripToAdd;
+    private Context context;
 
-    public AddTripTask(Trip trip) {
+    private Trip tripToAdd;
+
+    private TripBean tripBeanToAdd;
+
+    public AddTripTask(Context context, Trip trip) {
         super();
+
+        this.context = context;
+        this.tripToAdd = trip;
 
         TripBean tripBean = new TripBean();
 
@@ -34,23 +42,27 @@ public class AddTripTask extends AsyncTask<TripApi, Void, Void> {
         tripBean.setTripComplete(trip.isTripComplete());
         tripBean.setFriendsList(Friend.getFriendsStringFromArray(trip.getAttendingFBFriendsList()));
 
-        this.tripToAdd = tripBean;
+        this.tripBeanToAdd = tripBean;
     }
 
 
-    protected Void doInBackground(TripApi... tripApiService) {
+    protected Long doInBackground(TripApi... tripApiService) {
         try {
-            new EndpointsPortal().tripApiService.storeTrip(this.tripToAdd).execute();
+            new EndpointsPortal().tripApiService.storeTrip(this.tripBeanToAdd).execute();
         } catch (IOException e){
             Log.e("Async exception", "Error when adding a trip", e);
         }
-        return null;
+        return Long.valueOf(0); // TODO return the tripID that was returned from the DB
     }
 
-    protected void onPostExecute(Void v) {
-        Log.e("Add trips returned", "Yay");
-        //maybe put local database stuff in here
-        //maybe put a listener reference in here and then handle it elsewhere
+    protected void onPostExecute(Long tripID) {
+
+        this.tripToAdd.setTripID(tripID);
+        DBHelper.getInstance(context).addTrip(tripToAdd);
+
+
+
+        // TODO
     }
 
 }

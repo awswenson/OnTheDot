@@ -25,6 +25,12 @@ public class BackendPollService extends IntentService {
     private static final String ACTION_GET_TRIPS_FROM_BACKEND =
             "cs407.onthedot.action.GET_TRIPS_FROM_BACKEND";
 
+    private static final String ACTION_ADD_TRIP =
+            "cs407.onthedot.action.ADD_TRIP";
+
+    private static final String INTENT_TRIP =
+            "INTENT_TRIP";
+
     private static final String INTENT_TRIPS_ARRAY_LIST =
             "INTENT_TRIPS_ARRAY_LIST";
 
@@ -53,6 +59,13 @@ public class BackendPollService extends IntentService {
         context.startService(intent);
     }
 
+    public static void startAddTrip(Context context, Trip trip) {
+        Intent intent = new Intent(context, BackendPollService.class);
+        intent.setAction(ACTION_ADD_TRIP);
+        intent.putExtra(INTENT_TRIP, trip);
+        context.startService(intent);
+    }
+
     @Override
     protected void onHandleIntent(Intent intent) {
         if (intent != null) {
@@ -65,6 +78,10 @@ public class BackendPollService extends IntentService {
             else if (ACTION_GET_TRIPS_FROM_BACKEND.equals(action)) {
                 String facebookID = intent.getStringExtra(INTENT_FACEBOOK_ID);
                 handleGetTripsFromBackend(facebookID);
+            }
+            else if (ACTION_ADD_TRIP.equals(action)) {
+                Trip trip = intent.getParcelableExtra(INTENT_TRIP);
+                handleAddTrip(trip);
             }
         }
     }
@@ -119,6 +136,12 @@ public class BackendPollService extends IntentService {
     public void handleGetTripsFromBackend(String facebookID) {
         if (facebookID != null) {
             new EndpointsPortal().getTrips(this, facebookID);
+        }
+    }
+
+    public void handleAddTrip(Trip trip) {
+        if (trip != null) {
+            new EndpointsPortal().addTrip(this, trip);
         }
     }
 
