@@ -39,9 +39,6 @@ public class BackendService extends IntentService {
     private static final String INTENT_FACEBOOK_ID =
             "INTENT_FACEBOOK_ID";
 
-    private static final String INTENT_TRIP_ID =
-            "INTENT_TRIP_ID";
-
     public BackendService() {
         super("BackendService");
     }
@@ -71,10 +68,10 @@ public class BackendService extends IntentService {
         context.startService(intent);
     }
 
-    public static void startDeleteTrip(Context context, long tripID) {
+    public static void startDeleteTrip(Context context, Trip tripToDelete) {
         Intent intent = new Intent(context, BackendService.class);
         intent.setAction(ACTION_DELETE_TRIP);
-        intent.putExtra(INTENT_TRIP_ID, tripID);
+        intent.putExtra(INTENT_TRIP, tripToDelete);
         context.startService(intent);
     }
 
@@ -96,8 +93,8 @@ public class BackendService extends IntentService {
                 handleAddTrip(trip);
             }
             else if (ACTION_DELETE_TRIP.equals(action)) {
-                long tripID = intent.getLongExtra(INTENT_TRIP_ID, 0);
-                handleDeleteTrip(tripID);
+                Trip tripToDelete = intent.getParcelableExtra(INTENT_TRIP);
+                handleDeleteTrip(tripToDelete);
             }
         }
     }
@@ -167,8 +164,8 @@ public class BackendService extends IntentService {
     /**
      * Handles the action of getting deleting the trip to the local and backend DB
      */
-    public void handleDeleteTrip(long tripID) {
-        new EndpointsPortal().clearTripById(this, tripID);
+    public void handleDeleteTrip(Trip tripToDelete) {
+        new EndpointsPortal().clearTripById(this, tripToDelete);
     }
 
     /**
