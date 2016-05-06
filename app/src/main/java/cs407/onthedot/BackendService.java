@@ -165,7 +165,7 @@ public class BackendService extends IntentService {
      * Handles the action of getting deleting the trip to the local and backend DB
      */
     public void handleDeleteTrip(Trip tripToDelete) {
-        new EndpointsPortal().clearTripById(this, tripToDelete);
+        new EndpointsPortal().clearTrip(this, tripToDelete);
     }
 
     /**

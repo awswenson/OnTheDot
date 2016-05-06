@@ -56,7 +56,7 @@ public class EndpointsPortal  {
         new GetTripsTask(context, facebookId).execute();
     }
 
-    public synchronized void clearTripById(Context context, Trip tripToDelete) {
+    public synchronized void clearTrip(Context context, Trip tripToDelete) {
         new ClearTripTask(context, tripToDelete).execute();
     }
 

@@ -366,7 +366,7 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
      * @param tripToDelete The Trip to delete
      */
     public void deleteTrip(Trip tripToDelete) {
-        new EndpointsPortal().addTrip(this, tripToDelete);
+        new EndpointsPortal().clearTrip(this, tripToDelete);
 
 //        // Delete the trip from the database and ensure that it was actually deleted.
 //        // If it wasn't, then don't remove it from the list
@@ -636,6 +636,8 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
 
             if (currentTripsAdapter != null) {
                 currentTripsAdapter.notifyDataSetChanged();
+                ListUtils.setDynamicHeight(currentTrips_listView);
+                ListUtils.setDynamicHeight(pastTrips_listView);
             }
         }
     }
@@ -649,6 +651,8 @@ public class DashboardActivity extends AppCompatActivity implements GoogleApiCli
 
             if (currentTripsAdapter != null) {
                 currentTripsAdapter.notifyDataSetChanged();
+                ListUtils.setDynamicHeight(currentTrips_listView);
+                ListUtils.setDynamicHeight(pastTrips_listView);
             }
         }
     }

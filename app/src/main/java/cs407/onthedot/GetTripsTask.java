@@ -49,7 +49,7 @@ public class GetTripsTask extends AsyncTask<TripApi, Void, TripBeanCollection> {
     protected void onPostExecute(TripBeanCollection collection) {
         ArrayList<Trip> trips = new ArrayList<>();
 
-        if (collection == null || collection.isEmpty()) {
+        if (collection == null || collection.getItems() == null) {
             return;
         }
 
