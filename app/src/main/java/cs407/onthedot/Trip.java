@@ -60,6 +60,7 @@ public class Trip implements Parcelable, Comparable<Trip> {
 
     public Trip(LatLng destination, LatLng startingLocation, Date meetupTime, ArrayList<Friend> attendingFBFriendsList,
                 boolean tripComplete) {
+        this.tripID = 0;
         this.destination = destination;
         this.startingLocation = startingLocation;
         this.meetupTime = meetupTime;

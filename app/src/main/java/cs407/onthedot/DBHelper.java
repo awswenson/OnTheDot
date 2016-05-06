@@ -111,6 +111,13 @@ public class DBHelper extends SQLiteOpenHelper {
             boolean success = true;
 
             ContentValues contentValues = new ContentValues();
+
+            // If the trip already was assigned an ID from the backend DB, then use that.
+            // Otherwise the local DB will assign an ID.
+            if (trip.getTripID() != 0) {
+                contentValues.put(TRIP_COLUMN_TRIP_ID, trip.getTripID());
+            }
+
             contentValues.put(TRIP_COLUMN_DATE, dateFormat.format(trip.getMeetupTime()));
             contentValues.put(TRIP_COLUMN_DEST_LATITUDE, trip.getDestinationLatitude());
             contentValues.put(TRIP_COLUMN_DEST_LONGITUDE, trip.getDestinationLongitude());
