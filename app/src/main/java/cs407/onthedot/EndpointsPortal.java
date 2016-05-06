@@ -3,8 +3,6 @@ package cs407.onthedot;
 import android.content.Context;
 
 import com.cs407.onthedot.onthedotbackend.tripApi.TripApi;
-import com.cs407.onthedot.onthedotbackend.tripApi.model.ParticipantBean;
-import com.cs407.onthedot.onthedotbackend.tripApi.model.TripBean;
 import com.google.api.client.extensions.android.http.AndroidHttp;
 import com.google.api.client.extensions.android.json.AndroidJsonFactory;
 import com.google.api.client.googleapis.services.AbstractGoogleClientRequest;
@@ -25,13 +23,15 @@ public class EndpointsPortal  {
 
         // Local testing
         TripApi.Builder builder = new TripApi.Builder(AndroidHttp.newCompatibleTransport(), new AndroidJsonFactory(), null)
-                .setRootUrl("http://10.0.2.2:8080/_ah/api/")
+                //.setRootUrl("http://10.0.2.2:8080/_ah/api/")
+                .setRootUrl("http://poised-team-129420.appspot.com/_ah/api/")
                 .setGoogleClientRequestInitializer(new GoogleClientRequestInitializer() {
                     @Override
                     public void initialize(AbstractGoogleClientRequest<?> abstractGoogleClientRequest) throws IOException {
                         abstractGoogleClientRequest.setDisableGZipContent(true);
                     }
                 });
+        //<project_id>.appspot.com
         tripApiService = builder.build();
     }
 
